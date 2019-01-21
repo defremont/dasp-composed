@@ -21,7 +21,7 @@ export const ROUTES: Routes = [
     {path: 'test', loadChildren: 'app/test/test.module#TestModule', canActivate: [CanActivateViaLogin]},
     {path: 'identity', loadChildren: 'app/identity/identity.module#IdentityModule', canActivate: [CanActivateViaLogin]},
     {path: 'login', loadChildren: 'app/login/login.module#LoginModule'},
-    {path: '', redirectTo: 'editor', pathMatch: 'full'},
+    {path: '', redirectTo: 'identity', pathMatch: 'full'},
     {path: '**', component: NoContentComponent}
 ];
 

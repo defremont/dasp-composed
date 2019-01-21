@@ -53,6 +53,7 @@ export class IdentityComponent implements OnInit {
     }
 
     loadAllIdentities(): Promise<void> {
+        this.issueNewId();
         return this.clientService.ensureConnected()
             .then(() => {
                 return this.loadParticipants();
