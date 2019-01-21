@@ -1,0 +1,149 @@
+  /*
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+
+  /**
+  * Sample access control list.
+  */
+
+  rule ComunityCanViewPublishedArticles {
+      description: "Allow all participants read access to all articles that is published"
+      participant(m): "org.dasp.net.Author"
+      operation: READ
+      resource(v): "org.dasp.net.Article"
+      condition: (v.published == true)
+      action: ALLOW
+  }
+
+  rule AuthorCanUpdateData {
+      description: "Allow all author access to all resources"
+      participant(m): "org.dasp.net.Author"
+      operation: ALL
+      resource(v): "org.dasp.net.Author"
+      condition: (v.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+  }
+
+  rule ArticleOwner {
+      description: "Allow the owner of a article total access"
+      participant(m): "org.dasp.net.Author"
+      operation: READ
+      resource(v): "org.dasp.net.Article"
+      condition: (v.author.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+  }
+
+  rule ReadRevisionOwner {
+      description: "Allow the owner of a article total access to their article listing"
+      participant(m): "org.dasp.net.Author"
+      operation: READ
+      resource(v): "org.dasp.net.Revision"
+      condition: (v.reviewer.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+  }
+
+  rule UpdateRevisionOwner {
+      description: "Allow the owner of a article total access to their article listing"
+      participant(m): "org.dasp.net.Author"
+      operation: UPDATE
+      resource(v): "org.dasp.net.Revision"
+      condition: (v.reviewer.getIdentifier() == m.getIdentifier() && v.complete == false)
+      action: ALLOW
+  }
+
+  rule AuthorCanViewArticleRevisions {
+      description: "Allow the owner of a article total access to their article listing"
+      participant(m): "org.dasp.net.Author"
+      operation: READ
+      resource(v): "org.dasp.net.Revision"
+      condition: (v.article.author.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+  }
+
+  rule RevisorCanRateRevisions {
+      description: "Allow the owner of a revision total access to revision rating"
+      participant(m): "org.dasp.net.Author"
+      operation: CREATE
+      resource(v): "org.dasp.net.RateRevision"
+      condition: (v.revision.reviewer.getIdentifier() == m.getIdentifier() && v.revision.complete == false)
+      action: ALLOW
+  }
+
+  rule Article{
+      description: "Allow Author to submit a new article"
+      participant: "org.dasp.net.Author"
+      operation: CREATE
+      resource: "org.dasp.net.Article"
+      action: ALLOW
+  }
+
+  rule AddArticle{
+      description: "Allow Author to submit a new article"
+      participant: "org.dasp.net.Author"
+      operation: CREATE
+      resource: "org.dasp.net.NewArticle"
+      action: ALLOW
+  }
+  rule CreateNewAuthor{
+      description: "Allow Author to submit a new article"
+      participant: "org.dasp.net.Author"
+      operation: CREATE
+      resource: "org.dasp.net.NewAuthor"
+      action: ALLOW
+  }
+  rule CreateAuthor{
+      description: "Allow Author to submit a new article"
+      participant: "org.dasp.net.Author"
+      operation: CREATE
+      resource: "org.dasp.net.Author"
+      action: ALLOW
+  }
+  rule OwnerArticleNewHash{
+      description: "Allow the owner of a article change they hash if needed by revision"
+      participant(a): "org.dasp.net.Author"
+      operation: UPDATE
+      resource(r): "org.dasp.net.Article"
+      condition: (r.author.getIdentifier() == a.getIdentifier() && r.needRev == true)
+      action: ALLOW
+  }
+rule NewHash {
+      description: "Allow the owner of a article change they hash if needed by revision"
+      participant(a): "org.dasp.net.Author"
+      operation: CREATE
+      resource(r): "org.dasp.net.NewHash"
+      condition: (r.article.author.getIdentifier() == a.getIdentifier() && r.article.needRev == true)
+      action: ALLOW
+  }
+  rule SystemACL {
+    description:  "System ACL to permit all access"
+    participant: "org.hyperledger.composer.system.Participant"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+  }
+
+  rule NetworkAdminUser {
+      description: "Grant business network administrators full access to user resources"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: ALL
+      resource: "**"
+      action: ALLOW
+  } 
+
+  rule NetworkAdminSystem {
+      description: "Grant business network administrators full access to system resources"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: ALL
+      resource: "org.hyperledger.composer.system.**"
+      action: ALLOW
+  }
