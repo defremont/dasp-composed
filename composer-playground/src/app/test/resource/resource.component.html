@@ -20,7 +20,7 @@
             </svg>
         </button>
     </div>
-    <section class="modal-body">
+    <!-- <section class="modal-body">
         <h2>In registry: <b>{{registryId}}</b></h2>
         <section class="resource-container">
             <section class="resource-component">
@@ -43,10 +43,10 @@
                 </div>
             </section>
         </section>
-    </section>
+    </section> -->
     <footer>
-        <p class="footer-text" *ngIf="!editMode()">Just need quick test data?
-            <button type="button" class="icon" (click)="generateResource(true)"><u>Generate Random Data</u></button>
+        <p class="footer-text" *ngIf="!editMode()">Right E-mail? {{email}}
+            <!-- <button type="button" class="icon" (click)="generateResource(true)"><u>Generate Random Data</u></button> -->
         </p>
         <button type="button" class="secondary" (click)="activeModal.close();">
             <span>Cancel</span>

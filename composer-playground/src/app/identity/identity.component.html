@@ -13,6 +13,10 @@
 -->
 <section class="main-view">
     <div class="main-view-content">
+            <div class="main-view-content">
+                <issue-identity-modal [participants]="participants" [registry]="chosenRegistry" [reload]="registryReload"></issue-identity-modal>
+            </div>
+            <app-footer></app-footer>
         <div class="flex" id="myIDs">
             <div class="flex-container">
                 <h1 class="network-name" title="{{businessNetworkName}}">My IDs for {{businessNetworkName}}</h1>
@@ -79,5 +83,4 @@
             </div>
         </div>
     </div>
-    <app-footer></app-footer>
 </section>

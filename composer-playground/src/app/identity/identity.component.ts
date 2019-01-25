@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { DeleteComponent } from '../basic-modals/delete-confirm/delete-confirm.component';
@@ -22,6 +22,9 @@ import { AlertService } from '../basic-modals/alert.service';
 import { ClientService } from '../services/client.service';
 import { IdentityCardService } from '../services/identity-card.service';
 import { IdCard, Resource } from 'composer-common';
+import { TransactionComponent } from '../test/transaction/transaction.component';
+import { TransactionDeclaration } from 'composer-common';
+import { DrawerDismissReasons } from '../common/drawer';
 
 import { saveAs } from 'file-saver';
 
@@ -32,6 +35,7 @@ import { saveAs } from 'file-saver';
         './identity.component.scss'.toString()
     ]
 })
+
 export class IdentityComponent implements OnInit {
 
     private identityCards: Map<string, IdCard>;
@@ -41,6 +45,18 @@ export class IdentityComponent implements OnInit {
     private participants: Map<string, Resource> = new Map<string, Resource>();
     private businessNetworkName;
 
+
+    modalOk = false;
+    hasTransactions = false;
+    private registries = {
+        assets: [],
+        participants: [],
+        historian: null
+    };
+    private chosenRegistry = null;
+    private registryReload = false;
+    private eventsTriggered = [];
+
     constructor(private modalService: NgbModal,
                 private alertService: AlertService,
                 private clientService: ClientService,
@@ -49,11 +65,129 @@ export class IdentityComponent implements OnInit {
     }
 
     ngOnInit(): Promise<any> {
-        return this.loadAllIdentities();
+         this.loadAllIdentities();
+
+         console.log(this.participants)
+         return this.clientService.ensureConnected()
+         .then(() => {
+
+             let introspector = this.clientService.getBusinessNetwork().getIntrospector();
+             let modelClassDeclarations = introspector.getClassDeclarations();
+             modelClassDeclarations.forEach((modelClassDeclaration) => {
+                 // Generate list of all known (non-abstract/non-system) transaction types
+                 if (!modelClassDeclaration.isAbstract() && !modelClassDeclaration.isSystemType() && modelClassDeclaration instanceof TransactionDeclaration) {
+                     this.hasTransactions = true;
+                 }
+             });
+
+             console.log(this.participants)
+             return this.clientService.getBusinessNetworkConnection().getAllAssetRegistries()
+                 .then((assetRegistries) => {
+                     assetRegistries.forEach((assetRegistry) => {
+                         let index = assetRegistry.id.lastIndexOf('.');
+                         let displayName = assetRegistry.id.substring(index + 1);
+                         assetRegistry.displayName = displayName;
+                     });
+
+                     this.registries['assets'] = assetRegistries.sort((a, b) => {
+                         return a.id.localeCompare(b.id);
+                     });
+
+                     console.log(this.participants)
+                     return this.clientService.getBusinessNetworkConnection().getAllParticipantRegistries();
+                 })
+                 .then((participantRegistries) => {
+                     participantRegistries.forEach((participantRegistry) => {
+                         let index = participantRegistry.id.lastIndexOf('.');
+                         let displayName = participantRegistry.id.substring(index + 1);
+                         participantRegistry.displayName = displayName;
+                     });
+
+                     this.registries['participants'] = participantRegistries.sort((a, b) => {
+                         return a.id.localeCompare(b.id);
+                     });
+
+                     console.log(this.participants)
+                     return this.clientService.getBusinessNetworkConnection().getHistorian();
+                 })
+                 .then((historianRegistry) => {
+                     this.registries['historian'] = historianRegistry;
+                     // set the default registry selection
+                     if (this.registries['participants'].length !== 0) {
+                         this.chosenRegistry = this.registries['participants'][0];
+                     } else if (this.registries['assets'].length !== 0) {
+                         this.chosenRegistry = this.registries['assets'][0];
+                     } else {
+                         this.chosenRegistry = this.registries['historian'];
+                     }
+                 })
+                 .catch((error) => {
+                     this.alertService.errorStatus$.next(error);
+                 });
+         })
+         .catch((error) => {
+             this.alertService.errorStatus$.next(error);
+         });
+    }
+    ngOnDestroy() {
+        this.clientService.getBusinessNetworkConnection().removeAllListeners('event');
     }
 
+    setChosenRegistry(chosenRegistry) {
+        this.chosenRegistry = chosenRegistry;
+    }
+    modalOkc() {
+        this.modalOk = !this.modalOk;
+    }
+
+    submitTransaction() {
+        const modalRef = this.modalService.open(TransactionComponent);
+
+        modalRef.result.then((transaction) => {
+            // refresh current resource list
+            this.registryReload = !this.registryReload;
+
+            let plural = (this.eventsTriggered.length > 1) ? 's' : '';
+
+            let txMessage = `<p>Transaction ID <b>${transaction.getIdentifier()}</b> was submitted</p>`;
+            let message = {
+                title: 'Submit Transaction Successful',
+                text: txMessage.toString(),
+                icon: '#icon-transaction',
+                link: null,
+                linkCallback: null
+            };
+
+            if (this.eventsTriggered.length > 0) {
+                // because this won't exist on the callback
+                let events = this.eventsTriggered;
+                message.link = `${events.length} event${plural} triggered`;
+                message.linkCallback = () => {
+                    this.alertService.transactionEvent$.next({transaction: transaction, events: events});
+                };
+                this.eventsTriggered = [];
+            }
+
+            this.alertService.successStatus$.next(message);
+        })
+        .catch((error) => {
+            if (error !== DrawerDismissReasons.ESC ) {
+                this.alertService.errorStatus$.next(error);
+            }
+        });
+    }
+
+    initializeEventListener() {
+        const businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+        // Prevent multiple listeners being created
+        if (businessNetworkConnection.listenerCount('event') === 0) {
+            businessNetworkConnection.on('event', (event) => {
+                this.eventsTriggered.push(event);
+            });
+        }
+    }
     loadAllIdentities(): Promise<void> {
-        this.issueNewId();
+        // this.issueNewId();
         return this.clientService.ensureConnected()
             .then(() => {
                 return this.loadParticipants();
@@ -114,7 +248,9 @@ export class IdentityComponent implements OnInit {
     }
 
     issueNewId(): Promise<void> {
+        console.log("ISSUEN")
         let modalRef = this.modalService.open(IssueIdentityComponent);
+        console.log(modalRef)
         modalRef.componentInstance.participants = this.participants;
 
         return modalRef.result
@@ -139,6 +275,7 @@ export class IdentityComponent implements OnInit {
             .catch((reason) => {
                 this.alertService.errorStatus$.next(reason);
             });
+            
     }
 
     setCurrentIdentity(ID: {ref, usable}, revertOnError: boolean): Promise<void> {

@@ -41,6 +41,7 @@ import leftPad = require('left-pad');
 export class ResourceComponent implements OnInit {
 
     @Input() registryId: string;
+    @Input() email: string;
     @Input() resource: any = null;
 
     private resourceAction: string = null;
@@ -67,8 +68,7 @@ export class ResourceComponent implements OnInit {
         scrollbarStyle: 'simple'
     };
 
-    constructor(public activeModal: NgbActiveModal,
-                private clientService: ClientService) {
+    constructor(public activeModal: NgbActiveModal, private clientService: ClientService) {
     }
 
     ngOnInit() {
@@ -132,11 +132,12 @@ export class ResourceComponent implements OnInit {
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
         let factory = businessNetworkDefinition.getFactory();
 
-        let id = '';
-        if (!this.idFieldHasRegex()) {
-            let idx = Math.round(Math.random() * 9999).toString();
-            id = leftPad(idx, 4, '0');
-        }
+        let id = this.email;
+        console.log(this.email)
+        // if (!this.idFieldHasRegex()) {
+        //     let idx = Math.round(Math.random() * 9999).toString();
+        //     id = leftPad(idx, 4, '0');
+        // }
 
         try {
             const generateParameters = {
@@ -196,7 +197,7 @@ export class ResourceComponent implements OnInit {
                 if (this.editMode()) {
                     return registry.update(resource);
                 } else {
-                    return registry.add(resource);
+                     registry.add(resource);
                 }
             })
             .then(() => {

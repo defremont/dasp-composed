@@ -26,10 +26,11 @@ import { IdentityComponent } from './identity.component';
 import { IdentityCardModule } from '../common/identity-card/identity-card.module';
 import { FooterModule } from '../footer/footer.module';
 
+import { CodemirrorModule } from 'ng2-codemirror';
 import { DrawerModule } from '../common/drawer';
 
 @NgModule({
-    imports: [CommonModule, FormsModule, NgbModule, FileImporterModule, IdentityRoutingModule, FooterModule, DrawerModule, IdentityCardModule],
+    imports: [CodemirrorModule, CommonModule, FormsModule, NgbModule, FileImporterModule, IdentityRoutingModule, FooterModule, DrawerModule, IdentityCardModule],
     entryComponents: [IdentityIssuedComponent, IssueIdentityComponent],
     declarations: [IdentityIssuedComponent, IssueIdentityComponent, IdentityComponent],
     providers: [],
