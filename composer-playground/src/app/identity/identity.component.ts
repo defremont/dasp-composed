@@ -21,10 +21,16 @@ import { IdentityIssuedComponent } from './identity-issued';
 import { AlertService } from '../basic-modals/alert.service';
 import { ClientService } from '../services/client.service';
 import { IdentityCardService } from '../services/identity-card.service';
-import { IdCard, Resource } from 'composer-common';
+import { IdCard, Resource, ClassDeclaration, AssetDeclaration, ParticipantDeclaration } from 'composer-common';
 import { TransactionComponent } from '../test/transaction/transaction.component';
 import { TransactionDeclaration } from 'composer-common';
 import { DrawerDismissReasons } from '../common/drawer';
+
+
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
 
 import { saveAs } from 'file-saver';
 
@@ -46,6 +52,26 @@ export class IdentityComponent implements OnInit {
     private businessNetworkName;
 
 
+    private includeOptionalFields: boolean = false;
+    private resourceDeclaration: ClassDeclaration = null;
+    private resourceAction: string = null;
+    private definitionError: string = null;
+    private resourceType: string = null;
+    private resourceDefinition: string = null;
+    private actionInProgress: boolean = false;
+    private issueInProgress: boolean = false;
+    private userID: string = null;
+    private participantFQI: string = null;
+    private participantFQIs: string[] = [];
+    private issuer: boolean = false;
+    private isParticipant: boolean = true;
+    private noMatchingParticipant = 'Named Participant does not exist in Participant Registry.';
+
+    private resources = [];
+    private _registry = null;
+    private overFlowedResources = {};
+    private registryId: string = null;
+    
     modalOk = false;
     hasTransactions = false;
     private registries = {
@@ -63,13 +89,17 @@ export class IdentityComponent implements OnInit {
                 private identityCardService: IdentityCardService) {
 
     }
-
+    @Input() resource: any = null;
     ngOnInit(): Promise<any> {
+
          this.loadAllIdentities();
+
+         this.loadParticipantsIssue();
 
          console.log(this.participants)
          return this.clientService.ensureConnected()
          .then(() => {
+             
 
              let introspector = this.clientService.getBusinessNetwork().getIntrospector();
              let modelClassDeclarations = introspector.getClassDeclarations();
@@ -112,6 +142,7 @@ export class IdentityComponent implements OnInit {
                  })
                  .then((historianRegistry) => {
                      this.registries['historian'] = historianRegistry;
+                     console.log('chooseando')
                      // set the default registry selection
                      if (this.registries['participants'].length !== 0) {
                          this.chosenRegistry = this.registries['participants'][0];
@@ -120,6 +151,33 @@ export class IdentityComponent implements OnInit {
                      } else {
                          this.chosenRegistry = this.registries['historian'];
                      }
+                     this._registry = this.chosenRegistry
+                     if (this._registry) {
+                         this.loadResources();
+                         this.registryId = this._registry.id;
+                     }
+                     modelClassDeclarations.forEach((modelClassDeclaration) => {
+                        
+                        if (this.registryId === modelClassDeclaration.getFullyQualifiedName()) {
+       
+                           console.log('if this.registryId')
+                           // Set resource declaration
+                           this.resourceDeclaration = modelClassDeclaration;
+                           this.resourceType = this.retrieveResourceType(modelClassDeclaration);
+           
+                           if (this.editMode()) {
+                               console.log('edit mode')
+                               this.resourceAction = 'Update';
+                               let serializer = this.clientService.getBusinessNetwork().getSerializer();
+                               this.resourceDefinition = JSON.stringify(serializer.toJSON(this.resource), null, 2);
+                           } else {
+                               console.log('not edit mode')
+                               // Stub out json definition
+                               this.resourceAction = 'Create New';
+                            //    this.generateResource(true);
+                           }
+                       }
+                    });
                  })
                  .catch((error) => {
                      this.alertService.errorStatus$.next(error);
@@ -132,12 +190,253 @@ export class IdentityComponent implements OnInit {
     ngOnDestroy() {
         this.clientService.getBusinessNetworkConnection().removeAllListeners('event');
     }
+    loadParticipantsIssue() {
+        this.participantFQIs = Array.from(this.participants.keys()).sort((a, b) => {
+            return a.localeCompare(b);
+        });
+    }
+    search = (text$: Observable<string>) =>
+        text$
+            .debounceTime(200)
+            .distinctUntilChanged()
+            .map((term) => term === '' ? []
+                : this.participantFQIs.filter((v) => new RegExp(term, 'gi').test(v)).slice(0, 10));
+
+    issueIdentity(userId): void {
+        this.actualFQI(userId);
+        this.issueInProgress = true;
+        this.generateResource(true);
+        this.addOrUpdateResource();
+    }
+    actualFQI(userID) {
+        this.loadResources();
+        this.loadParticipantsIssue();
+        this.participantFQI = "org.dasp.net.Author#" + userID;
+        this.isValidParticipant();
+        // this.generateResource(true)
+    }
+    isValidParticipant() {
+        let participant = this.participantFQI.startsWith('resource:') ? this.participantFQI.slice(9) : this.participantFQI;
+        if (this.participantFQI === '' || this.getParticipant(participant)) {
+            this.isParticipant = true;
+        } else {
+            this.isParticipant = false;
+        }
+    }
+    loadResources(): Promise<void> {
+        console.log("loaded");
+        this.overFlowedResources = {};
+        return this._registry
+            .getAll()
+            .then(resources => {
+                if (this.isHistorian()) {
+                    this.resources = resources.sort((a, b) => {
+                        return b.transactionTimestamp - a.transactionTimestamp;
+                    });
+                } else {
+                    this.resources = resources.sort((a, b) => {
+                        return a
+                            .getIdentifier()
+                            .localeCompare(b.getIdentifier());
+                    });
+                }
+            })
+            .catch(error => {
+                this.alertService.errorStatus$.next(error);
+            });
+    }
+    // openNewResourceModal() {
+    //     const modalRef = this.modalService.open(ResourceComponent);
+    //     modalRef.componentInstance.email = this.userID;
+    //     modalRef.componentInstance.registryId = this._registry.id;
+    //     modalRef.result
+    //         .then(() => {
+    //             // refresh current resource list
+    //             this.loadResources();
+    //         })
+    //         .catch(error => {
+    //             if (error !== DrawerDismissReasons.ESC) {
+    //                 this.alertService.errorStatus$.next(error);
+    //             }
+    //         });
+    // }
+    
+/**
+     *  Create resource via json serialisation
+     */
+    private addOrUpdateResource(): void {
+        this.actualFQI(this.userID);
+        this.actionInProgress = true;
+        return this.retrieveResourceRegistry(this.resourceType)
+            .then((registry) => {
+                let json = JSON.parse(this.resourceDefinition);
+                let serializer = this.clientService.getBusinessNetwork().getSerializer();
+                let resource = serializer.fromJSON(json);
+                resource.validate();
+                if (this.editMode()) {
+                    return registry.update(resource);
+                } else {
+                     registry.add(resource);
+                     console.log('add resource');
+                                    
+                    let options = {issuer: this.issuer, affiliation: undefined};
+                    let participant = this.participantFQI.startsWith('resource:') ? this.participantFQI : 'resource:' + this.participantFQI;
+                    this.clientService.issueIdentity(this.userID, participant, options)
+                    .then((identity) => {
+                        this.issueInProgress = false;
+                        return identity;
+                    })
+                    .catch((error) => {
+                        this.issueInProgress = false;
+                        console.log('erro');
+                        
+                        return error;
+                    });
+                }
+            })
+            .then(() => {
+                this.actionInProgress = false;
+            })
+            .catch((error) => {
+                this.definitionError = error.toString();
+                this.actionInProgress = false;
+            });
+    }
+    private editMode(): boolean {
+        return (this.resource ? true : false);
+    }
+    /**
+     * Retrieve a ResourceRegistry for the passed string resource type instance
+     */
+    private retrieveResourceRegistry(type) {
+
+        let client = this.clientService;
+        let id = this.registryId;
+
+        function isAsset() {
+            return client.getBusinessNetworkConnection().getAssetRegistry(id);
+        }
+
+        function isTransaction() {
+            return client.getBusinessNetworkConnection().getTransactionRegistry(id);
+        }
+
+        function isParticipant() {
+            return client.getBusinessNetworkConnection().getParticipantRegistry(id);
+        }
+
+        let types = {
+            Asset: isAsset,
+            Participant: isParticipant,
+            Transaction: isTransaction
+        };
+
+        return types[type]();
+    }
+
+    /**
+     * Retrieve string description of resource type instance
+     */
+    private retrieveResourceType(modelClassDeclaration): string {
+        if (modelClassDeclaration instanceof TransactionDeclaration) {
+            return 'Transaction';
+        } else if (modelClassDeclaration instanceof AssetDeclaration) {
+            return 'Asset';
+        } else if (modelClassDeclaration instanceof ParticipantDeclaration) {
+            return 'Participant';
+        }
+    }
+
+    /**
+     * Generate the json description of a resource
+     */
+    private generateResource(withSampleData ?: boolean): void {
+        console.log('generate resource')
+        console.log(withSampleData)
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let factory = businessNetworkDefinition.getFactory();
+
+        let id = this.userID ? this.userID : 'null';
+        console.log(this.userID)
+        // if (!this.idFieldHasRegex()) {
+        //     let idx = Math.round(Math.random() * 9999).toString();
+        //     id = leftPad(idx, 4, '0');
+        // }
+
+        try {
+            const generateParameters = {
+                generate: withSampleData ? 'sample' : 'empty',
+                includeOptionalFields: this.includeOptionalFields,
+                disableValidation: true,
+                allowEmptyId: true
+            };
+            let resource = factory.newResource(
+                this.resourceDeclaration.getNamespace(),
+                this.resourceDeclaration.getName(),
+                id,
+                generateParameters);
+            let serializer = this.clientService.getBusinessNetwork().getSerializer();
+            const serializeValidationOptions = {
+                validate: false
+            };
+            let replacementJSON = serializer.toJSON(resource, serializeValidationOptions);
+            let existingJSON = JSON.parse(this.resourceDefinition);
+            if (existingJSON) {
+                console.log('existing');
+                
+                this.resourceDefinition = JSON.stringify(this.updateExistingJSON(existingJSON, replacementJSON), null, 2);
+            } else {
+                console.log('else ex');
+                
+              // Initial popup, no previous data to protect
+              this.resourceDefinition = JSON.stringify(replacementJSON, null, 2);
+            }
+            this.onDefinitionChanged();
+        } catch (error) {
+            console.log('error');
+            
+            // We can't generate a sample instance for some reason.
+            this.definitionError = error.toString();
+        }
+    }
+    private updateExistingJSON(previousJSON, toUpdateWithJSON): object {
+        for (let key in toUpdateWithJSON) {
+            if (previousJSON.hasOwnProperty(key) && toUpdateWithJSON.hasOwnProperty(key)) {
+                if (previousJSON[key] !== null && typeof previousJSON[key] === 'object' && toUpdateWithJSON[key] !== null && typeof toUpdateWithJSON[key] === 'object') {
+                    toUpdateWithJSON[key] = this.updateExistingJSON(previousJSON[key], toUpdateWithJSON[key]);
+                } else if (previousJSON[key].toString().length > 0 && previousJSON[key] !== 0) {
+                    toUpdateWithJSON[key] = previousJSON[key];
+                }
+            }
+        }
+        return toUpdateWithJSON;
+    }
+    /**
+     * Validate json definition of resource
+     */
+    onDefinitionChanged() {
+        console.log('ondefinitionchanged');
+        
+        try {
+            let json = JSON.parse(this.resourceDefinition);
+            let serializer = this.clientService.getBusinessNetwork().getSerializer();
+            let resource = serializer.fromJSON(json);
+            resource.validate();
+            this.definitionError = null;
+        } catch (error) {
+            this.definitionError = error.toString();
+        }
+    }
 
     setChosenRegistry(chosenRegistry) {
         this.chosenRegistry = chosenRegistry;
     }
     modalOkc() {
         this.modalOk = !this.modalOk;
+    }
+
+    getParticipant(fqi: string): any {
+        return this.participants.get(fqi);
     }
 
     submitTransaction() {
@@ -414,11 +713,6 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
-
-    getParticipant(fqi: string): any {
-        return this.participants.get(fqi);
-    }
-
     private removeIdentity(cardRef: string): Promise<void> {
         let userID = this.identityCards.get(cardRef).getUserName();
         return this.identityCardService.deleteIdentityCard(cardRef)
@@ -483,5 +777,11 @@ export class IdentityComponent implements OnInit {
                     icon: '#icon-role_24'
                 });
             });
+    }
+    private isHistorian(): boolean {
+        return (
+            this.registryId ===
+            "org.hyperledger.composer.system.HistorianRecord"
+        );
     }
 }

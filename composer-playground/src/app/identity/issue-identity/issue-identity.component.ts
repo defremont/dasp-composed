@@ -109,6 +109,7 @@ export class IssueIdentityComponent implements OnInit {
         console.log("ONINITI");
         return this.loadParticipants();
     }
+    
     openNewResourceModal() {
         const modalRef = this.modalService.open(ResourceComponent);
         modalRef.componentInstance.email = this.userID;
@@ -168,6 +169,8 @@ export class IssueIdentityComponent implements OnInit {
             });
     }
     actualFQI(userID) {
+        this.loadResources();
+        this.loadParticipants();
         this.participantFQI = "org.dasp.net.Author#" + userID;
         this.isValidParticipant();
     }

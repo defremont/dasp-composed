@@ -33,7 +33,7 @@ export class Config {
   setToDefault(): void {
     this.webonly = false;
     this.title = 'Hyperledger Composer';
-    this.banner = ['Hyperledger', 'Composer Playground'];
+    this.banner = ['DASP', ''];
     this.docURL = 'https://hyperledger.github.io/composer/latest';
     this.links = {
       docs: <string> 'https://hyperledger.github.io/composer/latest/introduction/introduction.html',
