@@ -31,12 +31,10 @@
                     <p>
                         Issue a new ID to a participant in your business network
                     </p>
-
-                    <ng-template
+                <ng-template
                         #participantTypeaheadResult
                         let-r="result"
-                        let-t="term"
-                    >
+                        let-t="term"                    >
                         <span class="participant-id">{{
                             getParticipant(r).getIdentifier()
                         }}</span>
@@ -48,7 +46,7 @@
                     <form
                         #issueIdentityForm="ngForm"
                         id="issue-identity-form"
-                        (ngSubmit)="issueIdentity($event)"
+                        (ngSubmit)="issueIdentity()"
                     >
                         <div class="justified-input">
                             <label class="required" for="userID"
@@ -120,13 +118,13 @@
                 </section>
 
                 <footer>
-                    <button
+                    <!-- <button
                         type="button"
                         class="secondary"
-                        (click)="activeModal.dismiss()"
+                        (click)="test()"
                     >
-                        <span>Cancel</span>
-                    </button>
+                        <span>test</span>
+                    </button> -->
                     <!-- <section class="modal-body">
                         <h2>
                             In registry: <b>{{ registryId }}</b>
@@ -174,10 +172,10 @@
                             </section>
                         </section>
                     </section> -->
-                    <div *ngIf="_registry" class="resource-header">
-                        <!-- <div class="resource-header-left">
+                    <!-- <div *ngIf="_registry" class="resource-header">
+                        <div class="resource-header-left">
                             <h1 *ngIf="!isHistorian()">{{_registry.name}}</h1>
-                        </div> -->
+                        </div> 
                         <div *ngIf="!isHistorian()">
                             <button
                                 id="createResourceButton"
@@ -211,8 +209,8 @@
                                 </div>
                             </button>
                         </div>
-                        <!-- <button (click)="loadParticipants()">LOADP</button> -->
-                    </div>
+                        <button (click)="loadParticipants()">LOADP</button> 
+                    </div> -->
                     <button
                         id="createNew"
                         type="submit"

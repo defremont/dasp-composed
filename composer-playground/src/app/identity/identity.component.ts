@@ -33,6 +33,7 @@ import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 
 import { saveAs } from 'file-saver';
+import { Test } from '../../../e2e/component/test';
 
 @Component({
     selector: 'identity',
@@ -50,7 +51,7 @@ export class IdentityComponent implements OnInit {
     private currentIdentity: string = null;
     private participants: Map<string, Resource> = new Map<string, Resource>();
     private businessNetworkName;
-
+    private reserve;
 
     private includeOptionalFields: boolean = false;
     private resourceDeclaration: ClassDeclaration = null;
@@ -82,6 +83,7 @@ export class IdentityComponent implements OnInit {
     private chosenRegistry = null;
     private registryReload = false;
     private eventsTriggered = [];
+    loaded: boolean = false;
 
     constructor(private modalService: NgbModal,
                 private alertService: AlertService,
@@ -92,8 +94,8 @@ export class IdentityComponent implements OnInit {
     @Input() resource: any = null;
     ngOnInit(): Promise<any> {
 
-         this.loadAllIdentities();
 
+         this.loadAllIdentities();
          this.loadParticipantsIssue();
 
          console.log(this.participants)
@@ -136,11 +138,13 @@ export class IdentityComponent implements OnInit {
                      this.registries['participants'] = participantRegistries.sort((a, b) => {
                          return a.id.localeCompare(b.id);
                      });
-
                      console.log(this.participants)
                      return this.clientService.getBusinessNetworkConnection().getHistorian();
                  })
                  .then((historianRegistry) => {
+
+                    this.reserve = this.participants.size;
+                    console.log(this.reserve +" && "+this.participants.size);
                      this.registries['historian'] = historianRegistry;
                      console.log('chooseando')
                      // set the default registry selection
@@ -202,15 +206,144 @@ export class IdentityComponent implements OnInit {
             .map((term) => term === '' ? []
                 : this.participantFQIs.filter((v) => new RegExp(term, 'gi').test(v)).slice(0, 10));
 
-    issueIdentity(userId): void {
-        this.actualFQI(userId);
-        this.issueInProgress = true;
+    issueIdentity(): void {
+        console.log('issueidentity');
+        this.loadParticipants();
+        
+        this.issueInProgress = true; 
+        this.isValidParticipant();
         this.generateResource(true);
-        this.addOrUpdateResource();
+        console.log('start add');
+        this.addOrUpdateResource().then(() => {
+            this.reload().then(() => {
+                
+                    this.loadParticipants();
+                    this.createId();
+                
+            })
+
+        });
+        console.log('final add');
+    }
+
+    reload(){
+        console.log(this.reserve +" && "+this.participants.size);
+        
+            console.log('start test');
+        
+            this.loadAllIdentities();
+            this.loadParticipantsIssue();
+            console.log('1');
+            
+            console.log(this.participants)
+            if(this.participants > this.reserve){
+                this.loaded = false;
+            }
+            return this.clientService.ensureConnected()
+            .then(() => {
+                
+    
+                let introspector = this.clientService.getBusinessNetwork().getIntrospector();
+                let modelClassDeclarations = introspector.getClassDeclarations();
+                modelClassDeclarations.forEach((modelClassDeclaration) => {
+                    // Generate list of all known (non-abstract/non-system) transaction types
+                    if (!modelClassDeclaration.isAbstract() && !modelClassDeclaration.isSystemType() && modelClassDeclaration instanceof TransactionDeclaration) {
+                        this.hasTransactions = true;
+                    }
+                });
+                console.log('2');
+    
+                console.log(this.participants)
+                return this.clientService.getBusinessNetworkConnection().getAllAssetRegistries()
+                    .then((assetRegistries) => {
+                        assetRegistries.forEach((assetRegistry) => {
+                            let index = assetRegistry.id.lastIndexOf('.');
+                            let displayName = assetRegistry.id.substring(index + 1);
+                            assetRegistry.displayName = displayName;
+                        });
+    
+                        this.registries['assets'] = assetRegistries.sort((a, b) => {
+                            return a.id.localeCompare(b.id);
+                        });
+    
+                        console.log('3');
+                        console.log(this.participants)
+                        return this.clientService.getBusinessNetworkConnection().getAllParticipantRegistries();
+                    })
+                    .then((participantRegistries) => {
+                        console.log(this.participants)
+                        participantRegistries.forEach((participantRegistry) => {
+                            let index = participantRegistry.id.lastIndexOf('.');
+                            let displayName = participantRegistry.id.substring(index + 1);
+                            participantRegistry.displayName = displayName;
+                        });
+                        console.log(this.participants)
+    
+                        this.registries['participants'] = participantRegistries.sort((a, b) => {
+                            return a.id.localeCompare(b.id);
+                        });
+                        console.log('é aqui');
+                        
+                         console.log('4');
+                        console.log(this.participants)
+                        return this.clientService.getBusinessNetworkConnection().getHistorian();
+                    })
+                    .then((historianRegistry) => {
+    
+                        this.registries['historian'] = historianRegistry;
+                        console.log('chooseando')
+                        // set the default registry selection
+                        if (this.registries['participants'].length !== 0) {
+                            this.chosenRegistry = this.registries['participants'][0];
+                        } else if (this.registries['assets'].length !== 0) {
+                            this.chosenRegistry = this.registries['assets'][0];
+                        } else {
+                            this.chosenRegistry = this.registries['historian'];
+                        }
+                        this._registry = this.chosenRegistry
+                        if (this._registry) {
+                            this.loadResources();
+                            this.registryId = this._registry.id;
+                        }
+                        modelClassDeclarations.forEach((modelClassDeclaration) => {
+                           
+                           if (this.registryId === modelClassDeclaration.getFullyQualifiedName()) {
+          
+                              console.log('if this.registryId')
+                              // Set resource declaration
+                              this.resourceDeclaration = modelClassDeclaration;
+                              this.resourceType = this.retrieveResourceType(modelClassDeclaration);
+              
+                              if (this.editMode()) {
+                                  console.log('edit mode')
+                                  this.resourceAction = 'Update';
+                                  let serializer = this.clientService.getBusinessNetwork().getSerializer();
+                                  this.resourceDefinition = JSON.stringify(serializer.toJSON(this.resource), null, 2);
+                              } else {
+                                  console.log('not edit mode')
+                                  // Stub out json definition
+                                  this.resourceAction = 'Create New';
+                               //    this.generateResource(true);
+                              }
+
+                          }
+                       });
+
+                    })
+                    .catch((error) => {
+                        this.alertService.errorStatus$.next(error);
+                    });
+            })
+            .catch((error) => {
+                this.alertService.errorStatus$.next(error);
+            });
+        
+
     }
     actualFQI(userID) {
-        this.loadResources();
-        this.loadParticipantsIssue();
+        console.log('actualFQI');
+        // this.loadResources();
+        // this.loadParticipantsIssue();
         this.participantFQI = "org.dasp.net.Author#" + userID;
         this.isValidParticipant();
         // this.generateResource(true)
@@ -224,7 +357,7 @@ export class IdentityComponent implements OnInit {
         }
     }
     loadResources(): Promise<void> {
-        console.log("loaded");
+        console.log("load resources");
         this.overFlowedResources = {};
         return this._registry
             .getAll()
@@ -245,6 +378,30 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
+    createId(){
+          console.log('start createid');
+          
+        this.actionInProgress = false;                
+        let options = {issuer: this.issuer, affiliation: undefined};
+        let participant = this.participantFQI.startsWith('resource:') ? this.participantFQI : 'resource:' + this.participantFQI;
+        this.clientService.issueIdentity(this.userID, participant, options)
+        .then((identity) => {
+            console.log('create id ok');
+            
+            this.issueInProgress = false;
+            this.reload();
+            console.log(identity);
+            
+            return identity;
+        })
+        .catch((error) => {
+            this.issueInProgress = false;
+            console.log('create id erro');
+            console.log(error);
+            this.issueIdentity();
+            return error;
+        });
+    }
     // openNewResourceModal() {
     //     const modalRef = this.modalService.open(ResourceComponent);
     //     modalRef.componentInstance.email = this.userID;
@@ -264,8 +421,9 @@ export class IdentityComponent implements OnInit {
 /**
      *  Create resource via json serialisation
      */
-    private addOrUpdateResource(): void {
-        this.actualFQI(this.userID);
+    private addOrUpdateResource() {
+        console.log('addorup');
+        
         this.actionInProgress = true;
         return this.retrieveResourceRegistry(this.resourceType)
             .then((registry) => {
@@ -277,30 +435,20 @@ export class IdentityComponent implements OnInit {
                     return registry.update(resource);
                 } else {
                      registry.add(resource);
-                     console.log('add resource');
-                                    
-                    let options = {issuer: this.issuer, affiliation: undefined};
-                    let participant = this.participantFQI.startsWith('resource:') ? this.participantFQI : 'resource:' + this.participantFQI;
-                    this.clientService.issueIdentity(this.userID, participant, options)
-                    .then((identity) => {
-                        this.issueInProgress = false;
-                        return identity;
-                    })
-                    .catch((error) => {
-                        this.issueInProgress = false;
-                        console.log('erro');
-                        
-                        return error;
-                    });
-                }
-            })
-            .then(() => {
-                this.actionInProgress = false;
-            })
-            .catch((error) => {
-                this.definitionError = error.toString();
-                this.actionInProgress = false;
-            });
+                     console.log('add resource');   
+                   
+                 }
+             })
+             .then(() => {
+                console.log('then do addudop');
+                 this.actionInProgress = false;
+             })
+             .catch((error) => {
+                 console.log('catch do addudop');
+                 this.definitionError = error.toString();
+                 this.actionInProgress = false;
+             });
+            
     }
     private editMode(): boolean {
         return (this.resource ? true : false);
@@ -392,6 +540,7 @@ export class IdentityComponent implements OnInit {
               this.resourceDefinition = JSON.stringify(replacementJSON, null, 2);
             }
             this.onDefinitionChanged();
+            
         } catch (error) {
             console.log('error');
             
@@ -486,6 +635,8 @@ export class IdentityComponent implements OnInit {
         }
     }
     loadAllIdentities(): Promise<void> {
+        console.log('load all ids');
+        
         // this.issueNewId();
         return this.clientService.ensureConnected()
             .then(() => {
@@ -691,6 +842,8 @@ export class IdentityComponent implements OnInit {
     }
 
     loadParticipants() {
+        console.log('load participants');
+        
         return this.clientService.getBusinessNetworkConnection().getAllParticipantRegistries()
             .then((participantRegistries) => {
                 return Promise.all(participantRegistries.map((registry) => {
