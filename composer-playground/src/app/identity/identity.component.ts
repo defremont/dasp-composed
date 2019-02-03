@@ -84,6 +84,8 @@ export class IdentityComponent implements OnInit {
     private registryReload = false;
     private eventsTriggered = [];
     loaded: boolean = false;
+    secret: any;
+    user: any;
 
     constructor(private modalService: NgbModal,
                 private alertService: AlertService,
@@ -220,6 +222,8 @@ export class IdentityComponent implements OnInit {
                     this.loadParticipants();
                     this.createId();
                 
+            }).then(() => {
+        this.setCurrentIdentity(this.user,true);
             })
 
         });
@@ -390,9 +394,17 @@ export class IdentityComponent implements OnInit {
             
             this.issueInProgress = false;
             this.reload();
-            console.log(identity);
+            console.log(JSON.stringify(identity));
+            console.log("@@@@@@@@@@@<BR/>AQUIIII"+JSON.stringify(identity["userID"]));
+            this.secret = identity["userSecret"];
+            this.user = identity["userID"];
+            console.log('IDENTIDADE CARREGADA');                      
+            return this.addIdentityToWallet({"userID":identity["userID"],"userSecret":identity["userSecret"]}).then(() => {
+
+            return this.setCurrentIdentity({"ref":this.user+"@dasp-net","usable":true},true);
+            });
             
-            return identity;
+            
         })
         .catch((error) => {
             this.issueInProgress = false;
@@ -729,7 +741,10 @@ export class IdentityComponent implements OnInit {
     }
 
     setCurrentIdentity(ID: {ref, usable}, revertOnError: boolean): Promise<void> {
+        
         let cardRef = ID.ref;
+        console.log(cardRef);
+        console.log(ID);
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
         }
