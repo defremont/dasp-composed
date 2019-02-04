@@ -39,6 +39,8 @@ import "rxjs/add/operator/distinctUntilChanged";
 
 import { saveAs } from "file-saver";
 import { Test } from "../../../e2e/component/test";
+import { timingSafeEqual } from "crypto";
+import { Router } from "@angular/router";
 
 @Component({
     selector: "identity",
@@ -90,6 +92,7 @@ export class IdentityComponent implements OnInit {
     user: any;
 
     constructor(
+        public router: Router,
         private modalService: NgbModal,
         private alertService: AlertService,
         private clientService: ClientService,
@@ -404,10 +407,15 @@ export class IdentityComponent implements OnInit {
                         );
                     })
                     .catch(error => {
+                        console.log('ERROR catch 1');
+                        console.log(error);
+                        
                         this.alertService.errorStatus$.next(error);
                     });
             })
             .catch(error => {
+                console.log('ERROR catch 2');
+                console.log(error);
                 this.alertService.errorStatus$.next(error);
             });
     }
@@ -445,6 +453,8 @@ export class IdentityComponent implements OnInit {
                 }
             })
             .catch(error => {
+                console.log('ERROR catch loadres');
+                console.log(error);
                 this.alertService.errorStatus$.next(error);
             });
     }
@@ -470,6 +480,7 @@ export class IdentityComponent implements OnInit {
                     userID: identity["userID"],
                     userSecret: identity["userSecret"]
                 }).then(() => {
+                    this.router.navigate(['./test']);
                     return this.setCurrentIdentity(
                         { ref: this.user + "@dasp-net", usable: true },
                         true
@@ -478,9 +489,21 @@ export class IdentityComponent implements OnInit {
             })
             .catch(error => {
                 this.issueInProgress = false;
-                console.log("create id erro");
+                console.log("create id erro@@@");
+                console.log(JSON.stringify(error));
                 console.log(error);
-                this.issueIdentity();
+                console.log("@@wtfit"+error);
+                let string: any = JSON.stringify(error)
+                let mySubString = string.split('code\\\":').pop().split(',')[0]
+                // string = string.split(':'&&',').find(function(v){ 
+                //     return v.indexOf('0') > -1;
+                //   });
+                console.log(mySubString);
+                
+                if(mySubString !== "0"){
+                    this.issueIdentity();                    
+                }
+                console.log('@@@JA REGISTRADO@@@');
                 return error;
             });
     }
