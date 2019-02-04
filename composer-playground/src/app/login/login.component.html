@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<section *ngIf="!showSubScreen" class="header">
+<section [style.visibility]="'hidden'" *ngIf="!showSubScreen" class="header">
     <h1>My Business Networks</h1>
     <div *ngIf="!showSubScreen">
         <button id="importIdCard" *ngIf="usingLocally" type="button" class="secondary" (click)="importIdentity()">
@@ -22,7 +22,7 @@
         </button>
     </div>
 </section>
-<section *ngIf="!showSubScreen" class="main-view">
+<section [style.visibility]="'hidden'" *ngIf="!showSubScreen" class="main-view">
     <div class="connection-profile" *ngFor="let connectionProfileRef of connectionProfileRefs;">
         <span class="connection-profile-title">
             <h2>Connection: {{connectionProfileRef === 'web-$default' ? 'Web Browser' : this.connectionProfileNames.get(connectionProfileRef) }}</h2>

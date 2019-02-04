@@ -31,7 +31,6 @@ import { AppComponent } from './app.component';
 import { APP_RESOLVER_PROVIDERS } from './app.resolver';
 import { AppState, InternalStateType } from './app.service';
 import { BasicModalsModule } from './basic-modals/basic-modals.module';
-import { WelcomeComponent } from './welcome';
 import { NoContentComponent } from './no-content';
 import { VersionCheckComponent } from './version-check';
 import { ServicesModule } from './services/services.module';
@@ -66,14 +65,12 @@ type StoreType = {
 @NgModule({
     bootstrap: [AppComponent],
     entryComponents: [
-        VersionCheckComponent,
-        WelcomeComponent
+        VersionCheckComponent
     ],
     declarations: [
         AppComponent,
         NoContentComponent,
-        VersionCheckComponent,
-        WelcomeComponent
+        VersionCheckComponent
     ],
     imports: [ // import Angular's modules
         AppRoutingModule,

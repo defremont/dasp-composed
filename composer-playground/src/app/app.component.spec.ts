@@ -329,15 +329,6 @@ describe('AppComponent', () => {
             mockQueryParamUpdated.should.have.been.calledWith({name: 'bob'});
         });
 
-        it('should open the welcome modal', () => {
-            let welcomeModalStub = sinon.stub(component, 'openWelcomeModal');
-
-            routerStub.eventParams = {url: '/login', nav: 'end'};
-
-            updateComponent();
-
-            welcomeModalStub.should.have.been.called;
-        });
 
         it('should not send analytics', fakeAsync(() => {
             let openVersionModalStub = sinon.stub(component, 'openVersionModal');
@@ -408,17 +399,6 @@ describe('AppComponent', () => {
 
         }));
 
-        it('should not do anything on non navigation end events', fakeAsync(() => {
-            let welcomeModalStub = sinon.stub(component, 'openWelcomeModal');
-
-            routerStub.eventParams = {url: '/', nav: 'start'};
-
-            updateComponent();
-
-            tick();
-
-            welcomeModalStub.should.not.have.been.called;
-        }));
 
         it('should show header links if logged in', fakeAsync(() => {
             routerStub.eventParams = {url: '/editor', urlAfterRedirects: '/editor', nav: 'end'};
@@ -958,49 +938,6 @@ describe('AppComponent', () => {
         });
     });
 
-    describe('openWelcomeModal', () => {
-        let mockOnBusy;
-        let mockOnError;
-        let mockOnTransactionEvent;
-        let mockQueryParamsUpdated;
-
-        beforeEach(async(() => {
-            mockOnBusy = sinon.stub(component, 'onBusyStatus');
-            mockOnError = sinon.stub(component, 'onErrorStatus');
-            mockOnTransactionEvent = sinon.stub(component, 'onTransactionEvent');
-            mockQueryParamsUpdated = sinon.stub(component, 'queryParamsUpdated');
-            mockModal.open.returns({componentInstance: {}});
-
-        }));
-
-        it('should open the welcome modal', fakeAsync(() => {
-            activatedRoute.testParams = {};
-
-            updateComponent();
-
-            component['openWelcomeModal']();
-
-            tick();
-
-            checkVersionStub.should.have.been.called;
-
-            mockModal.open.should.have.been.called;
-        }));
-
-        it('should open the version modal', fakeAsync(() => {
-            activatedRoute.testParams = {};
-
-            updateComponent(false);
-
-            component['openWelcomeModal']();
-
-            tick();
-
-            checkVersionStub.should.have.been.called;
-
-            mockModal.open.should.have.been.called;
-        }));
-    });
 
     describe('openVersionModal', () => {
         let mockOnBusy;

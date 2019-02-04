@@ -99,7 +99,6 @@ export class IdentityComponent implements OnInit {
     ngOnInit(): Promise<any> {
         this.loadAllIdentities();
         this.loadParticipantsIssue();
-
         console.log(this.participants);
         return this.clientService
             .ensureConnected()
@@ -174,6 +173,12 @@ export class IdentityComponent implements OnInit {
                             this.chosenRegistry = this.registries[
                                 "participants"
                             ][0];
+                            console.log(this.registries["participants"][0]);
+
+                            this.setCurrentIdentity(
+                                { ref: "admin@dasp-net", usable: true },
+                                true
+                            );
                         } else if (this.registries["assets"].length !== 0) {
                             this.chosenRegistry = this.registries["assets"][0];
                         } else {
@@ -212,7 +217,6 @@ export class IdentityComponent implements OnInit {
                                         console.log("not edit mode");
                                         // Stub out json definition
                                         this.resourceAction = "Create New";
-                                        //    this.generateResource(true);
                                     }
                                 }
                             }
@@ -259,14 +263,9 @@ export class IdentityComponent implements OnInit {
         this.generateResource(true);
         console.log("start add");
         this.addOrUpdateResource().then(() => {
-            this.reload()
-                .then(() => {
-                    this.loadParticipants();
-                    this.createId();
-                })
-                .then(() => {
-                    this.setCurrentIdentity(this.user, true);
-                });
+            this.reload().then(() => {
+                this.createId();
+            });
         });
         console.log("final add");
     }
@@ -463,10 +462,7 @@ export class IdentityComponent implements OnInit {
                 console.log("create id ok");
 
                 this.issueInProgress = false;
-                this.reload();
-                console.log(
-                        JSON.stringify(identity["userID"])
-                );
+                console.log(JSON.stringify(identity["userID"]));
                 this.secret = identity["userSecret"];
                 this.user = identity["userID"];
                 console.log("IDENTIDADE CARREGADA");
@@ -810,7 +806,7 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    loadMyIdentities(): void {
+    private  loadMyIdentities(): void {
         this.currentIdentity = this.identityCardService.currentCard;
 
         let businessNetwork = this.identityCardService
@@ -846,7 +842,7 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    issueNewId(): Promise<void> {
+    private  issueNewId(): Promise<void> {
         console.log("ISSUEN");
         let modalRef = this.modalService.open(IssueIdentityComponent);
         console.log(modalRef);
@@ -882,7 +878,7 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    setCurrentIdentity(
+    private  setCurrentIdentity(
         ID: { ref; usable },
         revertOnError: boolean
     ): Promise<void> {
@@ -921,7 +917,7 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    openRemoveModal(cardRef: string): Promise<void> {
+    private  openRemoveModal(cardRef: string): Promise<void> {
         let userID = this.identityCards.get(cardRef).getUserName();
 
         // show confirm/delete dialog first before taking action
@@ -956,7 +952,7 @@ export class IdentityComponent implements OnInit {
         );
     }
 
-    revokeIdentity(identity): Promise<void> {
+    private revokeIdentity(identity): Promise<void> {
         // show confirm/delete dialog first before taking action
         const confirmModalRef = this.modalService.open(DeleteComponent);
         confirmModalRef.componentInstance.headerMessage = "Revoke Identity";

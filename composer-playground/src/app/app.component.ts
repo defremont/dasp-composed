@@ -23,7 +23,6 @@ import { IdentityCardService } from './services/identity-card.service';
 import { InitializationService } from './services/initialization.service';
 import { BusyComponent } from './basic-modals/busy';
 import { ErrorComponent } from './basic-modals/error';
-import { WelcomeComponent } from './welcome';
 import { VersionCheckComponent } from './version-check/version-check.component';
 import { LocalStorageService } from 'angular-2-local-storage';
 import { AboutService } from './services/about.service';
@@ -57,7 +56,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     private usingLocally = false;
     private showHeaderLinks = false;
-    private showWelcome = true;
     private dropListActive = false;
 
     private config = new Config();
@@ -128,7 +126,6 @@ export class AppComponent implements OnInit, OnDestroy {
         this.identityCardService.setCurrentIdentityCard(null)
             .then(() => {
                 this.fileService.deleteAllFiles();
-                this.showWelcome = false;
 
                 return this.router.navigate(['/login']);
             });
@@ -138,13 +135,6 @@ export class AppComponent implements OnInit, OnDestroy {
         if (this.submitAnalytics) {
             (window)['ga']('set', 'page', event.urlAfterRedirects);
             (window)['ga']('send', 'pageview');
-        }
-
-        let welcomePromise;
-        if (event['url'].startsWith('/login') && event['url'] !== '/login') {
-            this.showWelcome = false;
-        } else if (event['url'] === '/login' && this.showWelcome) {
-            welcomePromise = this.openWelcomeModal();
         }
 
         if (event['url'].startsWith('/login') || event['urlAfterRedirects'].startsWith('/login')) {
@@ -172,7 +162,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 });
         }
 
-        return welcomePromise;
+        return;
     }
 
     queryParamsUpdated(queryParams: Object): Promise<any> {
@@ -246,15 +236,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
     }
 
-    openWelcomeModal() {
-        return this.checkVersion().then((success) => {
-            if (success) {
-                this.modalService.open(WelcomeComponent);
-            } else {
-                this.modalService.open(VersionCheckComponent);
-            }
-        });
-    }
 
     openVersionModal() {
         this.modalService.open(VersionCheckComponent);
