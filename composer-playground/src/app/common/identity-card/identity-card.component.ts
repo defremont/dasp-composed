@@ -60,9 +60,13 @@ export class IdentityCardComponent {
 
     @Output()
     onExport: EventEmitter<string> = new EventEmitter<string>();
-
+    ngOnInit(){
+         this.onConnect.emit("admin");
+    }
     connect() {
         this.onConnect.emit(this.identity.getUserName());
+        console.log(this.identity.getUserName());
+        
     }
 
     deploySample() {
