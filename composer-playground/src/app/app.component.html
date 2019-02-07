@@ -19,11 +19,6 @@
             </div>
             <div class="navmain" [ngClass]="{'rightonly' : !showHeaderLinks && !usingLocally }">
                 <ul *ngIf="showHeaderLinks" class="links navleft">
-                    <li>
-                        <button id='app_definebutton' class="action" [routerLink]="['editor']"
-                                [routerLinkActive]="['active']">Log out
-                        </button>
-                    </li>
                     <li *ngIf="!isAdmin()">
                         <button id='app_testbutton' class="action" [routerLink]="['test']"
                                 [routerLinkActive]="['active']">Panel
@@ -41,24 +36,19 @@
                         </a>
                     </li>
                 </ul>
-                <div *ngIf="showHeaderLinks" class="drop-select navright" [routerLinkActive]="['active']" [ngClass]="{'dropListActive' : dropListActive}">
+                <div *ngIf="showHeaderLinks && !isAdmin()" class="drop-select navright" [routerLinkActive]="['active']" [ngClass]="{'dropListActive' : dropListActive}">
                     <div class="drop-select-item flex-container flex">
                         <div ngbDropdown class="d-inline-block" (openChange)="onToggle($event)">
                             <button type="button" class="action" id="dropdownMenu1" ngbDropdownToggle>
                                 <span title="{{ identityCardService.getCurrentIdentityCard().getUserName() }}">{{ identityCardService.getCurrentIdentityCard().getUserName() }}</span>
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <button id="content" class="dropdown-item action" [routerLink]="['identity']">
-                                    <div class="flex-container flex" style="justify-content:space-between">
-                                        <div style="margin-right:10px">ID Registry</div>
-                                    </div>
-                                </button>
                                 <button id="footer" class="dropdown-item action" (click)="logout()">
                                     <div class="flex-container flex">
                                         <div style="margin-right:20px"><svg class="ibm-icon" aria-hidden="true">
                                             <use xlink:href="#icon-chevron-left"></use>§
                                         </svg></div>
-                                        <div>My Business Networks</div>
+                                        <div>Log out</div>
                                     </div>
                                 </button>
                             </div>
