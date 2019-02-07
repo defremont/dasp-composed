@@ -19,6 +19,8 @@ import { TransactionComponent } from './transaction/transaction.component';
 import { TransactionDeclaration } from 'composer-common';
 import { DrawerDismissReasons } from '../common/drawer';
 
+import { IdentityCardService } from "../../app/services/identity-card.service";
+import { Router } from '@angular/router';
 @Component({
     selector: 'app-test',
     templateUrl: './test.component.html',
@@ -40,8 +42,10 @@ export class TestComponent implements OnInit, OnDestroy {
     private eventsTriggered = [];
 
     constructor(private clientService: ClientService,
-                private alertService: AlertService,
-                private modalService: NgbModal) {
+        public router: Router,
+        private alertService: AlertService,
+        private modalService: NgbModal,
+        private identityCardService: IdentityCardService) {
     }
 
     ngOnInit(): Promise<any> {
@@ -104,6 +108,16 @@ export class TestComponent implements OnInit, OnDestroy {
             });
     }
 
+    isAdmin() {
+        if (
+            this.identityCardService.getCurrentIdentityCard()["metadata"]
+                .userName === "admin"
+        ) {
+            return true && this.router.navigate(['/login']);;
+        } else {
+            return false;
+        }
+    }
     ngOnDestroy() {
         this.clientService.getBusinessNetworkConnection().removeAllListeners('event');
     }
@@ -135,18 +149,18 @@ export class TestComponent implements OnInit, OnDestroy {
                 let events = this.eventsTriggered;
                 message.link = `${events.length} event${plural} triggered`;
                 message.linkCallback = () => {
-                    this.alertService.transactionEvent$.next({transaction: transaction, events: events});
+                    this.alertService.transactionEvent$.next({ transaction: transaction, events: events });
                 };
                 this.eventsTriggered = [];
             }
 
             this.alertService.successStatus$.next(message);
         })
-        .catch((error) => {
-            if (error !== DrawerDismissReasons.ESC ) {
-                this.alertService.errorStatus$.next(error);
-            }
-        });
+            .catch((error) => {
+                if (error !== DrawerDismissReasons.ESC) {
+                    this.alertService.errorStatus$.next(error);
+                }
+            });
     }
 
     initializeEventListener() {

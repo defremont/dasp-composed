@@ -480,11 +480,13 @@ export class IdentityComponent implements OnInit {
                     userID: identity["userID"],
                     userSecret: identity["userSecret"]
                 }).then(() => {
-                    this.router.navigate(['./test']);
-                    return this.setCurrentIdentity(
+                    this.setCurrentIdentity(
                         { ref: this.user + "@dasp-net", usable: true },
                         true
                     );
+                   return console.log(identity);
+                    
+                     
                 });
             })
             .catch(error => {
@@ -502,8 +504,9 @@ export class IdentityComponent implements OnInit {
                 
                 if(mySubString !== "0"){
                     this.issueIdentity();                    
+                }else{
+                    console.log('@@@JA REGISTRADO@@@');
                 }
-                console.log('@@@JA REGISTRADO@@@');
                 return error;
             });
     }
@@ -926,7 +929,13 @@ export class IdentityComponent implements OnInit {
             })
             .then(() => {
                 this.alertService.busyStatus$.next(null);
-                return this.loadAllIdentities();
+                 this.loadAllIdentities();
+                 if(this.identityCardService.getCurrentIdentityCard()["metadata"].userName !== 'admin'){
+                    console.log(this.identityCardService.getCurrentIdentityCard()["metadata"]);
+                 
+                    return this.router.navigate(['/test']); 
+                 }
+                 
             })
             .catch(error => {
                 this.alertService.busyStatus$.next(null);

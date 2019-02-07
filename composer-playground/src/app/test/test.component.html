@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<section class="side-bar">
+<section *ngIf="!isAdmin()" class="side-bar">
     <div class="registries">
         <h2>Participants</h2>
         <section class="side-bar-nav">
@@ -57,9 +57,23 @@
 
 </section>
 
-<section class="main-view">
+<section  *ngIf="!isAdmin()" class="main-view">
     <div class="main-view-content">
         <registry [registry]="chosenRegistry" [reload]="registryReload"></registry>
+    </div>
+
+    <app-footer></app-footer>
+
+</section>
+<section  *ngIf="isAdmin()" class="main-view">
+    <div class="main-view-content">
+            <div class="no-resources">
+        <svg class="ibm-icon" aria-hidden="true">
+            <use xlink:href="#icon-Emptiness"></use>
+        </svg>
+        <h3>Nothing to see here...</h3>
+        <p >PLEASE GO BACK & LOG-IN! >:(</p>
+    </div>
     </div>
 
     <app-footer></app-footer>

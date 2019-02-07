@@ -24,7 +24,7 @@
                                 [routerLinkActive]="['active']">Log out
                         </button>
                     </li>
-                    <li>
+                    <li *ngIf="!isAdmin()">
                         <button id='app_testbutton' class="action" [routerLink]="['test']"
                                 [routerLinkActive]="['active']">Panel
                         </button>
