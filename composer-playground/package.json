@@ -1,7 +1,7 @@
 {
     "name": "composer-playground",
     "version": "0.20.6",
-    "description": "A test harness/UI for the web runtime container for Hyperledger Composer",
+    "description": "A test harness/UI for the web runtime container for DASP",
     "engines": {
         "node": ">=8",
         "npm": ">=5"
@@ -12,14 +12,16 @@
     "main": "index.js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/hyperledger/composer.git"
+        "url": "https://github.com/defremont/dasp-composed"
     },
     "keywords": [
         "blockchain",
         "hyperledger",
-        "solutions"
+        "solutions",
+        "dasp",
+        "publisher"
     ],
-    "author": "Hyperledger Composer",
+    "author": "André Defrémont",
     "license": "Apache-2.0",
     "license-check-and-add-config": {
         "folder": ".",

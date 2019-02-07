@@ -37,7 +37,7 @@ describe('Welcome Splash', (() => {
         let elm = element(by.id('welcome_start'));
         browser.wait(ExpectedConditions.presenceOf(elm), Constants.longWait);
         browser.wait(ExpectedConditions.visibilityOf(elm), Constants.longWait);
-        expect(element(by.css('.welcome')).getText()).toContain('Welcome to Hyperledger Composer Playground!');
+        expect(element(by.css('.welcome')).getText()).toContain('Welcome to DASP!');
     }));
 
     it('should dissappear when the user clicks cancel button', (() => {
