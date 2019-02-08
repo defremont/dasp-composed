@@ -318,7 +318,7 @@ export class IdentityComponent implements OnInit {
                     }
 
                 } else {
-                    return this.router.navigate(['/test']);
+                    return this.router.navigate(['/panel']);
                 }
 
             })
@@ -1009,7 +1009,7 @@ export class IdentityComponent implements OnInit {
                 if (this.identityCardService.getCurrentIdentityCard()["metadata"].userName !== 'admin') {
                     console.log(this.identityCardService.getCurrentIdentityCard()["metadata"]);
 
-                    return this.router.navigate(['/test']);
+                    return this.router.navigate(['/panel']);
                 }
 
             })
