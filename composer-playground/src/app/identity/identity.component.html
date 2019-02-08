@@ -29,18 +29,6 @@
                 <p>
                     Issue a new ID/Participant in business network
                 </p>
-                <ng-template
-                    #participantTypeaheadResult
-                    let-r="result"
-                    let-t="term"
-                >
-                    <span class="participant-id">{{
-                        getParticipant(r).getIdentifier()
-                    }}</span>
-                    <span class="participant-type">{{
-                        getParticipant(r).getType()
-                    }}</span>
-                </ng-template>
 
                 <form
                     #issueIdentityForm="ngForm"

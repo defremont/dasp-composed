@@ -58,7 +58,7 @@
         position: relative;
         padding: 0 0 $space-xlarge 0;
         .main-view-content {
-            padding: $space-large $space-large 0px $space-large;
+            padding: $space-large $space-large $space-large $space-large;
             overflow-y: auto;
         }
     }
