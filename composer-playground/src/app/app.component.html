@@ -20,7 +20,7 @@
             <div class="navmain" [ngClass]="{'rightonly' : !showHeaderLinks && !usingLocally }">
                 <ul *ngIf="showHeaderLinks" class="links navleft">
                     <li *ngIf="!isAdmin()">
-                        <button id='app_testbutton' class="action" [routerLink]="['test']"
+                        <button id='app_testbutton' class="action" [routerLink]="['panel']"
                                 [routerLinkActive]="['active']">Panel
                         </button>
                     </li>
