@@ -16,12 +16,12 @@
         <div class="main-view-content">
             <section class="issue-identity">
                 <header class="modal-header">
-                    <h1>Bem-vindo ao DASP, cadastre-se ou faça login!</h1>
+                    <h1>Welcome to DASP, sign in or log in!</h1>
                    
                 </header>
                 <section class="modal-body">
                     <p>
-                        Issue a new ID to a participant in your business network
+                        Issue a new ID in business network
                     </p>
                 <ng-template
                         #participantTypeaheadResult
@@ -40,20 +40,32 @@
                         id="issue-identity-form"
                         (ngSubmit)="issueIdentity()"
                     >
-                        <div class="justified-input">
-                            <label class="required" for="userID"
-                                >E-mail<abbr title="required">*</abbr></label
-                            >
-                            <input
-                                required
-                                (ngModelChange)="actualFQI($event)"
-                                type="text"
-                                [(ngModel)]="userID"
-                                id="userID"
-                                name="userID"
-                                autocomplete="off"
-                            />
-                        </div>
+                    <div class="justified-input">
+                        <label class="required" for="userID"
+                            >E-mail<abbr title="required">*</abbr></label
+                        >
+                        <input
+                            required
+                            (ngModelChange)="actualFQI($event)"
+                            type="text"
+                            [(ngModel)]="userID"
+                            id="userID"
+                            name="userID"
+                            autocomplete="off"
+                        />
+                    </div>
+                    <div *ngIf="revealPass" class="justified-input">
+                        <label class="required" for="secret"
+                            >Secret<abbr title="required">*</abbr></label
+                        >
+                        <input
+                            required
+                            type="password"
+                            [(ngModel)]="pass"
+                            id="pass"
+                            name="pass"
+                        />
+                    </div>
 
                         <div *ngIf="false" class="keyValue">
                             <label class="key" for="participantFQI"
@@ -108,6 +120,76 @@
                     >
                         <div *ngIf="!issueInProgress">
                             <span>Create New</span>
+                        </div>
+                        <div
+                            *ngIf="issueInProgress"
+                            class="ibm-spinner-indeterminate small loop"
+                        >
+                            <div class="loader">
+                                <svg class="circular" viewBox="25 25 50 50">
+                                    <circle
+                                        class="circle-path"
+                                        cx="50"
+                                        cy="50"
+                                        r="20"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                    </button>
+                </footer>
+            </section>
+            <section class="issue-identity">
+                <section class="modal-body">
+                    <p>
+                        Log in on the business network
+                    </p>
+                    <form
+                        #issueIdentityForm="ngForm"
+                        id="log-in-form"
+                        (ngSubmit)="logIn()"
+                    >
+                    <div class="justified-input">
+                        <label class="required" for="user"
+                            >E-mail<abbr title="required">*</abbr></label
+                        >
+                        <input
+                            required
+                            type="text"
+                            [(ngModel)]="user"
+                            id="user"
+                            name="user"
+                        />
+                    </div>
+                    <div class="justified-input">
+                        <label class="required" for="secret"
+                            >Secret<abbr title="required">*</abbr></label
+                        >
+                        <input
+                            required
+                            type="password"
+                            [(ngModel)]="pass"
+                            id="pass"
+                            name="pass"
+                        />
+                    </div>
+
+                    </form>
+                    <h1 *ngIf="secret">GOOD! YOUR PASS: {{ secret }}</h1>
+                </section>
+
+                <footer>
+              <button
+                        id="createNew"
+                        type="submit"
+                        form="log-in-form"
+                        class="primary"
+                        [disabled]="
+                            !issueIdentityForm.form.valid || issueInProgress
+                        "
+                    >
+                        <div *ngIf="!issueInProgress">
+                            <span>Log in</span>
                         </div>
                         <div
                             *ngIf="issueInProgress"

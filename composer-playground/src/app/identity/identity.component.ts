@@ -77,7 +77,6 @@ export class IdentityComponent implements OnInit {
     private overFlowedResources = {};
     private registryId: string = null;
 
-    modalOk = false;
     hasTransactions = false;
     private registries = {
         assets: [],
@@ -90,6 +89,9 @@ export class IdentityComponent implements OnInit {
     loaded: boolean = false;
     secret: any;
     user: any;
+    needPass: boolean;
+    identity: string;
+    pass: any;
 
     constructor(
         public router: Router,
@@ -97,7 +99,7 @@ export class IdentityComponent implements OnInit {
         private alertService: AlertService,
         private clientService: ClientService,
         private identityCardService: IdentityCardService
-    ) {}
+    ) { }
     @Input() resource: any = null;
     ngOnInit(): Promise<any> {
         this.loadAllIdentities();
@@ -177,11 +179,13 @@ export class IdentityComponent implements OnInit {
                                 "participants"
                             ][0];
                             console.log(this.registries["participants"][0]);
-
-                            this.setCurrentIdentity(
-                                { ref: "admin@dasp-net", usable: true },
-                                true
-                            );
+                            if (this.identityCardService.getCurrentIdentityCard()["metadata"]
+                                .userName !== "admin") {
+                                this.setCurrentIdentity(
+                                    { ref: "admin@dasp-net", usable: true },
+                                    true
+                                );
+                            }
                         } else if (this.registries["assets"].length !== 0) {
                             this.chosenRegistry = this.registries["assets"][0];
                         } else {
@@ -253,16 +257,80 @@ export class IdentityComponent implements OnInit {
                 term === ""
                     ? []
                     : this.participantFQIs
-                          .filter(v => new RegExp(term, "gi").test(v))
-                          .slice(0, 10)
+                        .filter(v => new RegExp(term, "gi").test(v))
+                        .slice(0, 10)
             );
+    logIn() {
+        this.trylog(
+            { ref: this.user + "@dasp-net", usable: true },
+            true)
+        console.log('then1');
 
+    }
+
+    private trylog(
+        ID: { ref; usable },
+        revertOnError: boolean
+    ): Promise<void> {
+        let secret;
+        let cardRef = ID.ref;
+        console.log('@@@ SET CURRENT ID @@@');
+
+        console.log(cardRef);
+        console.log(ID);
+        if (this.currentIdentity === cardRef || !ID.usable) {
+            return Promise.resolve();
+        }
+
+        let startIdentity = this.currentIdentity;
+
+        this.identityCardService
+            .setCurrentIdentityCard(cardRef)
+            .then(() => {
+                this.currentIdentity = cardRef;
+                this.alertService.busyStatus$.next({
+                    title: "Reconnecting...",
+                    text: "Using identity " + this.currentIdentity
+                });
+                return this.clientService.ensureConnected(true);
+            })
+            .then(() => {
+                this.alertService.busyStatus$.next(null);
+                this.loadAllIdentities();
+
+                secret = this.identityCardService.getCurrentIdentityCard()["metadata"]
+                    .enrollmentSecret;
+
+                console.log(secret);
+                console.log('then2');
+
+                if (this.pass !== secret) {
+                    console.log('@@@ LOGIN @@@');
+
+                    if (this.identityCardService.getCurrentIdentityCard()["metadata"]
+                        .userName !== "admin") {
+                        this.trylog(
+                            { ref: "admin@dasp-net", usable: true },
+                            true
+                        )
+                    }
+
+                } else {
+                    return this.router.navigate(['/test']);
+                }
+
+            })
+            .catch(error => {
+                console.log(error);
+
+            });
+    }
     issueIdentity(): void {
         console.log("issueidentity");
-        this.loadParticipants();
+        // this.loadParticipants();
 
         this.issueInProgress = true;
-        this.isValidParticipant();
+        // this.isValidParticipant();
         this.generateResource(true);
         console.log("start add");
         this.addOrUpdateResource().then(() => {
@@ -271,6 +339,7 @@ export class IdentityComponent implements OnInit {
             });
         });
         console.log("final add");
+
     }
 
     reload() {
@@ -409,7 +478,7 @@ export class IdentityComponent implements OnInit {
                     .catch(error => {
                         console.log('ERROR catch 1');
                         console.log(error);
-                        
+
                         this.alertService.errorStatus$.next(error);
                     });
             })
@@ -474,6 +543,7 @@ export class IdentityComponent implements OnInit {
                 this.issueInProgress = false;
                 console.log(JSON.stringify(identity["userID"]));
                 this.secret = identity["userSecret"];
+                this.identity = identity;
                 this.user = identity["userID"];
                 console.log("IDENTIDADE CARREGADA");
                 return this.addIdentityToWallet({
@@ -483,10 +553,15 @@ export class IdentityComponent implements OnInit {
                     this.setCurrentIdentity(
                         { ref: this.user + "@dasp-net", usable: true },
                         true
-                    );
-                   return console.log(identity);
-                    
-                     
+                    )
+                    this.showNewId({
+                        userID: identity["userID"],
+                        userSecret: identity["userSecret"]
+                    });
+
+                    return console.log(identity);
+
+
                 });
             })
             .catch(error => {
@@ -494,18 +569,22 @@ export class IdentityComponent implements OnInit {
                 console.log("create id erro@@@");
                 console.log(JSON.stringify(error));
                 console.log(error);
-                console.log("@@wtfit"+error);
+                console.log("@@wtfit" + error);
                 let string: any = JSON.stringify(error)
                 let mySubString = string.split('code\\\":').pop().split(',')[0]
                 // string = string.split(':'&&',').find(function(v){ 
                 //     return v.indexOf('0') > -1;
                 //   });
                 console.log(mySubString);
-                
-                if(mySubString !== "0"){
-                    this.issueIdentity();                    
-                }else{
-                    console.log('@@@JA REGISTRADO@@@');
+
+                if (mySubString !== "0") {
+                    this.issueIdentity();
+                } else {
+                    console.log('@@@ JA REGISTRADO @@@');
+                    this.needPass = true;
+                    console.log(this.needPass);
+
+
                 }
                 return error;
             });
@@ -705,9 +784,6 @@ export class IdentityComponent implements OnInit {
     setChosenRegistry(chosenRegistry) {
         this.chosenRegistry = chosenRegistry;
     }
-    modalOkc() {
-        this.modalOk = !this.modalOk;
-    }
 
     getParticipant(fqi: string): any {
         return this.participants.get(fqi);
@@ -812,10 +888,10 @@ export class IdentityComponent implements OnInit {
                         if (
                             !this.getParticipant(
                                 el["participant"].getNamespace() +
-                                    "." +
-                                    el["participant"].getType() +
-                                    "#" +
-                                    el["participant"].getIdentifier()
+                                "." +
+                                el["participant"].getType() +
+                                "#" +
+                                el["participant"].getIdentifier()
                             )
                         ) {
                             ids[index]["state"] = "BOUND PARTICIPANT NOT FOUND";
@@ -832,7 +908,7 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    private  loadMyIdentities(): void {
+    private loadMyIdentities(): void {
         this.currentIdentity = this.identityCardService.currentCard;
 
         let businessNetwork = this.identityCardService
@@ -868,7 +944,7 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    private  issueNewId(): Promise<void> {
+    private issueNewId(): Promise<void> {
         console.log("ISSUEN");
         let modalRef = this.modalService.open(IssueIdentityComponent);
         console.log(modalRef);
@@ -904,11 +980,13 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    private  setCurrentIdentity(
+    private setCurrentIdentity(
         ID: { ref; usable },
         revertOnError: boolean
     ): Promise<void> {
         let cardRef = ID.ref;
+        console.log('@@@ SET CURRENT ID @@@');
+
         console.log(cardRef);
         console.log(ID);
         if (this.currentIdentity === cardRef || !ID.usable) {
@@ -929,13 +1007,13 @@ export class IdentityComponent implements OnInit {
             })
             .then(() => {
                 this.alertService.busyStatus$.next(null);
-                 this.loadAllIdentities();
-                 if(this.identityCardService.getCurrentIdentityCard()["metadata"].userName !== 'admin'){
+                this.loadAllIdentities();
+                if (this.identityCardService.getCurrentIdentityCard()["metadata"].userName !== 'admin') {
                     console.log(this.identityCardService.getCurrentIdentityCard()["metadata"]);
-                 
-                    return this.router.navigate(['/test']); 
-                 }
-                 
+
+                    return this.router.navigate(['/test']);
+                }
+
             })
             .catch(error => {
                 this.alertService.busyStatus$.next(null);
@@ -949,7 +1027,7 @@ export class IdentityComponent implements OnInit {
             });
     }
 
-    private  openRemoveModal(cardRef: string): Promise<void> {
+    private openRemoveModal(cardRef: string): Promise<void> {
         let userID = this.identityCards.get(cardRef).getUserName();
 
         // show confirm/delete dialog first before taking action
