@@ -17,7 +17,7 @@ import { NoContentComponent } from './no-content';
 import { CanActivateViaLogin } from './can-activate';
 
 export const ROUTES: Routes = [
-    {path: 'editor', redirectTo: 'identity'},
+    {path: 'editor', redirectTo: 'home'},
     {path: 'panel', loadChildren: 'app/test/test.module#TestModule', canActivate: [CanActivateViaLogin]},
     {path: 'home', loadChildren: 'app/identity/identity.module#IdentityModule', canActivate: [CanActivateViaLogin]},
     {path: 'login', loadChildren: 'app/login/login.module#LoginModule'},
