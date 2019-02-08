@@ -25,8 +25,11 @@
     margin-bottom: 1rem;
   }
 
+  form input[type=text]:active {
+    border-bottom: 2px solid;
+  }
   form input[type=text] {
-    border-bottom: 2px solid transparent;
+    border: 1px #c25050 solid;
     margin-bottom: 0;
 
     &.ng-dirty.invalid {
@@ -38,7 +41,30 @@
     }
   }
 
-  input[type=text] {
+  input[type=password] {
+
+    &.error-underline{
+      border-bottom: 2px solid $first-warning;
+      background: $error-colour-2;
+    }
+  }
+  form input[type=password]:active {
+    border-bottom: 2px solid;
+  }
+  form input[type=password] {
+    border: 1px #c25050 solid;
+    margin-bottom: 0;
+
+    &.ng-dirty.invalid {
+      border-bottom: 2px solid $error-colour-1;
+    }
+
+    &.error-underline{
+      border-bottom:2px solid #ff5c49;
+    }
+  }
+
+  input[type=password] {
 
     &.error-underline{
       border-bottom: 2px solid $first-warning;

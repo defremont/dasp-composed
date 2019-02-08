@@ -92,6 +92,8 @@ export class IdentityComponent implements OnInit {
     needPass: boolean;
     identity: string;
     pass: any;
+    tabS: boolean = true;
+    tabL: boolean;
 
     constructor(
         public router: Router,
@@ -527,6 +529,14 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
+    tab1(){
+        this.tabS = true;
+        this.tabL = false;
+    }
+    tab2(){
+        this.tabL = true;
+        this.tabS = false;
+    }
     createId() {
         console.log("start createid");
 
@@ -550,15 +560,7 @@ export class IdentityComponent implements OnInit {
                     userID: identity["userID"],
                     userSecret: identity["userSecret"]
                 }).then(() => {
-                    this.setCurrentIdentity(
-                        { ref: this.user + "@dasp-net", usable: true },
-                        true
-                    )
-                    this.showNewId({
-                        userID: identity["userID"],
-                        userSecret: identity["userSecret"]
-                    });
-
+                    
                     return console.log(identity);
 
 
@@ -572,9 +574,6 @@ export class IdentityComponent implements OnInit {
                 console.log("@@wtfit" + error);
                 let string: any = JSON.stringify(error)
                 let mySubString = string.split('code\\\":').pop().split(',')[0]
-                // string = string.split(':'&&',').find(function(v){ 
-                //     return v.indexOf('0') > -1;
-                //   });
                 console.log(mySubString);
 
                 if (mySubString !== "0") {
@@ -842,7 +841,6 @@ export class IdentityComponent implements OnInit {
     loadAllIdentities(): Promise<void> {
         console.log("load all ids");
 
-        // this.issueNewId();
         return this.clientService
             .ensureConnected()
             .then(() => {

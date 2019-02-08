@@ -13,33 +13,40 @@
 -->
 <section class="main-view">
     <div class="main-view-content">
-        <div class="main-view-content">
-            <section class="issue-identity">
-                <header class="modal-header">
-                    <h1>Welcome to DASP, sign in or log in!</h1>
-                   
-                </header>
-                <section class="modal-body">
-                    <p>
-                        Issue a new ID in business network
-                    </p>
+        <section class="header modal-header">
+            <h1>Welcome to DASP, sign in or log in!</h1>
+            <div>
+                <button [ngClass]="tabS ? 'primary' : 'secondary'" (click)="tab1()" type="button" class="">
+                    <span>Sign Up</span>
+                </button>
+                <button [ngClass]="tabL ? 'primary' : 'secondary'"  (click)="tab2()" type="button">
+                    <span>Log In</span>
+                </button>
+            </div>
+        </section>
+        <section *ngIf="tabS" class="issue-identity">
+            <section class="modal-body">
+                <p>
+                    Issue a new ID/Participant in business network
+                </p>
                 <ng-template
-                        #participantTypeaheadResult
-                        let-r="result"
-                        let-t="term"                    >
-                        <span class="participant-id">{{
-                            getParticipant(r).getIdentifier()
-                        }}</span>
-                        <span class="participant-type">{{
-                            getParticipant(r).getType()
-                        }}</span>
-                    </ng-template>
+                    #participantTypeaheadResult
+                    let-r="result"
+                    let-t="term"
+                >
+                    <span class="participant-id">{{
+                        getParticipant(r).getIdentifier()
+                    }}</span>
+                    <span class="participant-type">{{
+                        getParticipant(r).getType()
+                    }}</span>
+                </ng-template>
 
-                    <form
-                        #issueIdentityForm="ngForm"
-                        id="issue-identity-form"
-                        (ngSubmit)="issueIdentity()"
-                    >
+                <form
+                    #issueIdentityForm="ngForm"
+                    id="issue-identity-form"
+                    (ngSubmit)="issueIdentity()"
+                >
                     <div class="justified-input">
                         <label class="required" for="userID"
                             >E-mail<abbr title="required">*</abbr></label
@@ -67,88 +74,84 @@
                         />
                     </div>
 
-                        <div *ngIf="false" class="keyValue">
-                            <label class="key" for="participantFQI"
-                                >Participant<abbr title="required"
-                                    >*</abbr
-                                ></label
-                            >
-                            <div class="value">
-                                <input
-                                    [ngClass]="{
-                                        'error-underline': !isParticipant
-                                    }"
-                                    required
-                                    type="text"
-                                    [(ngModel)]="participantFQI"
-                                    id="participantFQI"
-                                    name="participantFQI"
-                                    [ngbTypeahead]="search"
-                                    [resultTemplate]="
-                                        participantTypeaheadResult
-                                    "
-                                    autocomplete="off"
-                                    (ngModelChange)="isValidParticipant()"
-                                />
-                                <div
-                                    *ngIf="!isParticipant"
-                                    class="error-message"
-                                    style="position: absolute; top: 165px;"
-                                >
-                                    {{ noMatchingParticipant }}
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <h1 *ngIf="secret">GOOD! YOUR PASS: {{ secret }}</h1>
-                    <p>
-                        Issuing an identity generates a one-time secret. You can
-                        choose to send this to somebody or use it yourself when
-                        it has been issued.
-                    </p>
-                </section>
-
-                <footer>
-              <button
-                        id="createNew"
-                        type="submit"
-                        form="issue-identity-form"
-                        class="primary"
-                        [disabled]="
-                            !issueIdentityForm.form.valid || issueInProgress
-                        "
-                    >
-                        <div *ngIf="!issueInProgress">
-                            <span>Create New</span>
-                        </div>
-                        <div
-                            *ngIf="issueInProgress"
-                            class="ibm-spinner-indeterminate small loop"
+                    <div *ngIf="false" class="keyValue">
+                        <label class="key" for="participantFQI"
+                            >Participant<abbr title="required">*</abbr></label
                         >
-                            <div class="loader">
-                                <svg class="circular" viewBox="25 25 50 50">
-                                    <circle
-                                        class="circle-path"
-                                        cx="50"
-                                        cy="50"
-                                        r="20"
-                                    />
-                                </svg>
+                        <div class="value">
+                            <input
+                                [ngClass]="{
+                                    'error-underline': !isParticipant
+                                }"
+                                required
+                                type="text"
+                                [(ngModel)]="participantFQI"
+                                id="participantFQI"
+                                name="participantFQI"
+                                [ngbTypeahead]="search"
+                                [resultTemplate]="participantTypeaheadResult"
+                                autocomplete="off"
+                                (ngModelChange)="isValidParticipant()"
+                            />
+                            <div
+                                *ngIf="!isParticipant"
+                                class="error-message"
+                                style="position: absolute; top: 165px;"
+                            >
+                                {{ noMatchingParticipant }}
                             </div>
                         </div>
-                    </button>
-                </footer>
+                    </div>
+                </form>
+                <h1 *ngIf="secret">GOOD! YOUR PASS: {{ secret }}</h1>
+                <p>
+                    Issuing an identity generates a one-time secret. You can
+                    choose to send this to somebody or use it yourself when it
+                    has been issued.
+                </p>
             </section>
-            <section class="issue-identity">
-                <section class="modal-body">
-                    <p>
-                        Log in on the business network
-                    </p>
-                    <form
-                        #issueIdentityForm="ngForm"
-                        id="log-in-form"
-                        (ngSubmit)="logIn()"
+
+            <footer>
+                <button
+                    id="createNew"
+                    type="submit"
+                    form="issue-identity-form"
+                    class="primary"
+                    [disabled]="
+                        !issueIdentityForm.form.valid || issueInProgress
+                    "
+                >
+                    <div *ngIf="!issueInProgress">
+                        <span>Sign Up</span>
+                    </div>
+                    <div
+                        *ngIf="issueInProgress"
+                        class="ibm-spinner-indeterminate small loop"
                     >
+                        <div class="loader">
+                            <svg class="circular" viewBox="25 25 50 50">
+                                <circle
+                                    class="circle-path"
+                                    cx="50"
+                                    cy="50"
+                                    r="20"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+                </button>
+            </footer>
+        </section>
+        <section *ngIf="tabL" class="issue-identity">
+            <section class="modal-body">
+                <p>
+                    Log in on the business network
+                </p>
+                <form
+                    #issueIdentityForm="ngForm"
+                    id="log-in-form"
+                    (ngSubmit)="logIn()"
+                >
                     <div class="justified-input">
                         <label class="required" for="user"
                             >E-mail<abbr title="required">*</abbr></label
@@ -173,43 +176,39 @@
                             name="pass"
                         />
                     </div>
-
-                    </form>
-                    <h1 *ngIf="secret">GOOD! YOUR PASS: {{ secret }}</h1>
-                </section>
-
-                <footer>
-              <button
-                        id="createNew"
-                        type="submit"
-                        form="log-in-form"
-                        class="primary"
-                        [disabled]="
-                            !issueIdentityForm.form.valid || issueInProgress
-                        "
-                    >
-                        <div *ngIf="!issueInProgress">
-                            <span>Log in</span>
-                        </div>
-                        <div
-                            *ngIf="issueInProgress"
-                            class="ibm-spinner-indeterminate small loop"
-                        >
-                            <div class="loader">
-                                <svg class="circular" viewBox="25 25 50 50">
-                                    <circle
-                                        class="circle-path"
-                                        cx="50"
-                                        cy="50"
-                                        r="20"
-                                    />
-                                </svg>
-                            </div>
-                        </div>
-                    </button>
-                </footer>
+                </form>
             </section>
-        </div>
-        
+
+            <footer>
+                <button
+                    id="createNew"
+                    type="submit"
+                    form="log-in-form"
+                    class="primary"
+                    [disabled]="
+                        !issueIdentityForm.form.valid || issueInProgress
+                    "
+                >
+                    <div *ngIf="!issueInProgress">
+                        <span>Log In</span>
+                    </div>
+                    <div
+                        *ngIf="issueInProgress"
+                        class="ibm-spinner-indeterminate small loop"
+                    >
+                        <div class="loader">
+                            <svg class="circular" viewBox="25 25 50 50">
+                                <circle
+                                    class="circle-path"
+                                    cx="50"
+                                    cy="50"
+                                    r="20"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+                </button>
+            </footer>
+        </section>
     </div>
 </section>
