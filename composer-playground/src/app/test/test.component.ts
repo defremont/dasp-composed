@@ -21,6 +21,9 @@ import { DrawerDismissReasons } from '../common/drawer';
 
 import { IdentityCardService } from "../../app/services/identity-card.service";
 import { Router } from '@angular/router';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+const IPFS = require('ipfs-mini');
+const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
 @Component({
     selector: 'app-test',
     templateUrl: './test.component.html',
@@ -40,6 +43,9 @@ export class TestComponent implements OnInit, OnDestroy {
     private chosenRegistry = null;
     private registryReload = false;
     private eventsTriggered = [];
+    showUpload: boolean;
+    private articleBase64: string = '';
+    articleHash: any;
 
     constructor(private clientService: ClientService,
         public router: Router,
@@ -90,14 +96,7 @@ export class TestComponent implements OnInit, OnDestroy {
                     })
                     .then((historianRegistry) => {
                         this.registries['historian'] = historianRegistry;
-                        // set the default registry selection
-                        if (this.registries['participants'].length !== 0) {
-                            this.chosenRegistry = this.registries['participants'][0];
-                        } else if (this.registries['assets'].length !== 0) {
-                            this.chosenRegistry = this.registries['assets'][0];
-                        } else {
-                            this.chosenRegistry = this.registries['historian'];
-                        }
+                        this.showUpload = true;
                     })
                     .catch((error) => {
                         this.alertService.errorStatus$.next(error);
@@ -107,7 +106,39 @@ export class TestComponent implements OnInit, OnDestroy {
                 this.alertService.errorStatus$.next(error);
             });
     }
+    downloadFile(){
+        let link = document.createElement("a");
+        link.download = "filename";
+        ipfs.catJSON(this.articleHash).then((result) => {
+            link.href = result.article;
+            console.log(result);
 
+            link.click();
+
+        }).catch(console.log);
+
+}
+    handleInputChange(e) {
+        var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
+        var pattern = 'pdf.*';
+        var reader = new FileReader();
+        if (!file.type.match(pattern)) {
+          alert('invalid format');
+          return;
+        }
+        reader.onload = this._handleReaderLoaded.bind(this);
+        reader.readAsDataURL(file);
+      }
+      _handleReaderLoaded(e) {
+        let reader = e.target;
+        this.articleBase64 = reader.result;
+        console.log(reader)
+        console.log(this.articleBase64)
+        ipfs.addJSON({ article: this.articleBase64 }, (err, result) => {
+            console.log(err, result);
+            this.articleHash = result;
+          });
+      }
     isAdmin() {
         if (
             this.identityCardService.getCurrentIdentityCard()["metadata"]
@@ -118,12 +149,16 @@ export class TestComponent implements OnInit, OnDestroy {
             return false;
         }
     }
+    uploadArticle(){
+        this.showUpload = true;
+    }
     ngOnDestroy() {
         this.clientService.getBusinessNetworkConnection().removeAllListeners('event');
     }
 
     setChosenRegistry(chosenRegistry) {
         this.chosenRegistry = chosenRegistry;
+        this.showUpload = false;
     }
 
     submitTransaction() {

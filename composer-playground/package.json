@@ -139,6 +139,7 @@
         "composer-wallet-filesystem": "0.20.6",
         "composer-wallet-inmemory": "0.20.6",
         "express": "4.15.2",
+        "ipfs-mini": "1.1.5",
         "is-docker": "1.1.0",
         "opener": "1.4.2",
         "yargs": "10.0.3"
