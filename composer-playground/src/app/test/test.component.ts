@@ -24,6 +24,9 @@ import { Router } from '@angular/router';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 const IPFS = require('ipfs-mini');
 const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+
+/* tslint:disable-next-line:no-var-requires */
+const uuid = require('uuid');
 @Component({
     selector: 'app-test',
     templateUrl: './test.component.html',
@@ -46,7 +49,36 @@ export class TestComponent implements OnInit, OnDestroy {
     showUpload: boolean;
     private articleBase64: string = '';
     articleHash: any;
+    // from transaction
+    private transactionTypes: TransactionDeclaration[] = [];
+    private selectedTransaction = null;
+    private selectedTransactionName: string = null;
+    private hiddenTransactionItems = new Map();
+    private submittedTransaction = null;
+    private includeOptionalFields: boolean = false;
 
+    private resourceDefinition: string = null;
+    private submitInProgress: boolean = false;
+    private definitionError: string = null;
+
+
+    private codeConfig = {
+        lineNumbers: true,
+        lineWrapping: true,
+        readOnly: false,
+        mode: 'application/ld+json',
+        autofocus: true,
+        extraKeys: {
+            'Ctrl-Q': (cm) => {
+                cm.foldCode(cm.getCursor());
+            }
+        },
+        foldGutter: true,
+        gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+        scrollbarStyle: 'simple'
+    };
+    isPaid: any;
+    tags: any;
     constructor(private clientService: ClientService,
         public router: Router,
         private alertService: AlertService,
@@ -78,6 +110,8 @@ export class TestComponent implements OnInit, OnDestroy {
                         this.registries['assets'] = assetRegistries.sort((a, b) => {
                             return a.id.localeCompare(b.id);
                         });
+                        this.loadTransaction();
+                        this.selectNewArticle();
 
                         return this.clientService.getBusinessNetworkConnection().getAllParticipantRegistries();
                     })
@@ -137,7 +171,8 @@ export class TestComponent implements OnInit, OnDestroy {
         ipfs.addJSON({ article: this.articleBase64 }, (err, result) => {
             console.log(err, result);
             this.articleHash = result;
-          });
+            this.hash();
+          })
       }
     isAdmin() {
         if (
@@ -151,6 +186,31 @@ export class TestComponent implements OnInit, OnDestroy {
     }
     uploadArticle(){
         this.showUpload = true;
+        this.chosenRegistry = null
+        this.selectNewArticle();
+
+    }
+    selectNewArticle(){
+        // Set first in list as selectedTransaction
+        if (this.transactionTypes && this.transactionTypes.length > 0) {
+            for (let transactions in this.transactionTypes){
+                if (this.transactionTypes[transactions]["name"] === "NewArticle"){
+                    this.selectedTransaction = this.transactionTypes[transactions];
+                    this.selectedTransactionName = this.selectedTransaction.getName();
+                    console.log(this.selectedTransactionName);
+                }
+
+            }
+
+
+            // We wish to hide certain items in a transaction, set these here
+            this.hiddenTransactionItems.set(this.selectedTransaction.getIdentifierFieldName(), uuid.v4());
+            this.hiddenTransactionItems.set('timestamp', new Date());
+
+            // Create a resource definition for the base item
+            this.generateTransactionDeclaration();
+        }
+
     }
     ngOnDestroy() {
         this.clientService.getBusinessNetworkConnection().removeAllListeners('event');
@@ -160,8 +220,30 @@ export class TestComponent implements OnInit, OnDestroy {
         this.chosenRegistry = chosenRegistry;
         this.showUpload = false;
     }
+    loadTransaction(){
+        let introspector = this.clientService.getBusinessNetwork().getIntrospector();
+        this.transactionTypes = introspector.getClassDeclarations()
+            .filter((modelClassDeclaration) => {
+                // Non-abstract, non-system transactions only please!
+                return !modelClassDeclaration.isAbstract() &&
+                    !modelClassDeclaration.isSystemType() &&
+                    modelClassDeclaration instanceof TransactionDeclaration;
+            })
+            .sort((a, b) => {
+                if (a.getName() < b.getName()) {
+                  return -1;
+                } else if (a.getName() > b.getName()) {
+                  return 1;
+                } else {
+                  return 0;
+                }
+            });
+
+
+    }
 
     submitTransaction() {
+
         const modalRef = this.modalService.open(TransactionComponent);
 
         modalRef.result.then((transaction) => {
@@ -197,7 +279,6 @@ export class TestComponent implements OnInit, OnDestroy {
                 }
             });
     }
-
     initializeEventListener() {
         const businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
         // Prevent multiple listeners being created
@@ -206,5 +287,135 @@ export class TestComponent implements OnInit, OnDestroy {
                 this.eventsTriggered.push(event);
             });
         }
+    }
+    // from transaction
+
+    /**
+     * Process the user selection of a TransactionType
+     * @param {TransactionDeclaration} transactionType - the user selected TransactionDeclaration
+     */
+    onTransactionSelect(transactionType) {
+        this.selectedTransaction = transactionType;
+        this.selectedTransactionName = this.selectedTransaction.getName();
+        this.resourceDefinition = null;
+        this.includeOptionalFields = false;
+        this.generateTransactionDeclaration();
+    }
+
+    /**
+     * Validate the definition of the TransactionDeclaration, accounting for hidden fields.
+     */
+    onDefinitionChanged() {
+        try {
+            let json = JSON.parse(this.resourceDefinition);
+            // Add required items that are hidden from user
+            this.hiddenTransactionItems.forEach((value, key) => {
+                json[key] = value;
+            });
+            let serializer = this.clientService.getBusinessNetwork().getSerializer();
+            let resource = serializer.fromJSON(json);
+            resource.validate();
+            this.definitionError = null;
+        } catch (error) {
+            this.definitionError = error.toString();
+        }
+    }
+    paid(){
+        console.log(this.resourceDefinition);
+        let existingJSON = JSON.parse(this.resourceDefinition);
+        console.log(existingJSON);
+        existingJSON.paid = this.isPaid;
+        this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
+        this.onDefinitionChanged();
+    }
+    tag(){
+        console.log(this.resourceDefinition);
+        let existingJSON = JSON.parse(this.resourceDefinition);
+        console.log(existingJSON);
+        existingJSON.tags = this.tags;
+        this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
+        this.onDefinitionChanged();
+    }
+    hash(){
+        console.log(this.resourceDefinition);
+        let existingJSON = JSON.parse(this.resourceDefinition);
+        console.log(existingJSON);
+        existingJSON.hash = this.articleHash;
+        this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
+        this.onDefinitionChanged();
+    }
+    /**
+     * Generate a TransactionDeclaration definition, accounting for need to hide fields
+     */
+    private generateTransactionDeclaration(withSampleData?: boolean): void {
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let factory = businessNetworkDefinition.getFactory();
+        const generateParameters = {
+            generate: withSampleData ? 'sample' : 'empty',
+            includeOptionalFields: this.includeOptionalFields
+        };
+        let resource = factory.newTransaction(
+            this.selectedTransaction.getModelFile().getNamespace(),
+            this.selectedTransaction.getName(),
+            undefined,
+            generateParameters);
+            console.log(resource);
+            this.articleHash ? resource.hash = this.articleHash : null;
+
+        let serializer = this.clientService.getBusinessNetwork().getSerializer();
+        try {
+            let replacementJSON = serializer.toJSON(resource);
+            let existingJSON = JSON.parse(this.resourceDefinition);
+            // remove hidden items from json
+            this.hiddenTransactionItems.forEach((value, key) => {
+                delete replacementJSON[key];
+            });
+            if (existingJSON) {
+                this.resourceDefinition = JSON.stringify(this.updateExistingJSON(existingJSON, replacementJSON), null, 2);
+            } else {
+                // Initial popup, no previous data to protect
+                this.resourceDefinition = JSON.stringify(replacementJSON, null, 2);
+            }
+            this.onDefinitionChanged();
+        } catch (error) {
+            // We can't generate a sample instance for some reason.
+            this.definitionError = error.toString();
+        }
+    }
+
+    private updateExistingJSON(previousJSON, toUpdateWithJSON): object {
+        for (let key in toUpdateWithJSON) {
+            if (previousJSON.hasOwnProperty(key) && toUpdateWithJSON.hasOwnProperty(key)) {
+                if (previousJSON[key] !== null && typeof previousJSON[key] === 'object' && toUpdateWithJSON[key] !== null && typeof toUpdateWithJSON[key] === 'object') {
+                    toUpdateWithJSON[key] = this.updateExistingJSON(previousJSON[key], toUpdateWithJSON[key]);
+                } else if (previousJSON[key].toString().length > 0 && previousJSON[key] !== 0) {
+                    toUpdateWithJSON[key] = previousJSON[key];
+                }
+            }
+        }
+        return toUpdateWithJSON;
+    }
+
+    /**
+     * Submit the TransactionDeclaration definition
+     */
+    private submitSpecTransaction() {
+        this.submitInProgress = true;
+        return Promise.resolve()
+            .then(() => {
+                let json = JSON.parse(this.resourceDefinition);
+                let serializer = this.clientService.getBusinessNetwork().getSerializer();
+                this.submittedTransaction = serializer.fromJSON(json);
+                return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
+            })
+            .then(() => {
+                this.submitInProgress = false;
+                this.definitionError = null;
+                return this.submittedTransaction;
+            })
+            .catch((error) => {
+                this.definitionError = error.toString();
+                this.submitInProgress = false;
+            });
     }
 }

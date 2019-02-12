@@ -16,8 +16,7 @@
         <h2>Article</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li [class.active]="showUpload"
-                    (click)="uploadArticle()">
+                <li [class.active]="showUpload" (click)="uploadArticle()">
                     <h3>Upload Article</h3>
                 </li>
             </ul>
@@ -25,10 +24,17 @@
         <h2>Participants</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li *ngFor="let participantRegistry of registries['participants']"
-                    [class.active]="chosenRegistry && chosenRegistry.id === participantRegistry.id"
-                    (click)="setChosenRegistry(participantRegistry)">
-                    <h3>{{participantRegistry.displayName}}</h3>
+                <li
+                    *ngFor="
+                        let participantRegistry of registries['participants']
+                    "
+                    [class.active]="
+                        chosenRegistry &&
+                        chosenRegistry.id === participantRegistry.id
+                    "
+                    (click)="setChosenRegistry(participantRegistry)"
+                >
+                    <h3>{{ participantRegistry.displayName }}</h3>
                 </li>
             </ul>
         </section>
@@ -36,10 +42,14 @@
         <h2>Assets</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li *ngFor="let assetRegistry of registries['assets']"
-                    [class.active]="chosenRegistry && chosenRegistry.id === assetRegistry.id"
-                    (click)="setChosenRegistry(assetRegistry)">
-                    <h3>{{assetRegistry.displayName}}</h3>
+                <li
+                    *ngFor="let assetRegistry of registries['assets']"
+                    [class.active]="
+                        chosenRegistry && chosenRegistry.id === assetRegistry.id
+                    "
+                    (click)="setChosenRegistry(assetRegistry)"
+                >
+                    <h3>{{ assetRegistry.displayName }}</h3>
                 </li>
             </ul>
         </section>
@@ -48,8 +58,12 @@
         <section class="side-bar-nav">
             <ul class="registry">
                 <li
-                    [class.active]="chosenRegistry && chosenRegistry === registries['historian']"
-                    (click)="setChosenRegistry(registries['historian'])">
+                    [class.active]="
+                        chosenRegistry &&
+                        chosenRegistry === registries['historian']
+                    "
+                    (click)="setChosenRegistry(registries['historian'])"
+                >
                     <h3>All Transactions</h3>
                 </li>
             </ul>
@@ -58,48 +72,127 @@
 
     <div class="side-button">
         <div class="button-item">
-            <button [disabled]="!hasTransactions" type="button" class="primary" (click)="submitTransaction()">
+            <button
+                [disabled]="!hasTransactions"
+                type="button"
+                class="primary"
+                (click)="submitTransaction()"
+            >
                 <span>Submit Transaction</span>
             </button>
         </div>
     </div>
-
 </section>
 
-<section  *ngIf="!isAdmin() && showUpload" class="main-view">
-        <div class="main-view-content">
-            {{articleHash}}
-                <div class="image-upload">
-                        <button
-                       (click)="downloadFile()"
-                    >Download</button>
-                        <input name="imageUrl" type="file" accept="application/pdf" (change)="handleInputChange($event)" />
+<section *ngIf="!isAdmin() && showUpload" class="main-view">
+    <div class="modal-header">
+        <h1>Upload Article</h1>
+    </div>
+    <section class="modal-body">
+        <section class="resource-container">
+            <section class="resource-component">
+                <input
+                    required
+                    type="checkbox"
+                    name="isPaid"
+                    id="isPaid"
+                    [(ngModel)]="isPaid"
+                    (change)="paid()"
+                    autocomplete="off"
+                />
+                <label for="isPaid" class="checkbox-label">Paid?</label>
+                <div>
+                    <p class="resource-preview-text">Tags:</p>
+                </div>
+                <div class="optional">
+                    <input
+                        required
+                        type="text"
+                        name="tags"
+                        id="tags"
+                        [(ngModel)]="tags"
+                        (change)="tag()"
+                        autocomplete="off"
+                    />
+
+                    <div>
+                        <p class="resource-preview-text">Upload Article:</p>
                     </div>
-        </div>
+                    {{ articleHash }}
+                    <div >
+                        <input
+                            required
+                            name="article"
+                            type="file"
+                            accept="application/pdf"
+                            (change)="handleInputChange($event)"
+                        />
+                    </div>
 
-        <app-footer></app-footer>
-
+                    <!-- <button (click)="downloadFile()">Download</button> -->
+                </div>
+                <div class="resource-error-text" ng-if="definitionError!=null">
+                    <p>{{ definitionError }}</p>
+                </div>
+            </section>
+        </section>
     </section>
-<section  *ngIf="!isAdmin()" class="main-view">
+    <footer>
+        <div class="transaction-footer-cta">
+            <button
+                name="submitButton"
+                id="submitTransactionButton"
+                type="button"
+                class="primary"
+                (click)="submitSpecTransaction()"
+                [disabled]="definitionError != null || submitInProgress"
+                ngDefaultControl
+            >
+                <div *ngIf="!submitInProgress" ngDefaultControl>
+                    <span>Submit</span>
+                </div>
+                <div
+                    *ngIf="submitInProgress"
+                    class="ibm-spinner-indeterminate small loop"
+                    ngDefaultControl
+                >
+                    <div class="loader">
+                        <svg class="circular" viewBox="25 25 50 50">
+                            <circle
+                                class="circle-path"
+                                cx="50"
+                                cy="50"
+                                r="20"
+                            />
+                        </svg>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </footer>
+
+    <app-footer></app-footer>
+</section>
+<section *ngIf="!isAdmin() && !showUpload" class="main-view">
     <div class="main-view-content">
-        <registry [registry]="chosenRegistry" [reload]="registryReload"></registry>
+        <registry
+            [registry]="chosenRegistry"
+            [reload]="registryReload"
+        ></registry>
     </div>
 
     <app-footer></app-footer>
-
 </section>
-<section  *ngIf="isAdmin()" class="main-view">
+<section *ngIf="isAdmin()" class="main-view">
     <div class="main-view-content">
-            <div class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
-        <h3>Nothing to see here...</h3>
-        <p >PLEASE GO BACK & LOG-IN! >:(</p>
-    </div>
+        <div class="no-resources">
+            <svg class="ibm-icon" aria-hidden="true">
+                <use xlink:href="#icon-Emptiness"></use>
+            </svg>
+            <h3>Nothing to see here...</h3>
+            <p>PLEASE GO BACK & LOG-IN! >:(</p>
+        </div>
     </div>
 
     <app-footer></app-footer>
-
 </section>
-
