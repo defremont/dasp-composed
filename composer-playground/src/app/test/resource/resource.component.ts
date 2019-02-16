@@ -82,6 +82,7 @@ export class ResourceComponent implements OnInit {
                 // Set resource declaration
                 this.resourceDeclaration = modelClassDeclaration;
                 this.resourceType = this.retrieveResourceType(modelClassDeclaration);
+                console.log('@@@@@@@@@@@@@ '+this.registryId);
 
                 if (this.editMode()) {
                     this.resourceAction = 'Update';

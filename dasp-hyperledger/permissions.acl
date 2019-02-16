@@ -16,7 +16,7 @@
   * Sample access control list.
   */
 
-  rule ComunityCanViewPublishedArticles {
+  rule ComunityCanReadPublishedArticles {
       description: "Allow all participants read access to all articles that is published"
       participant(m): "org.dasp.net.Author"
       operation: READ
@@ -25,7 +25,7 @@
       action: ALLOW
   }
 
-  rule AuthorCanUpdateData {
+  rule AuthorCanAllAuthor {
       description: "Allow all author access to all resources"
       participant(m): "org.dasp.net.Author"
       operation: ALL
@@ -34,25 +34,25 @@
       action: ALLOW
   }
 
-  rule ArticleOwner {
+  rule AuthorCanAllArticle {
       description: "Allow the owner of a article total access"
       participant(m): "org.dasp.net.Author"
-      operation: READ
+      operation: ALL
       resource(v): "org.dasp.net.Article"
       condition: (v.author.getIdentifier() == m.getIdentifier())
       action: ALLOW
   }
 
-  rule ReadRevisionOwner {
-      description: "Allow the owner of a article total access to their article listing"
+  rule AuthorCanReadRevision {
+      description: "Allow the owner of a article total access to their revision listing"
       participant(m): "org.dasp.net.Author"
       operation: READ
       resource(v): "org.dasp.net.Revision"
-      condition: (v.reviewer.getIdentifier() == m.getIdentifier())
+      condition: (v.reviewer.getIdentifier() == m.getIdentifier() || v.article.author.getIdentifier() == m.getIdentifier())
       action: ALLOW
   }
 
-  rule UpdateRevisionOwner {
+  rule AuthorCanUpdateRevision {
       description: "Allow the owner of a article total access to their article listing"
       participant(m): "org.dasp.net.Author"
       operation: UPDATE
@@ -61,16 +61,7 @@
       action: ALLOW
   }
 
-  rule AuthorCanViewArticleRevisions {
-      description: "Allow the owner of a article total access to their article listing"
-      participant(m): "org.dasp.net.Author"
-      operation: READ
-      resource(v): "org.dasp.net.Revision"
-      condition: (v.article.author.getIdentifier() == m.getIdentifier())
-      action: ALLOW
-  }
-
-  rule RevisorCanRateRevisions {
+  rule AuthorCanCreateRateRevision {
       description: "Allow the owner of a revision total access to revision rating"
       participant(m): "org.dasp.net.Author"
       operation: CREATE
@@ -79,7 +70,7 @@
       action: ALLOW
   }
 
-  rule Article{
+  rule AuthorCanCreateArticle{
       description: "Allow Author to submit a new article"
       participant: "org.dasp.net.Author"
       operation: CREATE
@@ -87,28 +78,21 @@
       action: ALLOW
   }
 
-  rule AddArticle{
+  rule AuthorCanCreateNewArticle{
       description: "Allow Author to submit a new article"
       participant: "org.dasp.net.Author"
       operation: CREATE
       resource: "org.dasp.net.NewArticle"
       action: ALLOW
   }
-  rule CreateNewAuthor{
+  rule AuthorCanCreateNewAuthor{
       description: "Allow Author to submit a new article"
       participant: "org.dasp.net.Author"
       operation: CREATE
       resource: "org.dasp.net.NewAuthor"
       action: ALLOW
   }
-  rule CreateAuthor{
-      description: "Allow Author to submit a new article"
-      participant: "org.dasp.net.Author"
-      operation: CREATE
-      resource: "org.dasp.net.Author"
-      action: ALLOW
-  }
-  rule OwnerArticleNewHash{
+  rule AuthorCanUpdateArticle{
       description: "Allow the owner of a article change they hash if needed by revision"
       participant(a): "org.dasp.net.Author"
       operation: UPDATE
@@ -116,7 +100,7 @@
       condition: (r.author.getIdentifier() == a.getIdentifier() && r.needRev == true)
       action: ALLOW
   }
-rule NewHash {
+rule AuthorCanCreateNewhash {
       description: "Allow the owner of a article change they hash if needed by revision"
       participant(a): "org.dasp.net.Author"
       operation: CREATE

@@ -33,9 +33,9 @@
                 <form
                     #issueIdentityForm="ngForm"
                     id="issue-identity-form"
-                    (ngSubmit)="issueIdentity()"
+                    (ngSubmit)="newAuthor()"
                 >
-                    <div class="justified-input">
+                <div class="justified-input">
                         <label class="required" for="userID"
                             >E-mail<abbr title="required">*</abbr></label
                         >
@@ -48,48 +48,34 @@
                             name="userID"
                             autocomplete="off"
                         />
-                    </div>
-                    <div *ngIf="revealPass" class="justified-input">
-                        <label class="required" for="secret"
-                            >Secret<abbr title="required">*</abbr></label
+                </div>
+                <div class="justified-input">
+                        <label class="required" for="firstName"
+                            >First Name<abbr title="required">*</abbr></label
                         >
                         <input
                             required
-                            type="password"
-                            [(ngModel)]="pass"
-                            id="pass"
-                            name="pass"
+                            type="text"
+                            [(ngModel)]="firstName"
+                            id="firstName"
+                            name="firstName"
+                            autocomplete="off"
                         />
-                    </div>
-
-                    <div *ngIf="false" class="keyValue">
-                        <label class="key" for="participantFQI"
-                            >Participant<abbr title="required">*</abbr></label
+                </div>
+                <div class="justified-input">
+                        <label class="required" for="lastName"
+                            >Last Name<abbr title="required">*</abbr></label
                         >
-                        <div class="value">
-                            <input
-                                [ngClass]="{
-                                    'error-underline': !isParticipant
-                                }"
-                                required
-                                type="text"
-                                [(ngModel)]="participantFQI"
-                                id="participantFQI"
-                                name="participantFQI"
-                                [ngbTypeahead]="search"
-                                [resultTemplate]="participantTypeaheadResult"
-                                autocomplete="off"
-                                (ngModelChange)="isValidParticipant()"
-                            />
-                            <div
-                                *ngIf="!isParticipant"
-                                class="error-message"
-                                style="position: absolute; top: 165px;"
-                            >
-                                {{ noMatchingParticipant }}
-                            </div>
-                        </div>
-                    </div>
+                        <input
+                            required
+                            type="text"
+                            [(ngModel)]="lastName"
+                            id="lastName"
+                            name="lastName"
+                            autocomplete="off"
+                        />
+                </div>
+
                 </form>
                 <h1 *ngIf="secret">GOOD! YOUR PASS: {{ secret }}</h1>
                 <p>

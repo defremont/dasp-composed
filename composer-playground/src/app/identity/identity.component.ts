@@ -41,6 +41,8 @@ import { saveAs } from "file-saver";
 import { Test } from "../../../e2e/component/test";
 import { timingSafeEqual } from "crypto";
 import { Router } from "@angular/router";
+const BusinessNetworkConnection = require("composer-client")
+    .BusinessNetworkConnection;
 
 @Component({
     selector: "identity",
@@ -55,6 +57,8 @@ export class IdentityComponent implements OnInit {
     private participants: Map<string, Resource> = new Map<string, Resource>();
     private businessNetworkName;
     private reserve;
+    private firstName;
+    private lastName;
 
     private includeOptionalFields: boolean = false;
     private resourceDeclaration: ClassDeclaration = null;
@@ -101,7 +105,7 @@ export class IdentityComponent implements OnInit {
         private alertService: AlertService,
         private clientService: ClientService,
         private identityCardService: IdentityCardService
-    ) { }
+    ) {}
     @Input() resource: any = null;
     ngOnInit(): Promise<any> {
         this.loadAllIdentities();
@@ -181,8 +185,11 @@ export class IdentityComponent implements OnInit {
                                 "participants"
                             ][0];
                             console.log(this.registries["participants"][0]);
-                            if (this.identityCardService.getCurrentIdentityCard()["metadata"]
-                                .userName !== "admin") {
+                            if (
+                                this.identityCardService.getCurrentIdentityCard()[
+                                    "metadata"
+                                ].userName !== "admin"
+                            ) {
                                 this.setCurrentIdentity(
                                     { ref: "admin@dasp-net", usable: true },
                                     true
@@ -239,6 +246,53 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
+    async newAuthor() {
+        this.issueInProgress = true;
+        // console.log(this.resourceDeclaration.getNamespace())
+        // console.log(this.resourceDeclaration.getName())
+
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.NewAuthor",
+            email: this.userID,
+            firstName: this.firstName,
+            lastName: this.lastName
+        });
+
+        await businessNetworkConnection.submitTransaction(resource);
+
+        await this.identityIssue();
+    }
+    async identityIssue() {
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        try {
+            await businessNetworkConnection.connect("admin@dasp-net");
+            let result = await businessNetworkConnection.issueIdentity(
+                "org.dasp.net.Author#" + this.userID,
+                this.userID
+            );
+            console.log(`userID = ${result.userID}`);
+            console.log(`userSecret = ${result.userSecret}`);
+            this.secret = result.userSecret
+
+            this.addIdentityToWallet({
+                userID: this.userID,
+                userSecret: result.userSecret
+            });
+            await businessNetworkConnection.disconnect();
+            this.issueInProgress = false;
+        } catch (error) {
+            console.log(error);
+            process.exit(1);
+        }
+    }
+
     ngOnDestroy() {
         this.clientService
             .getBusinessNetworkConnection()
@@ -251,6 +305,7 @@ export class IdentityComponent implements OnInit {
             }
         );
     }
+
     search = (text$: Observable<string>) =>
         text$
             .debounceTime(200)
@@ -259,24 +314,18 @@ export class IdentityComponent implements OnInit {
                 term === ""
                     ? []
                     : this.participantFQIs
-                        .filter(v => new RegExp(term, "gi").test(v))
-                        .slice(0, 10)
+                          .filter(v => new RegExp(term, "gi").test(v))
+                          .slice(0, 10)
             );
     logIn() {
-        this.trylog(
-            { ref: this.user + "@dasp-net", usable: true },
-            true)
-        console.log('then1');
-
+        this.trylog({ ref: this.user + "@dasp-net", usable: true }, true);
+        console.log("then1");
     }
 
-    private trylog(
-        ID: { ref; usable },
-        revertOnError: boolean
-    ): Promise<void> {
+    private trylog(ID: { ref; usable }, revertOnError: boolean): Promise<void> {
         let secret;
         let cardRef = ID.ref;
-        console.log('@@@ SET CURRENT ID @@@');
+        console.log("@@@ SET CURRENT ID @@@");
 
         console.log(cardRef);
         console.log(ID);
@@ -300,194 +349,32 @@ export class IdentityComponent implements OnInit {
                 this.alertService.busyStatus$.next(null);
                 this.loadAllIdentities();
 
-                secret = this.identityCardService.getCurrentIdentityCard()["metadata"]
-                    .enrollmentSecret;
+                secret = this.identityCardService.getCurrentIdentityCard()[
+                    "metadata"
+                ].enrollmentSecret;
 
                 console.log(secret);
-                console.log('then2');
+                console.log("then2");
 
                 if (this.pass !== secret) {
-                    console.log('@@@ LOGIN @@@');
+                    console.log("@@@ LOGIN @@@");
 
-                    if (this.identityCardService.getCurrentIdentityCard()["metadata"]
-                        .userName !== "admin") {
+                    if (
+                        this.identityCardService.getCurrentIdentityCard()[
+                            "metadata"
+                        ].userName !== "admin"
+                    ) {
                         this.trylog(
                             { ref: "admin@dasp-net", usable: true },
                             true
-                        )
+                        );
                     }
-
                 } else {
-                    return this.router.navigate(['/panel']);
+                    return this.router.navigate(["/panel"]);
                 }
-
             })
             .catch(error => {
                 console.log(error);
-
-            });
-    }
-    issueIdentity(): void {
-        console.log("issueidentity");
-        // this.loadParticipants();
-
-        this.issueInProgress = true;
-        // this.isValidParticipant();
-        this.generateResource(true);
-        console.log("start add");
-        this.addOrUpdateResource().then(() => {
-            this.reload().then(() => {
-                this.createId();
-            });
-        });
-        console.log("final add");
-
-    }
-
-    reload() {
-        console.log(this.reserve + " && " + this.participants.size);
-
-        console.log("start test");
-
-        this.loadAllIdentities();
-        this.loadParticipantsIssue();
-        console.log("1");
-
-        console.log(this.participants);
-        if (this.participants > this.reserve) {
-            this.loaded = false;
-        }
-        return this.clientService
-            .ensureConnected()
-            .then(() => {
-                let introspector = this.clientService
-                    .getBusinessNetwork()
-                    .getIntrospector();
-                let modelClassDeclarations = introspector.getClassDeclarations();
-                modelClassDeclarations.forEach(modelClassDeclaration => {
-                    // Generate list of all known (non-abstract/non-system) transaction types
-                    if (
-                        !modelClassDeclaration.isAbstract() &&
-                        !modelClassDeclaration.isSystemType() &&
-                        modelClassDeclaration instanceof TransactionDeclaration
-                    ) {
-                        this.hasTransactions = true;
-                    }
-                });
-                console.log("2");
-
-                console.log(this.participants);
-                return this.clientService
-                    .getBusinessNetworkConnection()
-                    .getAllAssetRegistries()
-                    .then(assetRegistries => {
-                        assetRegistries.forEach(assetRegistry => {
-                            let index = assetRegistry.id.lastIndexOf(".");
-                            let displayName = assetRegistry.id.substring(
-                                index + 1
-                            );
-                            assetRegistry.displayName = displayName;
-                        });
-
-                        this.registries["assets"] = assetRegistries.sort(
-                            (a, b) => {
-                                return a.id.localeCompare(b.id);
-                            }
-                        );
-
-                        console.log("3");
-                        console.log(this.participants);
-                        return this.clientService
-                            .getBusinessNetworkConnection()
-                            .getAllParticipantRegistries();
-                    })
-                    .then(participantRegistries => {
-                        console.log(this.participants);
-                        participantRegistries.forEach(participantRegistry => {
-                            let index = participantRegistry.id.lastIndexOf(".");
-                            let displayName = participantRegistry.id.substring(
-                                index + 1
-                            );
-                            participantRegistry.displayName = displayName;
-                        });
-                        console.log(this.participants);
-
-                        this.registries[
-                            "participants"
-                        ] = participantRegistries.sort((a, b) => {
-                            return a.id.localeCompare(b.id);
-                        });
-                        console.log("é aqui");
-
-                        console.log("4");
-                        console.log(this.participants);
-                        return this.clientService
-                            .getBusinessNetworkConnection()
-                            .getHistorian();
-                    })
-                    .then(historianRegistry => {
-                        this.registries["historian"] = historianRegistry;
-                        console.log("chooseando");
-                        // set the default registry selection
-                        if (this.registries["participants"].length !== 0) {
-                            this.chosenRegistry = this.registries[
-                                "participants"
-                            ][0];
-                        } else if (this.registries["assets"].length !== 0) {
-                            this.chosenRegistry = this.registries["assets"][0];
-                        } else {
-                            this.chosenRegistry = this.registries["historian"];
-                        }
-                        this._registry = this.chosenRegistry;
-                        if (this._registry) {
-                            this.loadResources();
-                            this.registryId = this._registry.id;
-                        }
-                        modelClassDeclarations.forEach(
-                            modelClassDeclaration => {
-                                if (
-                                    this.registryId ===
-                                    modelClassDeclaration.getFullyQualifiedName()
-                                ) {
-                                    console.log("if this.registryId");
-                                    // Set resource declaration
-                                    this.resourceDeclaration = modelClassDeclaration;
-                                    this.resourceType = this.retrieveResourceType(
-                                        modelClassDeclaration
-                                    );
-
-                                    if (this.editMode()) {
-                                        console.log("edit mode");
-                                        this.resourceAction = "Update";
-                                        let serializer = this.clientService
-                                            .getBusinessNetwork()
-                                            .getSerializer();
-                                        this.resourceDefinition = JSON.stringify(
-                                            serializer.toJSON(this.resource),
-                                            null,
-                                            2
-                                        );
-                                    } else {
-                                        console.log("not edit mode");
-                                        // Stub out json definition
-                                        this.resourceAction = "Create New";
-                                        //    this.generateResource(true);
-                                    }
-                                }
-                            }
-                        );
-                    })
-                    .catch(error => {
-                        console.log('ERROR catch 1');
-                        console.log(error);
-
-                        this.alertService.errorStatus$.next(error);
-                    });
-            })
-            .catch(error => {
-                console.log('ERROR catch 2');
-                console.log(error);
-                this.alertService.errorStatus$.next(error);
             });
     }
     actualFQI(userID) {
@@ -524,71 +411,19 @@ export class IdentityComponent implements OnInit {
                 }
             })
             .catch(error => {
-                console.log('ERROR catch loadres');
+                console.log("ERROR catch loadres");
                 console.log(error);
                 this.alertService.errorStatus$.next(error);
             });
     }
-    tab1(){
+    tab1() {
         this.tabS = true;
         this.tabL = false;
     }
-    tab2(){
+    tab2() {
         this.tabL = true;
         this.tabS = false;
     }
-    createId() {
-        console.log("start createid");
-
-        this.actionInProgress = false;
-        let options = { issuer: this.issuer, affiliation: undefined };
-        let participant = this.participantFQI.startsWith("resource:")
-            ? this.participantFQI
-            : "resource:" + this.participantFQI;
-        this.clientService
-            .issueIdentity(this.userID, participant, options)
-            .then(identity => {
-                console.log("create id ok");
-
-                this.issueInProgress = false;
-                console.log(JSON.stringify(identity["userID"]));
-                this.secret = identity["userSecret"];
-                this.identity = identity;
-                this.user = identity["userID"];
-                console.log("IDENTIDADE CARREGADA");
-                return this.addIdentityToWallet({
-                    userID: identity["userID"],
-                    userSecret: identity["userSecret"]
-                }).then(() => {
-                    
-                    return console.log(identity);
-
-
-                });
-            })
-            .catch(error => {
-                this.issueInProgress = false;
-                console.log("create id erro@@@");
-                console.log(JSON.stringify(error));
-                console.log(error);
-                console.log("@@wtfit" + error);
-                let string: any = JSON.stringify(error)
-                let mySubString = string.split('code\\\":').pop().split(',')[0]
-                console.log(mySubString);
-
-                if (mySubString !== "0") {
-                    this.issueIdentity();
-                } else {
-                    console.log('@@@ JA REGISTRADO @@@');
-                    this.needPass = true;
-                    console.log(this.needPass);
-
-
-                }
-                return error;
-            });
-    }
-
     /**
      *  Create resource via json serialisation
      */
@@ -886,10 +721,10 @@ export class IdentityComponent implements OnInit {
                         if (
                             !this.getParticipant(
                                 el["participant"].getNamespace() +
-                                "." +
-                                el["participant"].getType() +
-                                "#" +
-                                el["participant"].getIdentifier()
+                                    "." +
+                                    el["participant"].getType() +
+                                    "#" +
+                                    el["participant"].getIdentifier()
                             )
                         ) {
                             ids[index]["state"] = "BOUND PARTICIPANT NOT FOUND";
@@ -983,7 +818,7 @@ export class IdentityComponent implements OnInit {
         revertOnError: boolean
     ): Promise<void> {
         let cardRef = ID.ref;
-        console.log('@@@ SET CURRENT ID @@@');
+        console.log("@@@ SET CURRENT ID @@@");
 
         console.log(cardRef);
         console.log(ID);
@@ -1006,12 +841,19 @@ export class IdentityComponent implements OnInit {
             .then(() => {
                 this.alertService.busyStatus$.next(null);
                 this.loadAllIdentities();
-                if (this.identityCardService.getCurrentIdentityCard()["metadata"].userName !== 'admin') {
-                    console.log(this.identityCardService.getCurrentIdentityCard()["metadata"]);
+                if (
+                    this.identityCardService.getCurrentIdentityCard()[
+                        "metadata"
+                    ].userName !== "admin"
+                ) {
+                    console.log(
+                        this.identityCardService.getCurrentIdentityCard()[
+                            "metadata"
+                        ]
+                    );
 
-                    return this.router.navigate(['/panel']);
+                    return this.router.navigate(["/panel"]);
                 }
-
             })
             .catch(error => {
                 this.alertService.busyStatus$.next(null);
@@ -1221,26 +1063,25 @@ export class IdentityComponent implements OnInit {
         let connectionProfile = currentCard.getConnectionProfile();
         let businessNetworkName = currentCard.getBusinessNetworkName();
 
-        return this.identityCardService
-            .createIdentityCard(
-                identity.userID,
-                null,
-                businessNetworkName,
-                identity.userSecret,
-                connectionProfile
-            )
-            .then((cardRef: string) => {
-                this.alertService.successStatus$.next({
-                    title: "ID Card added to wallet",
-                    text:
-                        "The ID card " +
-                        this.identityCardService
-                            .getIdentityCard(cardRef)
-                            .getUserName() +
-                        " was successfully added to your wallet",
-                    icon: "#icon-role_24"
-                });
-            });
+        return this.identityCardService.createIdentityCard(
+            identity.userID,
+            null,
+            businessNetworkName,
+            identity.userSecret,
+            connectionProfile
+        );
+        // .then((cardRef: string) => {
+        //     this.alertService.successStatus$.next({
+        //         title: "ID Card added to wallet",
+        //         text:
+        //             "The ID card " +
+        //             this.identityCardService
+        //                 .getIdentityCard(cardRef)
+        //                 .getUserName() +
+        //             " was successfully added to your wallet",
+        //         icon: "#icon-role_24"
+        //     });
+        // });
     }
     private isHistorian(): boolean {
         return (

@@ -79,6 +79,7 @@ export class TestComponent implements OnInit, OnDestroy {
     };
     isPaid: any;
     tags: any;
+    id: any;
     constructor(private clientService: ClientService,
         public router: Router,
         private alertService: AlertService,
@@ -111,7 +112,7 @@ export class TestComponent implements OnInit, OnDestroy {
                             return a.id.localeCompare(b.id);
                         });
                         this.loadTransaction();
-                        this.selectNewArticle();
+                        this.select("NewArticle");
 
                         return this.clientService.getBusinessNetworkConnection().getAllParticipantRegistries();
                     })
@@ -187,14 +188,14 @@ export class TestComponent implements OnInit, OnDestroy {
     uploadArticle(){
         this.showUpload = true;
         this.chosenRegistry = null
-        this.selectNewArticle();
+        this.select("NewArticle");
 
     }
-    selectNewArticle(){
+    select(value:string){
         // Set first in list as selectedTransaction
         if (this.transactionTypes && this.transactionTypes.length > 0) {
             for (let transactions in this.transactionTypes){
-                if (this.transactionTypes[transactions]["name"] === "NewArticle"){
+                if (this.transactionTypes[transactions]["name"] === value){
                     this.selectedTransaction = this.transactionTypes[transactions];
                     this.selectedTransactionName = this.selectedTransaction.getName();
                     console.log(this.selectedTransactionName);
@@ -320,6 +321,23 @@ export class TestComponent implements OnInit, OnDestroy {
             this.definitionError = error.toString();
         }
     }
+    test(){
+        this.identityCardService
+        .setCurrentIdentityCard("admin@dasp-net")
+        .then(() => {
+            this.select("CreateRevision")
+            this.idArt(this.id);
+            return
+        })
+    }
+    idArt(id){
+        console.log(this.resourceDefinition);
+        let existingJSON = JSON.parse(this.resourceDefinition);
+        console.log(existingJSON);
+        existingJSON.identifier = this.id;
+        this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
+        this.onDefinitionChanged();
+    }
     paid(){
         console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
@@ -361,7 +379,7 @@ export class TestComponent implements OnInit, OnDestroy {
             generateParameters);
             console.log(resource);
             this.articleHash ? resource.hash = this.articleHash : null;
-
+            this.id = resource.identifier;
         let serializer = this.clientService.getBusinessNetwork().getSerializer();
         try {
             let replacementJSON = serializer.toJSON(resource);

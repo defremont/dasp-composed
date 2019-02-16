@@ -7,14 +7,16 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "noEmitHelpers": true,
+    "noEmitHelpers": false,
     "strictNullChecks": false,
     "baseUrl": "./src",
     "paths": {
     },
     "lib": [
       "dom",
-      "es6"
+      "es6",
+      "es5",
+      "es2015.promise"
     ],
     "types": [
       "chai",

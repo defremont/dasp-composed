@@ -183,6 +183,10 @@ export class LoginComponent implements OnInit {
     }
 
     changeIdentity(cardRef: string, connectionProfileRef: string): Promise<boolean | void> {
+        console.log(cardRef);
+        console.log(connectionProfileRef);
+
+
         let card = this.idCards.get(cardRef);
         let businessNetworkName = card.getBusinessNetworkName();
 
