@@ -46,7 +46,6 @@ export class TestComponent implements OnInit, OnDestroy {
     private chosenRegistry = null;
     private registryReload = false;
     private eventsTriggered = [];
-    showUpload: boolean;
     private articleBase64: string = '';
     articleHash: any;
     // from transaction
@@ -59,6 +58,8 @@ export class TestComponent implements OnInit, OnDestroy {
 
     private resourceDefinition: string = null;
     private submitInProgress: boolean = false;
+    private showToReview: boolean;
+    private showMyRevisions: boolean;
     private definitionError: string = null;
 
 
@@ -81,6 +82,7 @@ export class TestComponent implements OnInit, OnDestroy {
     tags: any;
     id: any;
     loadingHash: boolean;
+    chosenMenu: any = 'upload';
     constructor(private clientService: ClientService,
         public router: Router,
         private alertService: AlertService,
@@ -132,7 +134,6 @@ export class TestComponent implements OnInit, OnDestroy {
                     })
                     .then((historianRegistry) => {
                         this.registries['historian'] = historianRegistry;
-                        this.showUpload = true;
                     })
                     .catch((error) => {
                         this.alertService.errorStatus$.next(error);
@@ -155,7 +156,6 @@ export class TestComponent implements OnInit, OnDestroy {
 
 }
     handleInputChange(e) {
-        this.loadingHash = true;
         var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         var pattern = 'pdf.*';
         var reader = new FileReader();
@@ -171,11 +171,6 @@ export class TestComponent implements OnInit, OnDestroy {
         this.articleBase64 = reader.result;
         console.log(reader)
         console.log(this.articleBase64)
-        ipfs.addJSON({ article: this.articleBase64 }, (err, result) => {
-            console.log(err, result);
-            this.articleHash = result;
-            this.hash();
-          })
       }
     isAdmin() {
         if (
@@ -188,8 +183,6 @@ export class TestComponent implements OnInit, OnDestroy {
         }
     }
     uploadArticle(){
-        this.showUpload = true;
-        this.chosenRegistry = null
         this.select("NewArticle");
 
     }
@@ -221,7 +214,15 @@ export class TestComponent implements OnInit, OnDestroy {
 
     setChosenRegistry(chosenRegistry) {
         this.chosenRegistry = chosenRegistry;
-        this.showUpload = false;
+        console.log(this.registries['assets'][1]);
+
+        this.chosenMenu = null
+    }
+    setChosenMenu(chosenMenu) {
+        this.chosenMenu = chosenMenu;
+        this.chosenRegistry = null
+        this.chosenMenu === "upload" ? this.uploadArticle() : null
+        this.chosenMenu === "toReview" ? this.chosenRegistry = this.registries['assets'][1] : null
     }
     loadTransaction(){
         let introspector = this.clientService.getBusinessNetwork().getIntrospector();
@@ -364,6 +365,14 @@ export class TestComponent implements OnInit, OnDestroy {
         this.onDefinitionChanged();
         this.loadingHash = false;
     }
+    async test(){
+        this.loadingHash = true;
+        await ipfs.addJSON({ article: this.tags, test: 1}, (err, result) => {
+            console.log(err, result);
+            this.articleHash = result;
+            this.loadingHash = false;
+        })
+    }
     /**
      * Generate a TransactionDeclaration definition, accounting for need to hide fields
      */
@@ -418,28 +427,34 @@ export class TestComponent implements OnInit, OnDestroy {
     /**
      * Submit the TransactionDeclaration definition
      */
-    private submitSpecTransaction() {
+    private async submitSpecTransaction() {
         this.submitInProgress = true;
-        return Promise.resolve()
-            .then(() => {
-                let json = JSON.parse(this.resourceDefinition);
-                let serializer = this.clientService.getBusinessNetwork().getSerializer();
-                this.submittedTransaction = serializer.fromJSON(json);
+        this.loadingHash = true;
+        await ipfs.addJSON({ article: this.articleBase64 }, (err, result) => {
+            console.log(err, result);
+            this.articleHash = result;
+            this.hash();
+            return Promise.resolve()
+                .then(() => {
+                    let json = JSON.parse(this.resourceDefinition);
+                    let serializer = this.clientService.getBusinessNetwork().getSerializer();
+                    this.submittedTransaction = serializer.fromJSON(json);
 
-                return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
-            })
-            .then(() => {
-                this.submitInProgress = false;
-                this.definitionError = null;
-                console.log(this.submittedTransaction);
-                console.log(JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, ''));
-                this.id = JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, '');
-                this.createRevision();
-                return this.submittedTransaction;
-            })
-            .catch((error) => {
-                this.definitionError = error.toString();
-                this.submitInProgress = false;
-            });
+                    return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
+                })
+                .then(() => {
+                    this.submitInProgress = false;
+                    this.definitionError = null;
+                    console.log(this.submittedTransaction);
+                    console.log(JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, ''));
+                    this.id = JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, '');
+                    this.createRevision();
+                    return this.submittedTransaction;
+                })
+                .catch((error) => {
+                    this.definitionError = error.toString();
+                    this.submitInProgress = false;
+                });
+          })
     }
 }

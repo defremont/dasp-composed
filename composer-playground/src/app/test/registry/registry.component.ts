@@ -11,36 +11,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, Input } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input } from "@angular/core";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
-import { ClientService } from '../../services/client.service';
-import { AlertService } from '../../basic-modals/alert.service';
-import { ResourceComponent } from '../resource/resource.component';
-import { DeleteComponent } from '../../basic-modals/delete-confirm/delete-confirm.component';
-import { ViewTransactionComponent } from '../view-transaction/view-transaction.component';
-import { DrawerDismissReasons } from '../../common/drawer';
+import { ClientService } from "../../services/client.service";
+import { AlertService } from "../../basic-modals/alert.service";
+import { ResourceComponent } from "../resource/resource.component";
+import { DeleteComponent } from "../../basic-modals/delete-confirm/delete-confirm.component";
+import { ViewTransactionComponent } from "../view-transaction/view-transaction.component";
+import { DrawerDismissReasons } from "../../common/drawer";
+import { IdentityCardService } from "app/services/identity-card.service";
+const IPFS = require("ipfs-mini");
+const ipfs = new IPFS({
+    host: "ipfs.infura.io",
+    port: 5001,
+    protocol: "https"
+});
 
 @Component({
-    selector: 'registry',
-    templateUrl: './registry.component.html',
-    styleUrls: [
-        './registry.component.scss'.toString()
-    ]
+    selector: "registry",
+    templateUrl: "./registry.component.html",
+    styleUrls: ["./registry.component.scss".toString()]
 })
-
 export class RegistryComponent {
-
     tableScrolled = false;
-
+    private rate = false;
     private _registry = null;
     private _reload = null;
+    private _type = null;
     private resources = [];
+    private author = this.identityCardService.getCurrentIdentityCard()[
+        "metadata"
+    ].userName;
 
     private expandedResource = null;
     private registryId: string = null;
 
     private overFlowedResources = {};
+    notes: any;
+    points: any;
+    loading: boolean;
 
     @Input()
     set registry(registry: any) {
@@ -49,6 +59,10 @@ export class RegistryComponent {
             this.loadResources();
             this.registryId = this._registry.id;
         }
+    }
+    @Input()
+    set type(type: any) {
+        this._type = type;
     }
 
     @Input()
@@ -59,32 +73,113 @@ export class RegistryComponent {
         this._reload = reload;
     }
 
-    constructor(private clientService: ClientService,
-                private alertService: AlertService,
-                private modalService: NgbModal) {
-    }
+    constructor(
+        private clientService: ClientService,
+        private alertService: AlertService,
+        private modalService: NgbModal,
+        private identityCardService: IdentityCardService
+    ) {}
 
     loadResources(): Promise<void> {
         this.overFlowedResources = {};
-        return this._registry.getAll()
-            .then((resources) => {
+        return this._registry
+            .getAll()
+            .then(resources => {
                 if (this.isHistorian()) {
                     this.resources = resources.sort((a, b) => {
                         return b.transactionTimestamp - a.transactionTimestamp;
                     });
                 } else {
                     this.resources = resources.sort((a, b) => {
-                        return a.getIdentifier().localeCompare(b.getIdentifier());
+                        return a
+                            .getIdentifier()
+                            .localeCompare(b.getIdentifier());
                     });
                 }
+
+                console.log(this.resources);
+                console.log(this.author);
             })
-            .catch((error) => {
+            .catch(error => {
                 this.alertService.errorStatus$.next(error);
             });
     }
+    rateModal(definition) {
+        this.rate = definition;
+    }
+    closeRateModal() {
+        this.rate = false;
+    }
+    downloadFile(hash) {
+        let link = document.createElement("a");
+        link.download = "filename";
+        ipfs.catJSON(hash)
+            .then(result => {
+                link.href = result.article;
+                console.log(result);
 
+                link.click();
+            })
+            .catch(console.log);
+    }
+    async rateRevision(id) {
+        this.loading = true;
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.RateRevision",
+            revision: "resource:org.dasp.net.Revision#" + id,
+            notes: this.notes,
+            points: this.points
+        });
+        console.log(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadResources();
+            return (this.loading = false);
+        });
+    }
+    async reviewAccept(id) {
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.ReviewAccept",
+            revision: "resource:org.dasp.net.Revision#" + id
+        });
+        console.log(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            return this.loadResources();
+        });
+    }
+    async reviewRejected(id) {
+        this.loading = true;
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.ReviewRejected",
+            revision: "resource:org.dasp.net.Revision#" + id
+        });
+        console.log(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadResources();
+            return (this.loading = false);
+        });
+    }
     serialize(resource: any): string {
-        let serializer = this.clientService.getBusinessNetwork().getSerializer();
+        let serializer = this.clientService
+            .getBusinessNetwork()
+            .getSerializer();
         return JSON.stringify(serializer.toJSON(resource), null, 2);
     }
 
@@ -99,15 +194,16 @@ export class RegistryComponent {
     openNewResourceModal() {
         const modalRef = this.modalService.open(ResourceComponent);
         modalRef.componentInstance.registryId = this._registry.id;
-        modalRef.result.then(() => {
-            // refresh current resource list
-            this.loadResources();
-        })
-        .catch((error) => {
-            if (error !== DrawerDismissReasons.ESC ) {
-                this.alertService.errorStatus$.next(error);
-            }
-        });
+        modalRef.result
+            .then(() => {
+                // refresh current resource list
+                this.loadResources();
+            })
+            .catch(error => {
+                if (error !== DrawerDismissReasons.ESC) {
+                    this.alertService.errorStatus$.next(error);
+                }
+            });
     }
 
     hasOverFlow(overflow: boolean, resource: any) {
@@ -120,60 +216,70 @@ export class RegistryComponent {
         const editModalRef = this.modalService.open(ResourceComponent);
         editModalRef.componentInstance.registryId = this._registry.id;
         editModalRef.componentInstance.resource = resource;
-        editModalRef.result.then(() => {
-            // refresh current resource list
-            this.loadResources();
-        })
-        .catch((error) => {
-          if (error !== DrawerDismissReasons.ESC ) {
-              this.alertService.errorStatus$.next(error);
-            }
-        });
+        editModalRef.result
+            .then(() => {
+                // refresh current resource list
+                this.loadResources();
+            })
+            .catch(error => {
+                if (error !== DrawerDismissReasons.ESC) {
+                    this.alertService.errorStatus$.next(error);
+                }
+            });
     }
 
     openDeleteResourceModal(resource: any) {
         const confirmModalRef = this.modalService.open(DeleteComponent);
-        confirmModalRef.componentInstance.headerMessage = 'Delete Asset/Participant';
-        confirmModalRef.componentInstance.deleteMessage = 'This action will be recorded in the Historian, and cannot be reversed. Are you sure you want to delete?';
+        confirmModalRef.componentInstance.headerMessage =
+            "Delete Asset/Participant";
+        confirmModalRef.componentInstance.deleteMessage =
+            "This action will be recorded in the Historian, and cannot be reversed. Are you sure you want to delete?";
         confirmModalRef.componentInstance.fileType = resource.$type;
         confirmModalRef.componentInstance.fileName = resource.getIdentifier();
-        confirmModalRef.componentInstance.action = 'delete';
-        confirmModalRef.result.then((result) => {
-            if (result) {
-                this._registry.remove(resource)
-                    .then(() => {
-                        this.loadResources();
-                    })
-                    .catch((error) => {
-                        this.alertService.errorStatus$.next(
-                            'Removing the selected item from the registry failed:' + error
-                        );
-                    });
-            } else {
-                // TODO: we should always get called with a code for this usage of the
-                // modal but will that always be true
-
-            }
-        })
-        .catch((error) => {
-            if (error !== DrawerDismissReasons.ESC ) {
-                this.alertService.errorStatus$.next(error);
-            }
-        });
-    }
-
-    viewTransactionData(transaction: any) {
-        return this.clientService.resolveTransactionRelationship(transaction).then((resolvedTransction) => {
-            let transactionModalRef = this.modalService.open(ViewTransactionComponent);
-            transactionModalRef.componentInstance.transaction = resolvedTransction;
-            transactionModalRef.componentInstance.events = transaction.eventsEmitted;
-
-            transactionModalRef.result.catch((error) => {
-                if (error && error !== DrawerDismissReasons.ESC) {
+        confirmModalRef.componentInstance.action = "delete";
+        confirmModalRef.result
+            .then(result => {
+                if (result) {
+                    this._registry
+                        .remove(resource)
+                        .then(() => {
+                            this.loadResources();
+                        })
+                        .catch(error => {
+                            this.alertService.errorStatus$.next(
+                                "Removing the selected item from the registry failed:" +
+                                    error
+                            );
+                        });
+                } else {
+                    // TODO: we should always get called with a code for this usage of the
+                    // modal but will that always be true
+                }
+            })
+            .catch(error => {
+                if (error !== DrawerDismissReasons.ESC) {
                     this.alertService.errorStatus$.next(error);
                 }
             });
-        });
+    }
+
+    viewTransactionData(transaction: any) {
+        return this.clientService
+            .resolveTransactionRelationship(transaction)
+            .then(resolvedTransction => {
+                let transactionModalRef = this.modalService.open(
+                    ViewTransactionComponent
+                );
+                transactionModalRef.componentInstance.transaction = resolvedTransction;
+                transactionModalRef.componentInstance.events =
+                    transaction.eventsEmitted;
+
+                transactionModalRef.result.catch(error => {
+                    if (error && error !== DrawerDismissReasons.ESC) {
+                        this.alertService.errorStatus$.next(error);
+                    }
+                });
+            });
     }
 
     updateTableScroll(hasScroll) {
@@ -181,6 +287,9 @@ export class RegistryComponent {
     }
 
     private isHistorian(): boolean {
-        return this.registryId === 'org.hyperledger.composer.system.HistorianRecord';
+        return (
+            this.registryId ===
+            "org.hyperledger.composer.system.HistorianRecord"
+        );
     }
 }

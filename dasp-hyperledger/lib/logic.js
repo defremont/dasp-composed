@@ -289,12 +289,12 @@ async function CreateRevision(createRevision) {
         createRevision.transactionId + i
       );
       revisions[i].hash = createRevision.article.hash;
-      revisions[i].notes = "notes";
-      revisions[i].revisionType = "HALFBLIND";
+      revisions[i].notes = "#";
+      revisions[i].revisionType = "FULLBLIND";
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
-      console.log("rrev:" + revisions[i]);
+      console.log("rev:" + revisions[i]);
       createRevision.article.revisions.push(revisions[i]);
       // Update the asset in the asset registry.
     }
@@ -385,6 +385,32 @@ async function RateRevision(rateRevision) {
   // Update the asset in the asset registry.
   await revisionRegistry.update(rateRevision.revision);
   // If the article already reach the maximum of 5 rated revisions
+    // Get the asset registry for the asset.
+    const articleRegistry = await getAssetRegistry(ARTICLE);
+    rateRevision.revision.article.points += rateRevision.revision.article.revisions.points / 5;
+      // Calculate average points of article
+      rateRevision.revision.article.revCount += 1;
+    // Update the asset in the asset registry.
+    await articleRegistry.update(rateRevision.revision.article);
+    // If article reach 6 or more points
+    if (rateRevision.revision.article.points >= 6) {
+      // Publish the article
+      rateRevision.revision.article.published = true;
+      // Author turns in Reviewer
+      rateRevision.revision.article.author.isReviewer = true;
+      // Get the asset registry for the asset.
+      const authorRegistry = await getParticipantRegistry(AUTHOR);
+      // Update the asset in the asset registry.
+      rateRevision.revision.article.needRev = false;
+      await authorRegistry.update(rateArticle.article.author);
+    } else {
+      // Else (if the article reaches 6 or more points, but it was not accepted by the majority.)
+      // Need other revision of sames revisors.
+      rateRevision.revision.article.needRev = true;
+    }
+    // Update the asset in the asset registry.
+    await articleRegistry.update(rateRevision.revision.article);
+  
 }
 
 /**
@@ -445,46 +471,4 @@ async function NewAuthor(newAuthor) {
       console.log(error);
       throw error;
     });
-}
-/**
- * Transaction for new Author, maybe not needed
- * @param {org.dasp.net.RateArticle} rateArticle
- * @transaction
- */
-
-async function RateArticle(rateArticle) {
-  let points = 0;
-  if (
-    rateArticle.article.revisions.length == 5 &&
-    rateArticle.article.revCount == 0
-  ) {
-    // Get the asset registry for the asset.
-    const articleRegistry = await getAssetRegistry(ARTICLE);
-    for (let i = 0; i < rateArticle.article.revisions.length; i++) {
-      points += rateArticle.article.revisions[i].points / 5;
-      // Calculate average points of article
-      rateArticle.article.revCount += 1;
-    }
-    rateArticle.article.points = points;
-    // Update the asset in the asset registry.
-    await articleRegistry.update(rateArticle.article);
-    // If article reach 6 or more points
-    if (rateArticle.article.points >= 6) {
-      // Publish the article
-      rateArticle.article.published = true;
-      // Author turns in Reviewer
-      rateArticle.article.author.isReviewer = true;
-      // Get the asset registry for the asset.
-      const authorRegistry = await getParticipantRegistry(AUTHOR);
-      // Update the asset in the asset registry.
-      rateArticle.article.needRev = false;
-      await authorRegistry.update(rateArticle.article.author);
-    } else {
-      // Else (if the article reaches 6 or more points, but it was not accepted by the majority.)
-      // Need other revision of sames revisors.
-      rateArticle.article.needRev = true;
-    }
-    // Update the asset in the asset registry.
-    await articleRegistry.update(rateArticle.article);
-  }
 }

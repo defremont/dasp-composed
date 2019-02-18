@@ -16,8 +16,34 @@
         <h2>Article</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li [class.active]="showUpload" (click)="uploadArticle()">
+                <li
+                    [class.active]="chosenMenu === 'upload'"
+                    (click)="setChosenMenu('upload')"
+                >
                     <h3>Upload Article</h3>
+                </li>
+            </ul>
+        </section>
+        <h2>Revisions</h2>
+        <section class="side-bar-nav">
+            <ul class="registry">
+                <li
+                    [class.active]="chosenMenu === 'toReview'"
+                    (click)="setChosenMenu('toReview')"
+                >
+                    <h3>To Review</h3>
+                </li>
+                <li
+                    [class.active]="chosenMenu === 'myRevisions'"
+                    (click)="setChosenMenu('myRevisions')"
+                >
+                    <h3>My Articles Revisions</h3>
+                </li>
+                <li
+                    [class.active]="chosenMenu === 'publicRevisions'"
+                    (click)="setChosenMenu('publicRevisions')"
+                >
+                    <h3>Public Revisions</h3>
                 </li>
             </ul>
         </section>
@@ -84,42 +110,56 @@
     </div>
 </section>
 
-<section *ngIf="!isAdmin() && showUpload" class="main-view">
+<section *ngIf="!isAdmin() && chosenMenu === 'toReview'" class="main-view">
+    <div class="modal-header">
+        <h1>Revisions to Review</h1>
+    </div>
+    <div class="main-view-content">
+        <registry
+            [registry]="chosenRegistry"
+            [reload]="registryReload"
+            [type]="'review'"
+        ></registry>
+    </div>
+
+    <app-footer></app-footer>
+</section>
+<section *ngIf="!isAdmin() && chosenMenu === 'upload'" class="main-view">
     <div class="modal-header">
         <h1>Upload Article</h1>
     </div>
+
     <section class="modal-body">
         <section class="resource-container">
             <section class="resource-component">
-                <input
-                    required
-                    type="checkbox"
-                    name="isPaid"
-                    id="isPaid"
-                    [(ngModel)]="isPaid"
-                    (change)="paid()"
-                    autocomplete="off"
-                />
-                <label for="isPaid" class="checkbox-label">Paid?</label>
                 <div>
-                    <p class="resource-preview-text">Tags:</p>
-                </div>
-                <div class="optional">
-                    <input
-                        required
-                        type="text"
-                        name="tags"
-                        id="tags"
-                        [(ngModel)]="tags"
-                        (change)="tag()"
-                        autocomplete="off"
-                    />
-
                     <div>
                         <p class="resource-preview-text">Upload Article:</p>
                     </div>
-                    {{ articleHash }}
-                    <div >
+
+                    <button
+                        *ngIf="loadingHash"
+                        type="button"
+                        class="primary"
+                        [disabled]="loadingHash"
+                    >
+                        <div
+                            class="ibm-spinner-indeterminate small loop"
+                            ngDefaultControl
+                        >
+                            <div class="loader">
+                                <svg class="circular" viewBox="25 25 50 50">
+                                    <circle
+                                        class="circle-path"
+                                        cx="50"
+                                        cy="50"
+                                        r="20"
+                                    />
+                                </svg>
+                            </div>
+                        </div></button
+                    ><a target="_blank" href="https://ipfs.infura.io:5001/api/v0/cat/{{articleHash}}" >{{ articleHash }}</a>
+                    <div>
                         <input
                             required
                             name="article"
@@ -131,6 +171,30 @@
 
                     <!-- <button (click)="downloadFile()">Download</button> -->
                 </div>
+
+                <div>
+                    <p class="resource-preview-text">Tags:</p>
+                </div>
+                <input
+                    required
+                    type="text"
+                    name="tags"
+                    id="tags"
+                    [(ngModel)]="tags"
+                    (change)="tag()"
+                    autocomplete="off"
+                /><div>
+                        <input
+                            required
+                            type="checkbox"
+                            name="isPaid"
+                            id="isPaid"
+                            [(ngModel)]="isPaid"
+                            (change)="paid()"
+                            autocomplete="off"
+                        />
+                        <label for="isPaid" class="checkbox-label">Paid?</label>
+                        </div>
                 <div class="resource-error-text" ng-if="definitionError!=null">
                     <p>{{ definitionError }}</p>
                 </div>
@@ -139,30 +203,31 @@
     </section>
 
     <footer>
-
         <div class="transaction-footer-cta">
-                <button
-            type="button"
-            class="primary"
-                (click)="test()"
-            >
-            <div>
-                <span>Test</span>
-            </div></button>
-                <button
+            <button type="button" class="primary" (click)="test()">
+                <div>
+                    <span>Test</span>
+                </div>
+            </button>
+            <button
                 name="submitButton"
                 id="submitTransactionButton"
                 type="button"
                 class="primary"
                 (click)="submitSpecTransaction()"
-                [disabled]="definitionError != null || submitInProgress || !articleHash"
+                [disabled]="
+                    definitionError != null ||
+                    submitInProgress ||
+                    !articleBase64 ||
+                    !tags
+                "
                 ngDefaultControl
             >
                 <div *ngIf="!submitInProgress && !loadingHash" ngDefaultControl>
                     <span>Submit</span>
                 </div>
                 <div
-                    *ngIf="submitInProgress"
+                    *ngIf="submitInProgress && !loadingHash"
                     class="ibm-spinner-indeterminate small loop"
                     ngDefaultControl
                 >
@@ -177,11 +242,8 @@
                         </svg>
                     </div>
                 </div>
-                <div
-                    *ngIf="loadingHash"
-                    ngDefaultControl
-                >
-                <span>Loading Hash...</span>
+                <div *ngIf="loadingHash" ngDefaultControl>
+                    <span>Loading Hash...</span>
                 </div>
             </button>
         </div>
@@ -189,7 +251,7 @@
 
     <app-footer></app-footer>
 </section>
-<section *ngIf="!isAdmin() && !showUpload" class="main-view">
+<section *ngIf="!isAdmin() && chosenMenu === null" class="main-view">
     <div class="main-view-content">
         <registry
             [registry]="chosenRegistry"
