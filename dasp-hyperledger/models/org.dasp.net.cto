@@ -27,9 +27,6 @@ participant Author identified by email {
   o Double points default=0.0
   o Double reputation default=0.0
 }
-participant Editor identified by editorId {
-  o String editorId
-}
 
 asset Article identified by articleId {
   o String articleId

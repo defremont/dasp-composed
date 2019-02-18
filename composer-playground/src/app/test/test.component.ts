@@ -80,6 +80,7 @@ export class TestComponent implements OnInit, OnDestroy {
     isPaid: any;
     tags: any;
     id: any;
+    loadingHash: boolean;
     constructor(private clientService: ClientService,
         public router: Router,
         private alertService: AlertService,
@@ -154,6 +155,7 @@ export class TestComponent implements OnInit, OnDestroy {
 
 }
     handleInputChange(e) {
+        this.loadingHash = true;
         var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         var pattern = 'pdf.*';
         var reader = new FileReader();
@@ -321,22 +323,21 @@ export class TestComponent implements OnInit, OnDestroy {
             this.definitionError = error.toString();
         }
     }
-    test(){
+    async createRevision(){
         this.identityCardService
-        .setCurrentIdentityCard("admin@dasp-net")
-        .then(() => {
-            this.select("CreateRevision")
-            this.idArt(this.id);
-            return
-        })
-    }
-    idArt(id){
-        console.log(this.resourceDefinition);
-        let existingJSON = JSON.parse(this.resourceDefinition);
-        console.log(existingJSON);
-        existingJSON.identifier = this.id;
-        this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
-        this.onDefinitionChanged();
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.CreateRevision",
+            article: "resource:org.dasp.net.Article#"+this.id.replace(/"/g, '')
+        });
+        console.log(resource);
+
+
+        await businessNetworkConnection.submitTransaction(resource);
     }
     paid(){
         console.log(this.resourceDefinition);
@@ -361,6 +362,7 @@ export class TestComponent implements OnInit, OnDestroy {
         existingJSON.hash = this.articleHash;
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
+        this.loadingHash = false;
     }
     /**
      * Generate a TransactionDeclaration definition, accounting for need to hide fields
@@ -379,7 +381,6 @@ export class TestComponent implements OnInit, OnDestroy {
             generateParameters);
             console.log(resource);
             this.articleHash ? resource.hash = this.articleHash : null;
-            this.id = resource.identifier;
         let serializer = this.clientService.getBusinessNetwork().getSerializer();
         try {
             let replacementJSON = serializer.toJSON(resource);
@@ -424,11 +425,16 @@ export class TestComponent implements OnInit, OnDestroy {
                 let json = JSON.parse(this.resourceDefinition);
                 let serializer = this.clientService.getBusinessNetwork().getSerializer();
                 this.submittedTransaction = serializer.fromJSON(json);
+
                 return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
             })
             .then(() => {
                 this.submitInProgress = false;
                 this.definitionError = null;
+                console.log(this.submittedTransaction);
+                console.log(JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, ''));
+                this.id = JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, '');
+                this.createRevision();
                 return this.submittedTransaction;
             })
             .catch((error) => {

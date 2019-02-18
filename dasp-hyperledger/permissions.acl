@@ -34,6 +34,23 @@
       action: ALLOW
   }
 
+  rule AuthorCanReadAuthor {
+      description: "Allow all author access to all resources"
+      participant: "org.dasp.net.Author"
+      operation: READ
+      resource: "org.dasp.net.Author"
+      transaction: "org.dasp.net.CreateRevision"
+      action: ALLOW
+  }
+  rule AuthorCanCreateRevision {
+      description: "Allow all author access to all resources"
+      participant: "org.dasp.net.Author"
+      operation: CREATE
+      resource: "org.dasp.net.Revision"
+      transaction: "org.dasp.net.CreateRevision"
+      action: ALLOW
+  }
+
   rule AuthorCanAllArticle {
       description: "Allow the owner of a article total access"
       participant(m): "org.dasp.net.Author"
@@ -83,6 +100,13 @@
       participant: "org.dasp.net.Author"
       operation: CREATE
       resource: "org.dasp.net.NewArticle"
+      action: ALLOW
+  }
+  rule AuthorCanCreateRevisionTx{
+      description: "Allow Author to create revisions"
+      participant: "org.dasp.net.Author"
+      operation: CREATE
+      resource: "org.dasp.net.CreateRevision"
       action: ALLOW
   }
   rule AuthorCanCreateNewAuthor{

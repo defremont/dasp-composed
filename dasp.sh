@@ -5,6 +5,12 @@ composer card delete --card admin@dasp-net && composer card delete --card PeerAd
 
 docker rm $(docker ps -a -q) -f
 
+#docker rmi $(docker images -a -q) -f
+docker images -a | grep "dev-peer0" | awk '{print $3}' | xargs docker rmi
+
+export FABRIC_VERSION=hlfv12
+./fabric-dev-servers/downloadFabric.sh
+
 ./fabric-dev-servers/startFabric.sh && ./fabric-dev-servers/createPeerAdminCard.sh
 
 cd ./dasp-hyperledger

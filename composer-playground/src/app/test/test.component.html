@@ -155,10 +155,10 @@
                 type="button"
                 class="primary"
                 (click)="submitSpecTransaction()"
-                [disabled]="definitionError != null || submitInProgress"
+                [disabled]="definitionError != null || submitInProgress || !articleHash"
                 ngDefaultControl
             >
-                <div *ngIf="!submitInProgress" ngDefaultControl>
+                <div *ngIf="!submitInProgress && !loadingHash" ngDefaultControl>
                     <span>Submit</span>
                 </div>
                 <div
@@ -176,6 +176,12 @@
                             />
                         </svg>
                     </div>
+                </div>
+                <div
+                    *ngIf="loadingHash"
+                    ngDefaultControl
+                >
+                <span>Loading Hash...</span>
                 </div>
             </button>
         </div>
