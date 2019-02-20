@@ -96,7 +96,9 @@ export class RegistryComponent {
                             .localeCompare(b.getIdentifier());
                     });
                 }
-
+                this.resources.forEach(resource => {
+                    console.log(resource)
+                });
                 console.log(this.resources);
                 console.log(this.author);
             })

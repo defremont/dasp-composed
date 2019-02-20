@@ -30,8 +30,8 @@
         >
             <div class="data">Revision Details:</div>
         </div> <div *ngFor="let resource of resources">
-            <div *ngIf="
-            resource['complete'] === false
+            <div *ngIf=" resource['reviewer'].getIdentifier() === author &&
+            !resource['complete']
         " class="resource-container">
                 <div
 
