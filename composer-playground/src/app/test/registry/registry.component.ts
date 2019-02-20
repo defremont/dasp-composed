@@ -96,9 +96,21 @@ export class RegistryComponent {
                             .localeCompare(b.getIdentifier());
                     });
                 }
-                this.resources.forEach(resource => {
-                    console.log(resource)
-                });
+                if(this._type === 'myArticleRevisions'){
+                    this.resources.forEach(resource => {
+                        var currentdate = new Date();
+                        if (currentdate.getTime() - resource.date.getTime() > 3300000){
+                            console.log("é maior")
+                          this.reviewRejected(resource.getIdentifier());
+                        }
+                        console.log("agora sao "+currentdate.getTime());
+
+                        console.log("a data é de "+resource.date.getTime())
+                        console.log("@@@@@ "+resource.getIdentifier());
+
+                    });
+
+                }
                 console.log(this.resources);
                 console.log(this.author);
             })

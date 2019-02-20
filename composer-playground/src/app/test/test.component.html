@@ -59,7 +59,7 @@
                 </li>
             </ul>
         </section>
-        <h2>Participants</h2>
+        <h2>Profile</h2>
         <section class="side-bar-nav">
             <ul class="registry">
                 <li
@@ -72,27 +72,12 @@
                     "
                     (click)="setChosenRegistry(participantRegistry)"
                 >
-                    <h3>{{ participantRegistry.displayName }}</h3>
+                    <h3>My Profile</h3>
                 </li>
             </ul>
         </section>
 
-        <h2>Assets</h2>
-        <section class="side-bar-nav">
-            <ul class="registry">
-                <li
-                    *ngFor="let assetRegistry of registries['assets']"
-                    [class.active]="
-                        chosenRegistry && chosenRegistry.id === assetRegistry.id
-                    "
-                    (click)="setChosenRegistry(assetRegistry)"
-                >
-                    <h3>{{ assetRegistry.displayName }}</h3>
-                </li>
-            </ul>
-        </section>
-
-        <h2>Transactions</h2>
+        <!-- <h2>Transactions</h2>
         <section class="side-bar-nav">
             <ul class="registry">
                 <li
@@ -105,9 +90,9 @@
                     <h3>All Transactions</h3>
                 </li>
             </ul>
-        </section>
+        </section> -->
     </div>
-
+<!--
     <div class="side-button">
         <div class="button-item">
             <button
@@ -119,7 +104,7 @@
                 <span>Submit Transaction</span>
             </button>
         </div>
-    </div>
+    </div> -->
 </section>
 
 <section *ngIf="!isAdmin() && chosenMenu === 'toReview'" class="main-view">
@@ -173,6 +158,20 @@
             [registry]="chosenRegistry"
             [reload]="registryReload"
             [type]="'myArticleRevisions'"
+        ></registry>
+    </div>
+
+    <app-footer></app-footer>
+</section>
+<section *ngIf="!isAdmin() && chosenMenu === 'publicRevisions'" class="main-view">
+    <div class="modal-header">
+        <h1>Public published Revisions</h1>
+    </div>
+    <div class="main-view-content">
+        <registry
+            [registry]="chosenRegistry"
+            [reload]="registryReload"
+            [type]="'publicRevisions'"
         ></registry>
     </div>
 
@@ -241,7 +240,7 @@
                     (change)="tag()"
                     autocomplete="off"
                 /><div>
-                        <input
+                        <!-- <input
                             required
                             type="checkbox"
                             name="isPaid"
@@ -250,7 +249,7 @@
                             (change)="paid()"
                             autocomplete="off"
                         />
-                        <label for="isPaid" class="checkbox-label">Paid?</label>
+                        <label for="isPaid" class="checkbox-label">Paid?</label> -->
                         </div>
                 <div class="resource-error-text" ng-if="definitionError!=null">
                     <p>{{ definitionError }}</p>
@@ -261,11 +260,11 @@
 
     <footer>
         <div class="transaction-footer-cta">
-            <button type="button" class="primary" (click)="test()">
+            <!-- <button type="button" class="primary" (click)="test()">
                 <div>
                     <span>Test</span>
                 </div>
-            </button>
+            </button> -->
             <button
                 name="submitButton"
                 id="submitTransactionButton"

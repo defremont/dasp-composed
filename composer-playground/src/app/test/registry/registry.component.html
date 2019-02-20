@@ -241,7 +241,7 @@
                         <br />Complete Revisions: {{ resource.revCount }}
                         <br />Tags: {{ resource.tags }}
                         <br />Need Revision: {{ resource.needRev }}
-                        <br />Is Paid?: {{ resource.paid }}
+                        <!-- <br />Is Paid?: {{ resource.paid }} -->
                         </pre>
                     <button (click)="downloadFile(resource.hash)">
                         <b
@@ -412,6 +412,101 @@
         </div>
         <div *ngFor="let resource of resources">
             <div *ngIf="resource['reviewer'].getIdentifier() !== author" class="resource-container">
+                <div
+
+                    checkOverFlow
+                    [changed]="resource.getIdentifier()"
+                    [expanded]="resource.getIdentifier() === expandedResource"
+                    (hasOverFlow)="hasOverFlow($event, resource)"
+                    class="resource-content"
+                    [ngClass]="{
+                        expanded: resource.getIdentifier() === expandedResource
+                    }"
+                >
+                    <div class="id">{{ resource.getIdentifier() }}</div>
+                    <pre
+                        #resourcedata
+                        [ngClass]="{
+                            gradient:
+                                resource.getIdentifier() !== expandedResource &&
+                                overFlowedResources[resource.getIdentifier()],
+                            'tiny-gradient':
+                                resource.getIdentifier() === expandedResource ||
+                                !overFlowedResources[resource.getIdentifier()]
+                        }"
+                        class="data"
+                    >
+                    <br/>Hash:<a
+                        target="_blank"
+                        href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                            resource.hash
+                        }}"
+                        ><br/>{{ resource.hash }}</a>
+                    <br />Date: {{ resource.date }}
+                    <br />Points: {{ resource.points }}
+                    <br />Notes: {{ resource.notes }}
+                    <br />Type: {{ resource.revisionType }}
+                    <br />Public: {{ resource.public }}
+                    <br />Article: {{ resource.article.getIdentifier() }}
+                    <br />Revision Rate: {{ resource.rate }}
+                    </pre>
+                    <button
+                        *ngIf="resource.complete"
+                        class="secondary"
+                        type="button"
+                        (click)="changeHash(resource.getIdentifier())"
+                    >
+                        Publish
+                    </button>
+                </div>
+                <button
+                    *ngIf="overFlowedResources[resource.getIdentifier()]"
+                    class="expand"
+                    type="button"
+                    (click)="expandResource(resource)"
+                >
+                    {{
+                        resource.getIdentifier() === expandedResource
+                            ? "Collapse"
+                            : "Show All"
+                    }}
+                </button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!resources || resources.length === 0" class="no-resources">
+        <svg class="ibm-icon" aria-hidden="true">
+            <use xlink:href="#icon-Emptiness"></use>
+        </svg>
+        <h3>This registry is empty!</h3>
+        <p *ngIf="!isHistorian()">
+            To create resources in this registry click create new at the top of
+            this page
+        </p>
+        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+    </div>
+</div>
+<div *ngIf="_registry && _type === 'publicRevisions'" class="resource-header">
+    <div class="resource-header-left">
+        <h1 *ngIf="!isHistorian()">All Published Revisions</h1>
+    </div>
+</div>
+<div
+    *ngIf="_registry && _type === 'publicRevisions'"
+    class="resource-list"
+    [ngClass]="{ 'transaction-list': isHistorian() }"
+>
+    <div *ngIf="!isHistorian()">
+        <div
+            class="title"
+            [ngClass]="{
+                'resource-empty': !resources || resources.length === 0
+            }"
+        >
+            <div class="data">Revision Details:</div>
+        </div>
+        <div *ngFor="let resource of resources">
+            <div *ngIf="resource.public" class="resource-container">
                 <div
 
                     checkOverFlow

@@ -226,6 +226,7 @@ export class TestComponent implements OnInit, OnDestroy {
         this.chosenMenu === "myArticles" ? this.chosenRegistry = this.registries['assets'][0] : null
         this.chosenMenu === "publicArticles" ? this.chosenRegistry = this.registries['assets'][0] : null
         this.chosenMenu === "myArticleRevisions" ? this.chosenRegistry = this.registries['assets'][1] : null
+        this.chosenMenu === "publicRevisions" ? this.chosenRegistry = this.registries['assets'][1] : null
 
     }
     loadTransaction(){

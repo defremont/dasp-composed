@@ -107,6 +107,14 @@
       transaction: "org.dasp.net.ReviewRejected"
       action: ALLOW
   }
+  rule AuthorCanReadArticleFromReject {
+      description: "Allow all author access to all resources"
+      participant: "org.dasp.net.Author"
+      operation: READ
+      resource: "org.dasp.net.Article"
+      transaction: "org.dasp.net.ReviewRejected"
+      action: ALLOW
+  }
   rule AuthorCanCreateReviewAccept{
       description: "Allow Author to submit a new article"
       participant: "org.dasp.net.Author"
