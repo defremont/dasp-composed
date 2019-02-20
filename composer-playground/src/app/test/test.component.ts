@@ -23,7 +23,7 @@ import { IdentityCardService } from "../../app/services/identity-card.service";
 import { Router } from '@angular/router';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 const IPFS = require('ipfs-mini');
-const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+const ipfs = new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https"});
 
 /* tslint:disable-next-line:no-var-requires */
 const uuid = require('uuid');
@@ -223,6 +223,10 @@ export class TestComponent implements OnInit, OnDestroy {
         this.chosenRegistry = null
         this.chosenMenu === "upload" ? this.uploadArticle() : null
         this.chosenMenu === "toReview" ? this.chosenRegistry = this.registries['assets'][1] : null
+        this.chosenMenu === "myArticles" ? this.chosenRegistry = this.registries['assets'][0] : null
+        this.chosenMenu === "publicArticles" ? this.chosenRegistry = this.registries['assets'][0] : null
+        this.chosenMenu === "myArticleRevisions" ? this.chosenRegistry = this.registries['assets'][1] : null
+
     }
     loadTransaction(){
         let introspector = this.clientService.getBusinessNetwork().getIntrospector();

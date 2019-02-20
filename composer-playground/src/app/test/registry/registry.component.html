@@ -11,7 +11,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<div *ngIf="_registry" class="resource-header">
+<div *ngIf="_registry && _type === 'review'" class="resource-header">
     <div class="resource-header-left">
         <h1 *ngIf="!isHistorian()">Revisions waiting for you review</h1>
     </div>
@@ -29,215 +29,149 @@
             }"
         >
             <div class="data">Revision Details:</div>
-        </div>
-        <div *ngFor="let resource of resources" class="resource-container">
-            <div
-                *ngIf="
-                    resource['reviewer']['$identifier'] === author &&
-                    resource['complete'] === false
-                "
-                checkOverFlow
-                [changed]="resource.getIdentifier()"
-                [expanded]="resource.getIdentifier() === expandedResource"
-                (hasOverFlow)="hasOverFlow($event, resource)"
-                class="resource-content"
-                [ngClass]="{
-                    expanded: resource.getIdentifier() === expandedResource
-                }"
-            >
+        </div> <div *ngFor="let resource of resources">
+            <div *ngIf="
+            resource['complete'] === false
+        " class="resource-container">
                 <div
-                    #resourcedata
-                    [ngClass]="{
-                        gradient:
-                            resource.getIdentifier() !== expandedResource &&
-                            overFlowedResources[resource.getIdentifier()],
-                        'tiny-gradient':
-                            resource.getIdentifier() === expandedResource ||
-                            !overFlowedResources[resource.getIdentifier()]
-                    }"
-                    class="data"
-                >
-                    ID: {{ resource.getIdentifier() }}<br />Hash:
-                    <a
-                        target="_blank"
-                        href="https://ipfs.infura.io:5001/api/v0/cat/{{
-                            resource.hash
-                        }}"
-                        >{{ resource.hash }}</a
-                    ><br />Date: {{ resource.date }}
-                </div>
-                <button (click)="downloadFile(resource.hash)">
-                    <b
-                        ><a href="#">Download<br /></a
-                    ></b>
-                </button>
-                <button
-                    *ngIf="!resource.acc"
-                    class="secondary"
-                    type="button"
-                    (click)="rateModal(resource.getIdentifier())"
-                >
-                    Rate
-                </button>
-                <button
-                    *ngIf="!rate"
-                    class="secondary"
-                    type="button"
-                    (click)="reviewAccept(resource.getIdentifier())"
-                >
-                    Accept
-                </button>
-                <button
-                    *ngIf="!rate"
-                    class="secondary"
-                    type="button"
-                    (click)="reviewRejected(resource.getIdentifier())"
-                >
-                    Reject
-                </button>
-                <pre *ngIf="rate === resource.getIdentifier()">Points
 
-        <input
-        name="points"
-        id="points"
-        [(ngModel)]="points"
-        min="0"
-        max="10"
-        required
-        type="number"
-    /></pre>
-                <pre *ngIf="rate === resource.getIdentifier()">Notes
-                <input
-                    required
-                    type="text"
-                    name="notes"
-                    id="notes"
-                    [(ngModel)]="notes"
-                    autocomplete="off"
-                /></pre>
-                <button
-                    *ngIf="rate === resource.getIdentifier()"
-                    type="button"
-                    class="primary"
-                    [disabled]="!notes || !points || loading"
-                    (click)="rateRevision(resource.getIdentifier())"
+                    checkOverFlow
+                    [changed]="resource.getIdentifier()"
+                    [expanded]="resource.getIdentifier() === expandedResource"
+                    (hasOverFlow)="hasOverFlow($event, resource)"
+                    class="resource-content"
+                    [ngClass]="{
+                        expanded: resource.getIdentifier() === expandedResource
+                    }"
                 >
                     <div
-                        *ngIf="loading"
-                        class="ibm-spinner-indeterminate small loop"
-                        ngDefaultControl
+                        #resourcedata
+                        [ngClass]="{
+                            gradient:
+                                resource.getIdentifier() !== expandedResource &&
+                                overFlowedResources[resource.getIdentifier()],
+                            'tiny-gradient':
+                                resource.getIdentifier() === expandedResource ||
+                                !overFlowedResources[resource.getIdentifier()]
+                        }"
+                        class="data"
                     >
-                        <div class="loader">
-                            <svg class="circular" viewBox="25 25 50 50">
-                                <circle
-                                    class="circle-path"
-                                    cx="50"
-                                    cy="50"
-                                    r="20"
-                                />
-                            </svg>
-                        </div>
+                        ID: {{ resource.getIdentifier() }}<br />Hash:
+                        <a
+                            target="_blank"
+                            href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                                resource.hash
+                            }}"
+                            >{{ resource.hash }}</a
+                        ><br />Date: {{ resource.date }}
                     </div>
-                    <b *ngIf="!loading">SEND</b>
-                </button>
-
-                <div
-                    *ngIf="rate === resource.getIdentifier()"
-                    class="resource-icon"
-                >
-                    <button
-                        type="button"
-                        class="icon edit-resource"
-                        (click)="closeRateModal()"
-                    >
-                        X
+                    <button (click)="downloadFile(resource.hash)">
+                        <b
+                            ><a href="#">Download<br /></a
+                        ></b>
                     </button>
-                </div>
-            </div>
-            <button
-                *ngIf="
-                    overFlowedResources[resource.getIdentifier()] &&
-                    resource['reviewer']['$identifier'] === 'autor'
-                "
-                class="expand"
-                type="button"
-                (click)="expandResource(resource)"
-            >
-                {{
-                    resource.getIdentifier() === expandedResource
-                        ? "Collapse"
-                        : "Show All"
-                }}
-            </button>
-        </div>
-    </div>
+                    <button
+                        *ngIf="resource.acc && !rate"
+                        class="secondary"
+                        type="button"
+                        (click)="rateModal(resource.getIdentifier())"
+                    >
+                        Rate
+                    </button>
+                    <button
+                    [disabled]="loading"
+                        *ngIf="!rate && !resource.acc"
+                        class="secondary"
+                        type="button"
+                        (click)="reviewAccept(resource.getIdentifier())"
+                    >
+                        Accept
+                    </button>
+                    <button
+                    [disabled]="loading"
+                        *ngIf="!rate && !resource.acc"
+                        class="secondary"
+                        type="button"
+                        (click)="reviewRejected(resource.getIdentifier())"
+                    >
+                        Reject
+                    </button>
+                    <pre *ngIf="rate === resource.getIdentifier()">Points
 
-    <table *ngIf="resources && resources.length > 0 && isHistorian()">
-        <thead [ngClass]="{ 'tbody-scrolled': tableScrolled }">
-            <tr>
-                <th class="normal-column">Date, Time</th>
-                <th class="normal-column">Entry Type</th>
-                <th class="normal-column">Participant</th>
-                <th class="narrow-column"></th>
-            </tr>
-        </thead>
-        <tbody
-            id="transactiontbody"
-            checkScroll
-            (hasScroll)="updateTableScroll($event)"
-        >
-            <tr *ngFor="let resource of resources">
-                <td class="normal-column truncate-text">
+            <input
+            name="points"
+            id="points"
+            [(ngModel)]="points"
+            min="0"
+            max="10"
+            required
+            type="number"
+        /></pre>
+                    <pre *ngIf="rate === resource.getIdentifier()">Notes
+                    <input
+                        required
+                        type="text"
+                        name="notes"
+                        id="notes"
+                        [(ngModel)]="notes"
+                        autocomplete="off"
+                    /></pre>
+                    <button
+                        *ngIf="rate === resource.getIdentifier()"
+                        type="button"
+                        class="primary"
+                        [disabled]="!notes || !points || loading"
+                        (click)="rateRevision(resource.getIdentifier())"
+                    >
+                        <div
+                            *ngIf="loading"
+                            class="ibm-spinner-indeterminate small loop"
+                            ngDefaultControl
+                        >
+                            <div class="loader">
+                                <svg class="circular" viewBox="25 25 50 50">
+                                    <circle
+                                        class="circle-path"
+                                        cx="50"
+                                        cy="50"
+                                        r="20"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                        <b *ngIf="!loading">SEND</b>
+                    </button>
+
+                    <div
+                        *ngIf="rate === resource.getIdentifier()"
+                        class="resource-icon"
+                    >
+                        <button
+                            type="button"
+                            class="icon edit-resource"
+                            (click)="closeRateModal()"
+                        >
+                            X
+                        </button>
+                    </div>
+                </div>
+                <button
+                    *ngIf="
+                        overFlowedResources[resource.getIdentifier()] &&
+                        resource['reviewer']['$identifier'] === 'autor'
+                    "
+                    class="expand"
+                    type="button"
+                    (click)="expandResource(resource)"
+                >
                     {{
-                        resource.transactionTimestamp
-                            | date: "y-MM-dd, HH:mm:ss"
+                        resource.getIdentifier() === expandedResource
+                            ? "Collapse"
+                            : "Show All"
                     }}
-                </td>
-                <td class="normal-column truncate-text">
-                    <span
-                        placement="top"
-                        container="body"
-                        ngbTooltip="{{ resource.transactionType || null }}"
-                        >{{
-                            resource.transactionType
-                                ? resource.transactionType.substring(
-                                      resource.transactionType.lastIndexOf(
-                                          "."
-                                      ) + 1
-                                  )
-                                : "TBC"
-                        }}</span
-                    >
-                </td>
-                <td class="normal-column truncate-text">
-                    <span
-                        placement="top"
-                        container="body"
-                        ngbTooltip="{{
-                            resource.participantInvoking
-                                ? resource.participantInvoking.$namespace +
-                                  '.' +
-                                  resource.participantInvoking.$type
-                                : null
-                        }}"
-                        >{{
-                            resource.participantInvoking
-                                ? resource.participantInvoking.$identifier +
-                                  " (" +
-                                  resource.participantInvoking.$type +
-                                  ")"
-                                : "none"
-                        }}</span
-                    >
-                </td>
-                <td class="narrow-column">
-                    <a href="#" (click)="viewTransactionData(resource)"
-                        >view record</a
-                    >
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                </button>
+            </div></div>
+    </div>
 
     <div *ngIf="!resources || resources.length === 0" class="no-resources">
         <svg class="ibm-icon" aria-hidden="true">
@@ -251,8 +185,309 @@
         <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
     </div>
 </div>
+<div *ngIf="_registry && _type === 'myArticles'" class="resource-header">
+    <div class="resource-header-left">
+        <h1 *ngIf="!isHistorian()">All your Articles</h1>
+    </div>
+</div>
 <div
-    *ngIf="_registry && _type !== 'review'"
+    *ngIf="_registry && _type === 'myArticles'"
+    class="resource-list"
+    [ngClass]="{ 'transaction-list': isHistorian() }"
+>
+    <div *ngIf="!isHistorian()">
+        <div
+            class="title"
+            [ngClass]="{
+                'resource-empty': !resources || resources.length === 0
+            }"
+        >
+            <div class="data">Article Details:</div>
+        </div> <div *ngFor="let resource of resources" >
+            <div *ngIf="resource['author']['$identifier'] === author" class="resource-container">
+                <div
+
+                    checkOverFlow
+                    [changed]="resource.getIdentifier()"
+                    [expanded]="resource.getIdentifier() === expandedResource"
+                    (hasOverFlow)="hasOverFlow($event, resource)"
+                    class="resource-content"
+                    [ngClass]="{
+                        expanded: resource.getIdentifier() === expandedResource
+                    }"
+                >
+                    <div class="id">ID: {{ resource.getIdentifier() }}</div>
+                    <pre
+                        #resourcedata
+                        [ngClass]="{
+                            gradient:
+                                resource.getIdentifier() !== expandedResource &&
+                                overFlowedResources[resource.getIdentifier()],
+                            'tiny-gradient':
+                                resource.getIdentifier() === expandedResource ||
+                                !overFlowedResources[resource.getIdentifier()]
+                        }"
+                        class="data"
+                    ><br/>Hash:<a
+                            target="_blank"
+                            href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                                resource.hash
+                            }}"
+                            ><br/>{{ resource.hash }}
+                        </a>
+                        <br />Date: {{ resource.date }}
+                        <br />Points: {{ resource.points }}
+                        <br />Published: {{ resource.published }}
+                        <br />Complete Revisions: {{ resource.revCount }}
+                        <br />Tags: {{ resource.tags }}
+                        <br />Need Revision: {{ resource.needRev }}
+                        <br />Is Paid?: {{ resource.paid }}
+                        </pre>
+                    <button (click)="downloadFile(resource.hash)">
+                        <b
+                            ><a href="#">Download<br /></a
+                        ></b>
+                    </button>
+                    <button
+                        *ngIf="resource.needRev"
+                        class="secondary"
+                        type="button"
+                        (click)="changeHash(resource.getIdentifier())"
+                    >
+                        Change Hash
+                    </button>
+                    <button *ngIf="!resource.published"
+                        class="delete"
+                        type="button"
+                        (click)="delete(resource.getIdentifier())"
+                    >
+                        Delete
+                    </button>
+                    <pre *ngIf="rate === resource.getIdentifier()">Points
+
+            <input
+            name="newHash"
+            id="newHash"
+            [(ngModel)]="newHash"
+            required
+            type="text"
+        /></pre>
+                </div>
+                <button
+                    *ngIf="overFlowedResources[resource.getIdentifier()]"
+                    class="expand"
+                    type="button"
+                    (click)="expandResource(resource)"
+                >
+                    {{
+                        resource.getIdentifier() === expandedResource
+                            ? "Collapse"
+                            : "Show All"
+                    }}
+                </button>
+            </div></div>
+    </div>
+    <div *ngIf="!resources || resources.length === 0" class="no-resources">
+        <svg class="ibm-icon" aria-hidden="true">
+            <use xlink:href="#icon-Emptiness"></use>
+        </svg>
+        <h3>This registry is empty!</h3>
+        <p *ngIf="!isHistorian()">
+            To create resources in this registry click create new at the top of
+            this page
+        </p>
+        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+    </div>
+</div>
+<div *ngIf="_registry && _type === 'publicArticles'" class="resource-header">
+    <div class="resource-header-left">
+        <h1 *ngIf="!isHistorian()">All Public Articles</h1>
+    </div>
+</div>
+<div
+    *ngIf="_registry && _type === 'publicArticles'"
+    class="resource-list"
+    [ngClass]="{ 'transaction-list': isHistorian() }"
+>
+    <div *ngIf="!isHistorian()">
+        <div
+            class="title"
+            [ngClass]="{
+                'resource-empty': !resources || resources.length === 0
+            }"
+        >
+            <div class="data">Article Details:</div>
+        </div>
+        <div *ngFor="let resource of resources">
+            <div *ngIf="resource['published']" class="resource-container">
+                <div
+
+                    checkOverFlow
+                    [changed]="resource.getIdentifier()"
+                    [expanded]="resource.getIdentifier() === expandedResource"
+                    (hasOverFlow)="hasOverFlow($event, resource)"
+                    class="resource-content"
+                    [ngClass]="{
+                        expanded: resource.getIdentifier() === expandedResource
+                    }"
+                >
+                    <div class="id">ID: {{ resource.getIdentifier() }}</div>
+                    <pre
+                        #resourcedata
+                        [ngClass]="{
+                            gradient:
+                                resource.getIdentifier() !== expandedResource &&
+                                overFlowedResources[resource.getIdentifier()],
+                            'tiny-gradient':
+                                resource.getIdentifier() === expandedResource ||
+                                !overFlowedResources[resource.getIdentifier()]
+                        }"
+                        class="data"
+                    ><br/>Hash:<a
+                        target="_blank"
+                        href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                            resource.hash
+                        }}"
+                        ><br/>{{ resource.hash }}
+                    </a>
+                    <br />Date: {{ resource.date }}
+                    <br />Points: {{ resource.points }}
+                    <br />Published: {{ resource.published }}
+                    <br />Complete Revisions: {{ resource.revCount }}
+                    <br />Tags: {{ resource.tags }}
+                    <br />Need Revision: {{ resource.needRev }}
+                    <br />Is Paid?: {{ resource.paid }}
+                    </pre>
+                    <button (click)="downloadFile(resource.hash)">
+                        <b
+                            ><a href="#">Download<br /></a
+                        ></b>
+                    </button>
+                </div>
+                <button
+                    *ngIf="overFlowedResources[resource.getIdentifier()]"
+                    class="expand"
+                    type="button"
+                    (click)="expandResource(resource)"
+                >
+                    {{
+                        resource.getIdentifier() === expandedResource
+                            ? "Collapse"
+                            : "Show All"
+                    }}
+                </button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!resources || resources.length === 0" class="no-resources">
+        <svg class="ibm-icon" aria-hidden="true">
+            <use xlink:href="#icon-Emptiness"></use>
+        </svg>
+        <h3>This registry is empty!</h3>
+        <p *ngIf="!isHistorian()">
+            To create resources in this registry click create new at the top of
+            this page
+        </p>
+        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+    </div>
+</div>
+<div *ngIf="_registry && _type === 'myArticleRevisions'" class="resource-header">
+    <div class="resource-header-left">
+        <h1 *ngIf="!isHistorian()">All Your Article Revisions</h1>
+    </div>
+</div>
+<div
+    *ngIf="_registry && _type === 'myArticleRevisions'"
+    class="resource-list"
+    [ngClass]="{ 'transaction-list': isHistorian() }"
+>
+    <div *ngIf="!isHistorian()">
+        <div
+            class="title"
+            [ngClass]="{
+                'resource-empty': !resources || resources.length === 0
+            }"
+        >
+            <div class="data">Revision Details:</div>
+        </div>
+        <div *ngFor="let resource of resources">
+            <div *ngIf="resource['reviewer'].getIdentifier() !== author" class="resource-container">
+                <div
+
+                    checkOverFlow
+                    [changed]="resource.getIdentifier()"
+                    [expanded]="resource.getIdentifier() === expandedResource"
+                    (hasOverFlow)="hasOverFlow($event, resource)"
+                    class="resource-content"
+                    [ngClass]="{
+                        expanded: resource.getIdentifier() === expandedResource
+                    }"
+                >
+                    <div class="id">ID: {{ resource.getIdentifier() }}</div>
+                    <pre
+                        #resourcedata
+                        [ngClass]="{
+                            gradient:
+                                resource.getIdentifier() !== expandedResource &&
+                                overFlowedResources[resource.getIdentifier()],
+                            'tiny-gradient':
+                                resource.getIdentifier() === expandedResource ||
+                                !overFlowedResources[resource.getIdentifier()]
+                        }"
+                        class="data"
+                    >
+                    <br/>Hash:<a
+                        target="_blank"
+                        href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                            resource.hash
+                        }}"
+                        ><br/>{{ resource.hash }}</a>
+                    <br />Date: {{ resource.date }}
+                    <br />Points: {{ resource.points }}
+                    <br />Notes: {{ resource.notes }}
+                    <br />Type: {{ resource.revisionType }}
+                    <br />Public: {{ resource.public }}
+                    <br />Article: {{ resource.article.getIdentifier() }}
+                    <br />Revision Rate: {{ resource.rate }}
+                    </pre>
+                    <button
+                        *ngIf="!resource.needRev"
+                        class="secondary"
+                        type="button"
+                        (click)="changeHash(resource.getIdentifier())"
+                    >
+                        Publish
+                    </button>
+                </div>
+                <button
+                    *ngIf="overFlowedResources[resource.getIdentifier()]"
+                    class="expand"
+                    type="button"
+                    (click)="expandResource(resource)"
+                >
+                    {{
+                        resource.getIdentifier() === expandedResource
+                            ? "Collapse"
+                            : "Show All"
+                    }}
+                </button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!resources || resources.length === 0" class="no-resources">
+        <svg class="ibm-icon" aria-hidden="true">
+            <use xlink:href="#icon-Emptiness"></use>
+        </svg>
+        <h3>This registry is empty!</h3>
+        <p *ngIf="!isHistorian()">
+            To create resources in this registry click create new at the top of
+            this page
+        </p>
+        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+    </div>
+</div>
+<div
+    *ngIf="_registry && !_type"
     class="resource-list"
     [ngClass]="{ 'transaction-list': isHistorian() }"
 >

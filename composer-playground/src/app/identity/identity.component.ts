@@ -262,7 +262,7 @@ export class IdentityComponent implements OnInit {
             firstName: this.firstName,
             lastName: this.lastName
         });
-
+        await businessNetworkConnection.connect("admin@dasp-net");
         await businessNetworkConnection.submitTransaction(resource);
 
         await this.identityIssue();

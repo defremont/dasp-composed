@@ -106,6 +106,7 @@ export class RegistryComponent {
     }
     rateModal(definition) {
         this.rate = definition;
+
     }
     closeRateModal() {
         this.rate = false;
@@ -143,6 +144,7 @@ export class RegistryComponent {
         });
     }
     async reviewAccept(id) {
+        this.loading = true;
         this.identityCardService;
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
 

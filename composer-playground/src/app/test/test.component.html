@@ -13,14 +13,26 @@
 -->
 <section *ngIf="!isAdmin()" class="side-bar">
     <div class="registries">
-        <h2>Article</h2>
+        <h2>Articles</h2>
         <section class="side-bar-nav">
             <ul class="registry">
                 <li
                     [class.active]="chosenMenu === 'upload'"
                     (click)="setChosenMenu('upload')"
                 >
-                    <h3>Upload Article</h3>
+                <h3>Upload Article</h3>
+                </li>
+                <li
+                    [class.active]="chosenMenu === 'myArticles'"
+                    (click)="setChosenMenu('myArticles')"
+                >
+                    <h3>My Articles</h3>
+                </li>
+                <li
+                    [class.active]="chosenMenu === 'publicArticles'"
+                    (click)="setChosenMenu('publicArticles')"
+                >
+                    <h3>Public Articles</h3>
                 </li>
             </ul>
         </section>
@@ -34,8 +46,8 @@
                     <h3>To Review</h3>
                 </li>
                 <li
-                    [class.active]="chosenMenu === 'myRevisions'"
-                    (click)="setChosenMenu('myRevisions')"
+                    [class.active]="chosenMenu === 'myArticleRevisions'"
+                    (click)="setChosenMenu('myArticleRevisions')"
                 >
                     <h3>My Articles Revisions</h3>
                 </li>
@@ -124,10 +136,55 @@
 
     <app-footer></app-footer>
 </section>
+<section *ngIf="!isAdmin() && chosenMenu === 'myArticles'" class="main-view">
+    <div class="modal-header">
+        <h1>Your Articles</h1>
+    </div>
+    <div class="main-view-content">
+        <registry
+            [registry]="chosenRegistry"
+            [reload]="registryReload"
+            [type]="'myArticles'"
+        ></registry>
+    </div>
+
+    <app-footer></app-footer>
+</section>
+<section *ngIf="!isAdmin() && chosenMenu === 'publicArticles'" class="main-view">
+    <div class="modal-header">
+        <h1>Public Published Articles</h1>
+    </div>
+    <div class="main-view-content">
+        <registry
+            [registry]="chosenRegistry"
+            [reload]="registryReload"
+            [type]="'publicArticles'"
+        ></registry>
+    </div>
+
+    <app-footer></app-footer>
+</section>
+<section *ngIf="!isAdmin() && chosenMenu === 'myArticleRevisions'" class="main-view">
+    <div class="modal-header">
+        <h1>Revisions from your Articles</h1>
+    </div>
+    <div class="main-view-content">
+        <registry
+            [registry]="chosenRegistry"
+            [reload]="registryReload"
+            [type]="'myArticleRevisions'"
+        ></registry>
+    </div>
+
+    <app-footer></app-footer>
+</section>
 <section *ngIf="!isAdmin() && chosenMenu === 'upload'" class="main-view">
     <div class="modal-header">
         <h1>Upload Article</h1>
     </div>
+    <!-- <div class="modal-header">
+        <h3 style="color:#af3f3f" *ngIf="!ipfsOk">IPFS IS OFFLINE</h3>
+    </div> -->
 
     <section class="modal-body">
         <section class="resource-container">
