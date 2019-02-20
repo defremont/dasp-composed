@@ -159,7 +159,8 @@ export class RegistryComponent {
         });
         console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
-            return this.loadResources();
+            this.loadResources();
+            return (this.loading = false);
         });
     }
     async reviewRejected(id) {

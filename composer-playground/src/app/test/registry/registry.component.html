@@ -56,7 +56,7 @@
                         }"
                         class="data"
                     >
-                        ID: {{ resource.getIdentifier() }}<br />Hash:
+                        {{ resource.getIdentifier() }}<br />Hash:
                         <a
                             target="_blank"
                             href="https://ipfs.infura.io:5001/api/v0/cat/{{
@@ -216,7 +216,7 @@
                         expanded: resource.getIdentifier() === expandedResource
                     }"
                 >
-                    <div class="id">ID: {{ resource.getIdentifier() }}</div>
+                    <div class="id">{{ resource.getIdentifier() }}</div>
                     <pre
                         #resourcedata
                         [ngClass]="{
@@ -331,7 +331,7 @@
                         expanded: resource.getIdentifier() === expandedResource
                     }"
                 >
-                    <div class="id">ID: {{ resource.getIdentifier() }}</div>
+                    <div class="id">{{ resource.getIdentifier() }}</div>
                     <pre
                         #resourcedata
                         [ngClass]="{
@@ -423,7 +423,7 @@
                         expanded: resource.getIdentifier() === expandedResource
                     }"
                 >
-                    <div class="id">ID: {{ resource.getIdentifier() }}</div>
+                    <div class="id">{{ resource.getIdentifier() }}</div>
                     <pre
                         #resourcedata
                         [ngClass]="{

@@ -403,7 +403,7 @@ async function RateRevision(rateRevision) {
         const authorRegistry = await getParticipantRegistry(AUTHOR);
         // Update the asset in the asset registry.
         rateRevision.revision.article.needRev = false;
-        await authorRegistry.update(rateArticle.article.author);
+        await authorRegistry.update(rateRevision.revision.article.author);
         // Update the asset in the asset registry.
         await articleRegistry.update(rateRevision.revision.article);
       } else {

@@ -17,6 +17,23 @@
   */
 
 
+
+  rule AuthorCanReadRevision {
+      description: "Allow the owner of a article total access to their revision listing"
+      participant(m): "org.dasp.net.Author"
+      operation: READ
+      resource(v): "org.dasp.net.Revision"
+      condition: (v.reviewer.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+  }
+  rule AuthorCanReadTheyRevision {
+      description: "Allow the owner of a article total access to their revision listing"
+      participant(m): "org.dasp.net.Author"
+      operation: READ
+      resource(v): "org.dasp.net.Revision"
+      condition: (v.article.author.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+  }
   rule AuthorCanCreateRevisionTx{
       description: "Allow Author to create revisions"
       participant: "org.dasp.net.Author"
@@ -26,6 +43,30 @@
       action: ALLOW
   }
   
+  rule AuthorCanUpdateAuthorFromRevision {
+      description: "Allow all author access to all resources"
+      participant: "org.dasp.net.Author"
+      operation: UPDATE, READ
+      resource: "org.dasp.net.Author"
+      transaction: "org.dasp.net.CreateRevision"
+      action: ALLOW
+  }
+  rule AuthorCanUpdateArticleFromRevision {
+      description: "Allow all author access to all resources"
+      participant: "org.dasp.net.Author"
+      operation: UPDATE, READ
+      resource: "org.dasp.net.Article"
+      transaction: "org.dasp.net.CreateRevision"
+      action: ALLOW
+  }
+  rule AuthorCanCreateRevision {
+      description: "Allow all author access to all resources"
+      participant: "org.dasp.net.Author"
+      operation: CREATE
+      resource: "org.dasp.net.Revision"
+      transaction: "org.dasp.net.CreateRevision"
+      action: ALLOW
+  }
   rule AuthorCanCreateRateRevision {
       description: "Allow the owner of a revision total access to revision rating"
       participant(m): "org.dasp.net.Author"
@@ -131,15 +172,6 @@
       action: ALLOW
   }
 
-  rule AuthorCanReadRevision {
-      description: "Allow the owner of a article total access to their revision listing"
-      participant(m): "org.dasp.net.Author"
-      operation: READ
-      resource(v): "org.dasp.net.Revision"
-      condition: (v.reviewer.getIdentifier() == m.getIdentifier() || v.article.author.getIdentifier() == m.getIdentifier())
-      action: ALLOW
-  }
-
   rule AuthorCanAllArticle {
       description: "Allow the owner of a article total access"
       participant(m): "org.dasp.net.Author"
@@ -154,30 +186,6 @@
       operation: UPDATE
       resource(v): "org.dasp.net.Revision"
       condition: (v.reviewer.getIdentifier() == m.getIdentifier() && v.complete == false)
-      action: ALLOW
-  }
-  rule AuthorCanUpdateAuthorFromRevision {
-      description: "Allow all author access to all resources"
-      participant: "org.dasp.net.Author"
-      operation: UPDATE, READ
-      resource: "org.dasp.net.Author"
-      transaction: "org.dasp.net.CreateRevision"
-      action: ALLOW
-  }
-  rule AuthorCanUpdateArticleFromRevision {
-      description: "Allow all author access to all resources"
-      participant: "org.dasp.net.Author"
-      operation: UPDATE, READ
-      resource: "org.dasp.net.Article"
-      transaction: "org.dasp.net.CreateRevision"
-      action: ALLOW
-  }
-  rule AuthorCanCreateRevision {
-      description: "Allow all author access to all resources"
-      participant: "org.dasp.net.Author"
-      operation: CREATE
-      resource: "org.dasp.net.Revision"
-      transaction: "org.dasp.net.CreateRevision"
       action: ALLOW
   }
 
