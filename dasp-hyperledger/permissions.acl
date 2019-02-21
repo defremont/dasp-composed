@@ -91,42 +91,55 @@
       transaction: "org.dasp.net.RateRevision"
       action: ALLOW
   }
-  rule AuthorCanReadUpdateRevisionFromReject {
+  rule AuthorCanUpdateRevisionFromReject {
+      description: "Allow all author access to all resources"
+      participant(a): "org.dasp.net.Author"
+      operation: UPDATE
+      resource(r): "org.dasp.net.Revision"
+      transaction: "org.dasp.net.ReviewRejected"
+      condition: (r.reviewer.getIdentifier() == a.getIdentifier())
+      action: ALLOW
+  }
+  rule AuthorCanReadRevisionFromReject {
       description: "Allow all author access to all resources"
       participant: "org.dasp.net.Author"
-      operation: UPDATE, READ
+      operation: READ
       resource: "org.dasp.net.Revision"
       transaction: "org.dasp.net.ReviewRejected"
       action: ALLOW
   }
   rule AuthorCanReadAuthorFromReject {
       description: "Allow all author access to all resources"
-      participant: "org.dasp.net.Author"
+      participant(a): "org.dasp.net.Author"
       operation: READ
       resource: "org.dasp.net.Author"
-      transaction: "org.dasp.net.ReviewRejected"
+      transaction(tx): "org.dasp.net.ReviewRejected"
+      condition: (tx.revision.reviewer.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
   rule AuthorCanReadArticleFromReject {
       description: "Allow all author access to all resources"
-      participant: "org.dasp.net.Author"
+      participant(a): "org.dasp.net.Author"
       operation: READ
       resource: "org.dasp.net.Article"
-      transaction: "org.dasp.net.ReviewRejected"
+      transaction(tx): "org.dasp.net.ReviewRejected"
+      condition: (tx.revision.reviewer.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
   rule AuthorCanCreateReviewAccept{
       description: "Allow Author to submit a new article"
-      participant: "org.dasp.net.Author"
+      participant(a): "org.dasp.net.Author"
       operation: CREATE
-      resource: "org.dasp.net.ReviewAccept"
+      resource(r): "org.dasp.net.ReviewAccept"
+      condition: (r.revision.reviewer.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
   rule AuthorCanCreateReviewRejected{
       description: "Allow Author to submit a new article"
-      participant: "org.dasp.net.Author"
+      participant(a): "org.dasp.net.Author"
       operation: CREATE
-      resource: "org.dasp.net.ReviewRejected"
+      resource(r): "org.dasp.net.ReviewRejected"
+      condition: (r.revision.reviewer.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
 

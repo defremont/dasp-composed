@@ -23,7 +23,7 @@ import { IdentityCardService } from "../../app/services/identity-card.service";
 import { Router } from '@angular/router';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 const IPFS = require('ipfs-mini');
-const ipfs = new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https"});
+const ipfs = new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https" });
 
 /* tslint:disable-next-line:no-var-requires */
 const uuid = require('uuid');
@@ -143,7 +143,7 @@ export class TestComponent implements OnInit, OnDestroy {
                 this.alertService.errorStatus$.next(error);
             });
     }
-    downloadFile(){
+    downloadFile() {
         let link = document.createElement("a");
         link.download = "filename";
         ipfs.catJSON(this.articleHash).then((result) => {
@@ -154,24 +154,24 @@ export class TestComponent implements OnInit, OnDestroy {
 
         }).catch(console.log);
 
-}
+    }
     handleInputChange(e) {
         var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         var pattern = 'pdf.*';
         var reader = new FileReader();
         if (!file.type.match(pattern)) {
-          alert('invalid format');
-          return;
+            alert('invalid format');
+            return;
         }
         reader.onload = this._handleReaderLoaded.bind(this);
         reader.readAsDataURL(file);
-      }
-      _handleReaderLoaded(e) {
+    }
+    _handleReaderLoaded(e) {
         let reader = e.target;
         this.articleBase64 = reader.result;
         console.log(reader)
         console.log(this.articleBase64)
-      }
+    }
     isAdmin() {
         if (
             this.identityCardService.getCurrentIdentityCard()["metadata"]
@@ -182,15 +182,15 @@ export class TestComponent implements OnInit, OnDestroy {
             return false;
         }
     }
-    uploadArticle(){
+    uploadArticle() {
         this.select("NewArticle");
 
     }
-    select(value:string){
+    select(value: string) {
         // Set first in list as selectedTransaction
         if (this.transactionTypes && this.transactionTypes.length > 0) {
-            for (let transactions in this.transactionTypes){
-                if (this.transactionTypes[transactions]["name"] === value){
+            for (let transactions in this.transactionTypes) {
+                if (this.transactionTypes[transactions]["name"] === value) {
                     this.selectedTransaction = this.transactionTypes[transactions];
                     this.selectedTransactionName = this.selectedTransaction.getName();
                     console.log(this.selectedTransactionName);
@@ -229,7 +229,7 @@ export class TestComponent implements OnInit, OnDestroy {
         this.chosenMenu === "publicRevisions" ? this.chosenRegistry = this.registries['assets'][1] : null
 
     }
-    loadTransaction(){
+    loadTransaction() {
         let introspector = this.clientService.getBusinessNetwork().getIntrospector();
         this.transactionTypes = introspector.getClassDeclarations()
             .filter((modelClassDeclaration) => {
@@ -240,11 +240,11 @@ export class TestComponent implements OnInit, OnDestroy {
             })
             .sort((a, b) => {
                 if (a.getName() < b.getName()) {
-                  return -1;
+                    return -1;
                 } else if (a.getName() > b.getName()) {
-                  return 1;
+                    return 1;
                 } else {
-                  return 0;
+                    return 0;
                 }
             });
 
@@ -329,7 +329,7 @@ export class TestComponent implements OnInit, OnDestroy {
             this.definitionError = error.toString();
         }
     }
-    async createRevision(){
+    async createRevision() {
         this.identityCardService
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
 
@@ -338,14 +338,14 @@ export class TestComponent implements OnInit, OnDestroy {
 
         let resource = serializer.fromJSON({
             $class: "org.dasp.net.CreateRevision",
-            article: "resource:org.dasp.net.Article#"+this.id.replace(/"/g, '')
+            article: "resource:org.dasp.net.Article#" + this.id.replace(/"/g, '')
         });
         console.log(resource);
 
 
         await businessNetworkConnection.submitTransaction(resource);
     }
-    paid(){
+    paid() {
         console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
         console.log(existingJSON);
@@ -353,7 +353,7 @@ export class TestComponent implements OnInit, OnDestroy {
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
     }
-    tag(){
+    tag() {
         console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
         console.log(existingJSON);
@@ -361,7 +361,7 @@ export class TestComponent implements OnInit, OnDestroy {
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
     }
-    hash(){
+    hash() {
         console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
         console.log(existingJSON);
@@ -370,9 +370,9 @@ export class TestComponent implements OnInit, OnDestroy {
         this.onDefinitionChanged();
         this.loadingHash = false;
     }
-    async test(){
+    async test() {
         this.loadingHash = true;
-        await ipfs.addJSON({ article: this.tags, test: 1}, (err, result) => {
+        await ipfs.addJSON({ article: this.tags, test: 1 }, (err, result) => {
             console.log(err, result);
             this.articleHash = result;
             this.loadingHash = false;
@@ -393,8 +393,8 @@ export class TestComponent implements OnInit, OnDestroy {
             this.selectedTransaction.getName(),
             undefined,
             generateParameters);
-            console.log(resource);
-            this.articleHash ? resource.hash = this.articleHash : null;
+        console.log(resource);
+        this.articleHash ? resource.hash = this.articleHash : null;
         let serializer = this.clientService.getBusinessNetwork().getSerializer();
         try {
             let replacementJSON = serializer.toJSON(resource);
@@ -460,6 +460,6 @@ export class TestComponent implements OnInit, OnDestroy {
                     this.definitionError = error.toString();
                     this.submitInProgress = false;
                 });
-          })
+        })
     }
 }

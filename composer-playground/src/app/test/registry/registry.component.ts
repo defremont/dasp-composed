@@ -51,6 +51,9 @@ export class RegistryComponent {
     notes: any;
     points: any;
     loading: boolean;
+    uploadInput: boolean;
+    articleHash: any;
+    articleBase64: any;
 
     @Input()
     set registry(registry: any) {
@@ -78,7 +81,7 @@ export class RegistryComponent {
         private alertService: AlertService,
         private modalService: NgbModal,
         private identityCardService: IdentityCardService
-    ) {}
+    ) { }
 
     loadResources(): Promise<void> {
         this.overFlowedResources = {};
@@ -96,17 +99,17 @@ export class RegistryComponent {
                             .localeCompare(b.getIdentifier());
                     });
                 }
-                if(this._type === 'myArticleRevisions'){
+                if (this._type === 'myArticleRevisions') {
                     this.resources.forEach(resource => {
                         var currentdate = new Date();
-                        if (currentdate.getTime() - resource.date.getTime() > 3300000){
+                        if (currentdate.getTime() - resource.date.getTime() > 3300000 && !resource.acc) {
                             console.log("é maior")
-                          this.reviewRejected(resource.getIdentifier());
+                            this.reviewRejected(resource.getIdentifier());
                         }
-                        console.log("agora sao "+currentdate.getTime());
+                        console.log("agora sao " + currentdate.getTime());
 
-                        console.log("a data é de "+resource.date.getTime())
-                        console.log("@@@@@ "+resource.getIdentifier());
+                        console.log("a data é de " + resource.date.getTime())
+                        console.log("@@@@@ " + resource.getIdentifier());
 
                     });
 
@@ -193,6 +196,99 @@ export class RegistryComponent {
             return (this.loading = false);
         });
     }
+    /**
+     * Submit the TransactionDeclaration definition
+     */
+    private async ipfsUpload() {
+        this.loading = true;
+        await ipfs.addJSON({ article: this.articleBase64 }, (err, result) => {
+            console.log(err, result);
+            this.articleHash = result;
+            return this.changeHash(this.articleHash).then(() => {
+                this.createRevisions(this.rate);
+            });
+        })
+    }
+    article(article: any): any {
+        throw new Error("Method not implemented.");
+    }
+    private showUpload(id) {
+        this.uploadInput = true;
+        this.rate = id;
+    }
+    handleInputChange(e) {
+        var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
+        var pattern = 'pdf.*';
+        var reader = new FileReader();
+        if (!file.type.match(pattern)) {
+            alert('invalid format');
+            return;
+        }
+        reader.onload = this._handleReaderLoaded.bind(this);
+        reader.readAsDataURL(file);
+    }
+    _handleReaderLoaded(e) {
+        let reader = e.target;
+        this.articleBase64 = reader.result;
+        this.ipfsUpload();
+        console.log(reader)
+        console.log(this.articleBase64)
+    }
+    async changeHash(id) {
+        this.loading = true;
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.NewHash",
+            article: "resource:org.dasp.net.Article#" + this.rate,
+            newHash: id
+        });
+        console.log(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadResources();
+            return (this.loading = false);
+        });
+    }
+    async createRevisions(article) {
+        this.loading = true;
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.CreateRevision",
+            article: "resource:org.dasp.net.Article#" + article
+        });
+        console.log(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadResources();
+            return (this.loading = false);
+        });
+    }
+    async publish(id) {
+        this.loading = true;
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.PublishRevision",
+            revision: "resource:org.dasp.net.Revision#" + id
+        });
+        console.log(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadResources();
+            return (this.loading = false);
+        });
+    }
     serialize(resource: any): string {
         let serializer = this.clientService
             .getBusinessNetwork()
@@ -265,7 +361,7 @@ export class RegistryComponent {
                         .catch(error => {
                             this.alertService.errorStatus$.next(
                                 "Removing the selected item from the registry failed:" +
-                                    error
+                                error
                             );
                         });
                 } else {

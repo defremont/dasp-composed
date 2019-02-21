@@ -16,22 +16,13 @@
         <h2>Articles</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li
-                    [class.active]="chosenMenu === 'upload'"
-                    (click)="setChosenMenu('upload')"
-                >
-                <h3>Upload Article</h3>
+                <li [class.active]="chosenMenu === 'upload'" (click)="setChosenMenu('upload')">
+                    <h3>Upload Article</h3>
                 </li>
-                <li
-                    [class.active]="chosenMenu === 'myArticles'"
-                    (click)="setChosenMenu('myArticles')"
-                >
+                <li [class.active]="chosenMenu === 'myArticles'" (click)="setChosenMenu('myArticles')">
                     <h3>My Articles</h3>
                 </li>
-                <li
-                    [class.active]="chosenMenu === 'publicArticles'"
-                    (click)="setChosenMenu('publicArticles')"
-                >
+                <li [class.active]="chosenMenu === 'publicArticles'" (click)="setChosenMenu('publicArticles')">
                     <h3>Public Articles</h3>
                 </li>
             </ul>
@@ -39,22 +30,13 @@
         <h2>Revisions</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li
-                    [class.active]="chosenMenu === 'toReview'"
-                    (click)="setChosenMenu('toReview')"
-                >
+                <li [class.active]="chosenMenu === 'toReview'" (click)="setChosenMenu('toReview')">
                     <h3>To Review</h3>
                 </li>
-                <li
-                    [class.active]="chosenMenu === 'myArticleRevisions'"
-                    (click)="setChosenMenu('myArticleRevisions')"
-                >
+                <li [class.active]="chosenMenu === 'myArticleRevisions'" (click)="setChosenMenu('myArticleRevisions')">
                     <h3>My Articles Revisions</h3>
                 </li>
-                <li
-                    [class.active]="chosenMenu === 'publicRevisions'"
-                    (click)="setChosenMenu('publicRevisions')"
-                >
+                <li [class.active]="chosenMenu === 'publicRevisions'" (click)="setChosenMenu('publicRevisions')">
                     <h3>Public Revisions</h3>
                 </li>
             </ul>
@@ -62,16 +44,12 @@
         <h2>Profile</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li
-                    *ngFor="
+                <li *ngFor="
                         let participantRegistry of registries['participants']
-                    "
-                    [class.active]="
+                    " [class.active]="
                         chosenRegistry &&
                         chosenRegistry.id === participantRegistry.id
-                    "
-                    (click)="setChosenRegistry(participantRegistry)"
-                >
+                    " (click)="setChosenRegistry(participantRegistry)">
                     <h3>My Profile</h3>
                 </li>
             </ul>
@@ -92,7 +70,7 @@
             </ul>
         </section> -->
     </div>
-<!--
+    <!--
     <div class="side-button">
         <div class="button-item">
             <button
@@ -112,11 +90,7 @@
         <h1>Revisions to Review</h1>
     </div>
     <div class="main-view-content">
-        <registry
-            [registry]="chosenRegistry"
-            [reload]="registryReload"
-            [type]="'review'"
-        ></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'review'"></registry>
     </div>
 
     <app-footer></app-footer>
@@ -126,11 +100,7 @@
         <h1>Your Articles</h1>
     </div>
     <div class="main-view-content">
-        <registry
-            [registry]="chosenRegistry"
-            [reload]="registryReload"
-            [type]="'myArticles'"
-        ></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'myArticles'"></registry>
     </div>
 
     <app-footer></app-footer>
@@ -140,11 +110,7 @@
         <h1>Public Published Articles</h1>
     </div>
     <div class="main-view-content">
-        <registry
-            [registry]="chosenRegistry"
-            [reload]="registryReload"
-            [type]="'publicArticles'"
-        ></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'publicArticles'"></registry>
     </div>
 
     <app-footer></app-footer>
@@ -154,11 +120,7 @@
         <h1>Revisions from your Articles</h1>
     </div>
     <div class="main-view-content">
-        <registry
-            [registry]="chosenRegistry"
-            [reload]="registryReload"
-            [type]="'myArticleRevisions'"
-        ></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'myArticleRevisions'"></registry>
     </div>
 
     <app-footer></app-footer>
@@ -168,11 +130,7 @@
         <h1>Public published Revisions</h1>
     </div>
     <div class="main-view-content">
-        <registry
-            [registry]="chosenRegistry"
-            [reload]="registryReload"
-            [type]="'publicRevisions'"
-        ></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'publicRevisions'"></registry>
     </div>
 
     <app-footer></app-footer>
@@ -193,36 +151,19 @@
                         <p class="resource-preview-text">Upload Article:</p>
                     </div>
 
-                    <button
-                        *ngIf="loadingHash"
-                        type="button"
-                        class="primary"
-                        [disabled]="loadingHash"
-                    >
-                        <div
-                            class="ibm-spinner-indeterminate small loop"
-                            ngDefaultControl
-                        >
+                    <button *ngIf="loadingHash" type="button" class="primary" [disabled]="loadingHash">
+                        <div class="ibm-spinner-indeterminate small loop" ngDefaultControl>
                             <div class="loader">
                                 <svg class="circular" viewBox="25 25 50 50">
-                                    <circle
-                                        class="circle-path"
-                                        cx="50"
-                                        cy="50"
-                                        r="20"
-                                    />
+                                    <circle class="circle-path" cx="50" cy="50" r="20" />
                                 </svg>
                             </div>
-                        </div></button
-                    ><a target="_blank" href="https://ipfs.infura.io:5001/api/v0/cat/{{articleHash}}" >{{ articleHash }}</a>
+                        </div>
+                    </button><a target="_blank"
+                        href="https://ipfs.infura.io:5001/api/v0/cat/{{articleHash}}">{{ articleHash }}</a>
                     <div>
-                        <input
-                            required
-                            name="article"
-                            type="file"
-                            accept="application/pdf"
-                            (change)="handleInputChange($event)"
-                        />
+                        <input required name="article" type="file" accept="application/pdf"
+                            (change)="handleInputChange($event)" />
                     </div>
 
                     <!-- <button (click)="downloadFile()">Download</button> -->
@@ -231,16 +172,10 @@
                 <div>
                     <p class="resource-preview-text">Tags:</p>
                 </div>
-                <input
-                    required
-                    type="text"
-                    name="tags"
-                    id="tags"
-                    [(ngModel)]="tags"
-                    (change)="tag()"
-                    autocomplete="off"
-                /><div>
-                        <!-- <input
+                <input required type="text" name="tags" id="tags" [(ngModel)]="tags" (change)="tag()"
+                    autocomplete="off" />
+                <div>
+                    <!-- <input
                             required
                             type="checkbox"
                             name="isPaid"
@@ -250,7 +185,7 @@
                             autocomplete="off"
                         />
                         <label for="isPaid" class="checkbox-label">Paid?</label> -->
-                        </div>
+                </div>
                 <div class="resource-error-text" ng-if="definitionError!=null">
                     <p>{{ definitionError }}</p>
                 </div>
@@ -265,36 +200,21 @@
                     <span>Test</span>
                 </div>
             </button> -->
-            <button
-                name="submitButton"
-                id="submitTransactionButton"
-                type="button"
-                class="primary"
-                (click)="submitSpecTransaction()"
-                [disabled]="
+            <button name="submitButton" id="submitTransactionButton" type="button" class="primary"
+                (click)="submitSpecTransaction()" [disabled]="
                     definitionError != null ||
                     submitInProgress ||
                     !articleBase64 ||
                     !tags
-                "
-                ngDefaultControl
-            >
+                " ngDefaultControl>
                 <div *ngIf="!submitInProgress && !loadingHash" ngDefaultControl>
                     <span>Submit</span>
                 </div>
-                <div
-                    *ngIf="submitInProgress && !loadingHash"
-                    class="ibm-spinner-indeterminate small loop"
-                    ngDefaultControl
-                >
+                <div *ngIf="submitInProgress && !loadingHash" class="ibm-spinner-indeterminate small loop"
+                    ngDefaultControl>
                     <div class="loader">
                         <svg class="circular" viewBox="25 25 50 50">
-                            <circle
-                                class="circle-path"
-                                cx="50"
-                                cy="50"
-                                r="20"
-                            />
+                            <circle class="circle-path" cx="50" cy="50" r="20" />
                         </svg>
                     </div>
                 </div>
@@ -309,10 +229,7 @@
 </section>
 <section *ngIf="!isAdmin() && chosenMenu === null" class="main-view">
     <div class="main-view-content">
-        <registry
-            [registry]="chosenRegistry"
-            [reload]="registryReload"
-        ></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload"></registry>
     </div>
 
     <app-footer></app-footer>

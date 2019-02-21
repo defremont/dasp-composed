@@ -123,22 +123,22 @@ function onBootstrap(bootstrap) {
   r1.date = bootstrap.timestamp;
 
   return getParticipantRegistry(AUTHOR)
-    .then(function(authorRegistry) {
+    .then(function (authorRegistry) {
       return authorRegistry.addAll(authors);
     })
-    .then(function() {
+    .then(function () {
       return getAssetRegistry(REVISION);
     })
-    .then(function(revisionRegistry) {
+    .then(function (revisionRegistry) {
       return revisionRegistry.add(r1);
     })
-    .then(function() {
+    .then(function () {
       return getAssetRegistry(ARTICLE);
     })
-    .then(function(articleRegistry) {
+    .then(function (articleRegistry) {
       return articleRegistry.addAll(articles);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log(error);
       throw error;
     });
@@ -194,7 +194,7 @@ async function CreateRevision(createRevision) {
   //need revision workflow
   if (createRevision.article.revisions.length >= 5) {
     // If article of revision already have 5 revisors
-    createRevision.article.revisions.forEach(function(revision) {
+    createRevision.article.revisions.forEach(function (revision) {
       revs.forEach(rev => {
         if (
           JSON.stringify(rev.revisionId) === JSON.stringify(revision.revisionId)
@@ -223,16 +223,16 @@ async function CreateRevision(createRevision) {
 
     await articleRegistry.update(createRevision.article);
     return getAssetRegistry(REVISION)
-      .then(function(revisionRegistry) {
+      .then(function (revisionRegistry) {
         return revisionRegistry.addAll(revisions);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         throw error;
       });
   } else {
     // Else (if article has not 5 revisors) For each author, check if is reviewer.
-    authors.forEach(function(author) {
+    authors.forEach(function (author) {
       if (author.isReviewer) {
         console.log("REVISOR TRUE " + author.email);
         if (author.email !== getCurrentParticipant().getIdentifier()) {
@@ -262,7 +262,7 @@ async function CreateRevision(createRevision) {
         return o;
       }
       var myArr = shuffle(range(max));
-      return function() {
+      return function () {
         return myArr.shift();
       };
     }
@@ -306,10 +306,10 @@ async function CreateRevision(createRevision) {
     await articleRegistry.update(createRevision.article);
 
     return getAssetRegistry(REVISION)
-      .then(function(revisionRegistry) {
+      .then(function (revisionRegistry) {
         return revisionRegistry.addAll(revisions);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         throw error;
       });
@@ -342,6 +342,7 @@ async function ReviewAccept(reviewAccept) {
 async function ReviewRejected(reviewRejected) {
   // Update the asset with the new value.
   let revisors = [];
+  let prerevisors = [];
   let count = 0;
   let factory = getFactory();
   // Get the driver participant registry.
@@ -349,25 +350,33 @@ async function ReviewRejected(reviewRejected) {
   // Get all of the drivers in the driver participant registry.
   let authors = await participantRegistry.getAll();
   // Get all the reviewers to chosen the new one
-  authors.forEach(function(author) {
-    if (author.isReviewer) {
-      if (author.email !== getCurrentParticipant().getIdentifier()) {
-        reviewRejected.revision.article.revisions.forEach(function(revision) {
-          console.log("revision.reviewer.email " + revision.reviewer.email);
-          console.log("author.email " + author.email);
-
-          if (author.email !== revision.reviewer.email) {
-            console.log("REVISOR TRUE " + author.email);
-            revisors.push(author);
-            console.log("revisor");
-            count++;
-          }
-        });
+  reviewRejected.revision.article.revisions.forEach(function (revision) {
+    if (getCurrentParticipant().getIdentifier() !== revision.reviewer.email) {
+      console.log("revision.reviewer.email " + revision.reviewer.email);
+      prerevisors.push(revision.reviewer.email);
+    }
+  });
+  await authors.forEach(author => {
+    if (
+      author.email !== getCurrentParticipant().getIdentifier() &&
+      author.isReviewer
+    ) {
+      if (prerevisors.indexOf(author.email) > -1) {
+        console.log("have index " + prerevisors.indexOf(author.email));
+      } else {
+        console.log("is good " + author.email);
+        revisors.push(author);
+        count++;
       }
     }
   });
   // Verification needed in the case of get a same reviewer
-  let randRevisor = Math.floor(Math.random() * (count - 0 + 1) + 0);
+  let randRevisor = Math.floor(Math.random() * (count - 1 + 1) + 0);
+  // if(!revisors[randRevisor].email){
+
+  // }
+  console.log(revisors);
+
   console.log("random num:" + randRevisor);
   console.log(revisors[randRevisor].email);
   let reviewer = factory.newRelationship(
@@ -376,7 +385,10 @@ async function ReviewRejected(reviewRejected) {
     revisors[randRevisor].email
   );
   reviewRejected.revision.acc = false;
+  console.log("revisor choosed " + reviewer);
+
   reviewRejected.revision.reviewer = reviewer;
+  reviewRejected.revision.date = reviewRejected.timestamp;
   // Get the asset registry for the asset.
   const revisionRegistry = await getAssetRegistry(REVISION);
   // Update the asset in the asset registry.
@@ -455,10 +467,10 @@ async function NewArticle(newArticle) {
   article.revisions = [];
 
   return getAssetRegistry(ARTICLE)
-    .then(function(articleRegistry) {
+    .then(function (articleRegistry) {
       return articleRegistry.add(article);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log(error);
       throw error;
     });
@@ -485,10 +497,10 @@ async function NewAuthor(newAuthor) {
     author.isReviewer = true;
   }
   return getParticipantRegistry(AUTHOR)
-    .then(function(authorRegistry) {
+    .then(function (authorRegistry) {
       return authorRegistry.add(author);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log(error);
       throw error;
     });
