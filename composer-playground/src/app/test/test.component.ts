@@ -219,6 +219,9 @@ export class TestComponent implements OnInit, OnDestroy {
         this.chosenMenu = null
     }
     setChosenMenu(chosenMenu) {
+        this.submitInProgress = false
+        this.articleHash = ''
+        this.tags = ''
         this.chosenMenu = chosenMenu;
         this.chosenRegistry = null
         this.chosenMenu === "upload" ? this.uploadArticle() : null
@@ -343,7 +346,11 @@ export class TestComponent implements OnInit, OnDestroy {
         console.log(resource);
 
 
-        await businessNetworkConnection.submitTransaction(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(
+            this.setChosenMenu('myArticles'),
+            this.submitInProgress = false
+
+            );
     }
     paid() {
         console.log(this.resourceDefinition);
@@ -448,7 +455,6 @@ export class TestComponent implements OnInit, OnDestroy {
                     return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
                 })
                 .then(() => {
-                    this.submitInProgress = false;
                     this.definitionError = null;
                     console.log(this.submittedTransaction);
                     console.log(JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, ''));

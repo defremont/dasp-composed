@@ -1,5 +1,5 @@
 {
-    "name": "composer-playground",
+    "name": "dasp-composed",
     "version": "0.20.7",
     "description": "A test harness/UI for the web runtime container for DASP",
     "engines": {
@@ -7,7 +7,7 @@
         "npm": ">=5"
     },
     "bin": {
-        "composer-playground": "cli.js"
+        "dasp-composed": "cli.js"
     },
     "main": "index.js",
     "repository": {

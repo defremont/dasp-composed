@@ -325,17 +325,18 @@ export class IdentityComponent implements OnInit {
     private trylog(ID: { ref; usable }, revertOnError: boolean): Promise<void> {
         let secret;
         let cardRef = ID.ref;
+
+        secret = this.identityCardService.getIdentityCard(this.user + "@dasp-net")["metadata"].enrollmentSecret;
+
         console.log("@@@ SET CURRENT ID @@@");
 
-        console.log(cardRef);
-        console.log(ID);
+        console.log(this.identityCardService.getIdentityCard(this.user + "@dasp-net")["metadata"].enrollmentSecret);
+
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
         }
-
-        let startIdentity = this.currentIdentity;
-
-        this.identityCardService
+        if(secret === this.pass){
+            this.identityCardService
             .setCurrentIdentityCard(cardRef)
             .then(() => {
                 this.currentIdentity = cardRef;
@@ -349,33 +350,15 @@ export class IdentityComponent implements OnInit {
                 this.alertService.busyStatus$.next(null);
                 this.loadAllIdentities();
 
-                secret = this.identityCardService.getCurrentIdentityCard()[
-                    "metadata"
-                ].enrollmentSecret;
+                secret = this.identityCardService.getIdentityCard(this.user + "@dasp-net")["metadata"].enrollmentSecret;
 
-                console.log(secret);
-                console.log("then2");
-
-                if (this.pass !== secret) {
-                    console.log("@@@ LOGIN @@@");
-
-                    if (
-                        this.identityCardService.getCurrentIdentityCard()[
-                            "metadata"
-                        ].userName !== "admin"
-                    ) {
-                        this.trylog(
-                            { ref: "admin@dasp-net", usable: true },
-                            true
-                        );
-                    }
-                } else {
-                    return this.router.navigate(["/panel"]);
-                }
+                return this.router.navigate(["/panel"]);
             })
             .catch(error => {
                 console.log(error);
             });
+        }
+
     }
     actualFQI(userID) {
         console.log("actualFQI");

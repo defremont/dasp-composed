@@ -165,15 +165,22 @@
                         <br />Complete Revisions: {{ resource.revCount }}
                         <br />Tags: {{ resource.tags }}
                         <br />Need Revision: {{ resource.needRev }}
-                        <!-- <br />Is Paid?: {{ resource.paid }} -->
                         </pre>
                     <button (click)="downloadFile(resource.hash)">
                         <b><a href="#">Download<br /></a></b>
                     </button>
-                    <button *ngIf="resource.needRev && !uploadInput" class="secondary" type="button"
+                    <button *ngIf="resource.needRev && !uploadInput && showChangeHash" class="secondary" type="button"
                         (click)="showUpload(resource.getIdentifier())">
                         Change Hash
                     </button>
+
+                    <div *ngIf="loading" class="ibm-spinner-indeterminate small loop" ngDefaultControl>
+                        <div class="loader">
+                            <svg class="circular" viewBox="25 25 50 50">
+                                <circle class="circle-path" cx="50" cy="50" r="20" />
+                            </svg>
+                        </div>
+                    </div>
 
                     <input *ngIf="uploadInput && rate === resource.getIdentifier()" required name="article" type="file"
                         accept="application/pdf" (change)="handleInputChange($event)" />

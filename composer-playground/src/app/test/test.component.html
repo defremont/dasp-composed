@@ -54,35 +54,7 @@
                 </li>
             </ul>
         </section>
-
-        <!-- <h2>Transactions</h2>
-        <section class="side-bar-nav">
-            <ul class="registry">
-                <li
-                    [class.active]="
-                        chosenRegistry &&
-                        chosenRegistry === registries['historian']
-                    "
-                    (click)="setChosenRegistry(registries['historian'])"
-                >
-                    <h3>All Transactions</h3>
-                </li>
-            </ul>
-        </section> -->
     </div>
-    <!--
-    <div class="side-button">
-        <div class="button-item">
-            <button
-                [disabled]="!hasTransactions"
-                type="button"
-                class="primary"
-                (click)="submitTransaction()"
-            >
-                <span>Submit Transaction</span>
-            </button>
-        </div>
-    </div> -->
 </section>
 
 <section *ngIf="!isAdmin() && chosenMenu === 'toReview'" class="main-view">
@@ -139,9 +111,6 @@
     <div class="modal-header">
         <h1>Upload Article</h1>
     </div>
-    <!-- <div class="modal-header">
-        <h3 style="color:#af3f3f" *ngIf="!ipfsOk">IPFS IS OFFLINE</h3>
-    </div> -->
 
     <section class="modal-body">
         <section class="resource-container">
@@ -166,7 +135,6 @@
                             (change)="handleInputChange($event)" />
                     </div>
 
-                    <!-- <button (click)="downloadFile()">Download</button> -->
                 </div>
 
                 <div>
@@ -175,16 +143,6 @@
                 <input required type="text" name="tags" id="tags" [(ngModel)]="tags" (change)="tag()"
                     autocomplete="off" />
                 <div>
-                    <!-- <input
-                            required
-                            type="checkbox"
-                            name="isPaid"
-                            id="isPaid"
-                            [(ngModel)]="isPaid"
-                            (change)="paid()"
-                            autocomplete="off"
-                        />
-                        <label for="isPaid" class="checkbox-label">Paid?</label> -->
                 </div>
                 <div class="resource-error-text" ng-if="definitionError!=null">
                     <p>{{ definitionError }}</p>
@@ -241,7 +199,7 @@
                 <use xlink:href="#icon-Emptiness"></use>
             </svg>
             <h3>Nothing to see here...</h3>
-            <p>PLEASE GO BACK & LOG-IN! >:(</p>
+            <p>PLEASE GO BACK & LOG-IN!</p>
         </div>
     </div>
 

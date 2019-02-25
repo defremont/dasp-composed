@@ -54,6 +54,7 @@ export class RegistryComponent {
     uploadInput: boolean;
     articleHash: any;
     articleBase64: any;
+    showChangeHash: boolean = true;
 
     @Input()
     set registry(registry: any) {
@@ -102,7 +103,7 @@ export class RegistryComponent {
                 if (this._type === 'myArticleRevisions') {
                     this.resources.forEach(resource => {
                         var currentdate = new Date();
-                        if (currentdate.getTime() - resource.date.getTime() > 3300000 && !resource.acc) {
+                        if ((currentdate.getTime() - resource.date.getTime()) > 850000000 && !resource.acc) {
                             console.log("é maior")
                             this.reviewRejected(resource.getIdentifier());
                         }
@@ -214,9 +215,11 @@ export class RegistryComponent {
     }
     private showUpload(id) {
         this.uploadInput = true;
+        this.showChangeHash = false;
         this.rate = id;
     }
     handleInputChange(e) {
+        this.uploadInput = false;
         var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         var pattern = 'pdf.*';
         var reader = new FileReader();
@@ -249,8 +252,6 @@ export class RegistryComponent {
         });
         console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
-            this.loadResources();
-            return (this.loading = false);
         });
     }
     async createRevisions(article) {

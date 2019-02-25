@@ -19,22 +19,11 @@
             </div>
             <div class="navmain" [ngClass]="{'rightonly' : !showHeaderLinks && !usingLocally }">
                 <ul *ngIf="showHeaderLinks" class="links navleft">
-                    <li *ngIf="!isAdmin()">
+                    <!-- <li *ngIf="!isAdmin()">
                         <button id='app_testbutton' class="action" [routerLink]="['panel']"
                                 [routerLinkActive]="['active']">Panel
                         </button>
-                    </li>
-                </ul>
-                <ul *ngIf="!showHeaderLinks && !usingLocally" class="links navright">
-                    <li>
-                        <a href="{{ config.links.install }}"
-                           target="_blank">
-                            <svg class="nav-icon" aria-hidden="true">
-                                <use xlink:href="#icon-simple_docker"></use>
-                            </svg>
-                            <span>Get local version</span>
-                        </a>
-                    </li>
+                    </li> -->
                 </ul>
                 <div *ngIf="showHeaderLinks && !isAdmin()" class="drop-select navright" [routerLinkActive]="['active']" [ngClass]="{'dropListActive' : dropListActive}">
                     <div class="drop-select-item flex-container flex">

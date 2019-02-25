@@ -359,7 +359,7 @@ async function ReviewRejected(reviewRejected) {
   await authors.forEach(author => {
     if (
       author.email !== getCurrentParticipant().getIdentifier() &&
-      author.isReviewer
+      author.isReviewer && author.email !== reviewRejected.revision.article.author.getIdentifier()
     ) {
       if (prerevisors.indexOf(author.email) > -1) {
         console.log("have index " + prerevisors.indexOf(author.email));
@@ -493,7 +493,7 @@ async function NewAuthor(newAuthor) {
   author.lastName = newAuthor.lastName;
   author.authorId = newAuthor.transactionId;
   let authors = await participantRegistry.getAll();
-  if (authors.length < 5) {
+  if (authors.length < 6) {
     author.isReviewer = true;
   }
   return getParticipantRegistry(AUTHOR)
@@ -504,4 +504,17 @@ async function NewAuthor(newAuthor) {
       console.log(error);
       throw error;
     });
+}
+/**
+ * Transaction for new Author, maybe not needed
+ * @param {org.dasp.net.PublishRevision} publishRevision
+ * @transaction
+ */
+
+async function PublishRevision(publishRevision) {
+  publishRevision.revision.public = true;
+  // Get the asset registry for the asset.
+  const revisionRegistry = await getAssetRegistry(REVISION);
+  // Update the asset in the asset registry.
+  await revisionRegistry.update(publishRevision.revision);
 }
