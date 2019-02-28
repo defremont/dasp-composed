@@ -27,7 +27,6 @@ const ipfs = new IPFS({
     port: 5001,
     protocol: "https"
 });
-
 @Component({
     selector: "registry",
     templateUrl: "./registry.component.html",
@@ -85,7 +84,6 @@ export class RegistryComponent {
         private modalService: NgbModal,
         private identityCardService: IdentityCardService
     ) { }
-
     loadResources(): Promise<void> {
         this.overFlowedResources = {};
         return this._registry

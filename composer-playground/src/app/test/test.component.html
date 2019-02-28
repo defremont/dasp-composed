@@ -30,11 +30,11 @@
         <h2>Revisions</h2>
         <section class="side-bar-nav">
             <ul class="registry">
-                <li [class.active]="chosenMenu === 'toReview'" (click)="setChosenMenu('toReview')">
-                    <h3>To Review</h3>
-                </li>
                 <li [class.active]="chosenMenu === 'myArticleRevisions'" (click)="setChosenMenu('myArticleRevisions')">
                     <h3>My Articles Revisions</h3>
+                </li>
+                <li [class.active]="chosenMenu === 'toReview'" (click)="setChosenMenu('toReview')">
+                    <h3>To Review</h3>
                 </li>
                 <li [class.active]="chosenMenu === 'reviewed'" (click)="setChosenMenu('reviewed')">
                     <h3>Reviewed</h3>
