@@ -55,6 +55,8 @@ export class RegistryComponent {
     articleHash: any;
     articleBase64: any;
     showChangeHash: boolean = true;
+    needReschedule: boolean;
+    currentdate: Date;
 
     @Input()
     set registry(registry: any) {
@@ -100,6 +102,7 @@ export class RegistryComponent {
                             .localeCompare(b.getIdentifier());
                     });
                 }
+                this.currentdate = new Date();
                 console.log(this.resources);
                 console.log(this.author);
             })
@@ -267,6 +270,24 @@ export class RegistryComponent {
 
         let resource = serializer.fromJSON({
             $class: "org.dasp.net.PublishRevision",
+            revision: "resource:org.dasp.net.Revision#" + id
+        });
+        console.log(resource);
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadResources();
+            return (this.loading = false);
+        });
+    }
+    async reschedule(id) {
+        this.loading = true;
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.Scheduler",
             revision: "resource:org.dasp.net.Revision#" + id
         });
         console.log(resource);

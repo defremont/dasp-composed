@@ -329,6 +329,10 @@
                         (click)="publish(resource.getIdentifier())">
                         Publish
                     </button>
+                    <button [disabled]="this.loading" *ngIf="(currentdate.getTime() - resource.date.getTime()) >  850000000 && !resource.acc" class="primary" type="button"
+                        (click)="reschedule(resource.getIdentifier())">
+                        Reschedule
+                    </button>
                 </div>
                 <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
                     (click)="expandResource(resource)">
@@ -463,10 +467,6 @@
                     <br />Article: {{ resource.article.getIdentifier() }}
                     <br />Revision Rate: {{ resource.rate }}
                     </pre>
-                    <button *ngIf="!resource.needRev" class="secondary" type="button"
-                        (click)="changeHash(resource.getIdentifier())">
-                        Publish
-                    </button>
                 </div>
                 <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
                     (click)="expandResource(resource)">
