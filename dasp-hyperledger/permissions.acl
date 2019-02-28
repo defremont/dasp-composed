@@ -27,11 +27,10 @@
   }
   rule CanAllRevisionFromScheduler {
       description: "Allow all author access to all resources"
-      participant(a): "org.dasp.net.Author"
-      operation: UPDATE
+      participant: "org.dasp.net.Author"
+      operation: UPDATE, READ
       resource: "org.dasp.net.Revision"
-      transaction(tx): "org.dasp.net.Scheduler"
-      condition: (a.getIdentifier() == tx.revision.article.author.getIdentifier())
+      transaction: "org.dasp.net.Scheduler"
       action: ALLOW
   }
   rule CanAllAuthorFromScheduler {
@@ -68,11 +67,10 @@
   }
   rule AuthorCanUpdateRevisionFromPublishRevision {
       description: "Allow all author access to all resources"
-      participant(a): "org.dasp.net.Author"
+      participant: "org.dasp.net.Author"
       operation: UPDATE, READ
       resource: "org.dasp.net.Revision"
-      transaction(tx): "org.dasp.net.PublishRevision"
-      condition: (tx.revision.article.author.getIdentifier() == a.getIdentifier())
+      transaction: "org.dasp.net.PublishRevision"
       action: ALLOW
   }
   rule AuthorCanPublishRevision {
