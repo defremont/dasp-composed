@@ -174,6 +174,78 @@ async function newHash(NewHash) {
 }
 /**
  * creates an revisions with article and reviewer
+ * @param {org.dasp.net.Scheduler} scheduler
+ * @transaction
+ */
+
+async function Scheduler(scheduler) {
+  let articleRegistry = await getAssetRegistry(ARTICLE);
+  // pega revisoes atrasadas
+  let revisionRegistry = await getAssetRegistry(REVISION);
+  // Get all of the drivers in the driver participant registry.
+  let revisions = await revisionRegistry.getAll();
+  let outDatedRevisions = [];
+  let currentdate = new Date();
+  if ((currentdate.getTime() - scheduler.revision.date.getTime()) > 850000000 && !scheduler.revision.acc) {
+
+    // Update the asset with the new value.
+    let revisors = [];
+    let prerevisors = [];
+    let count = 0;
+    let factory = getFactory();
+    // Get the driver participant registry.
+    let participantRegistry = await getParticipantRegistry(AUTHOR);
+    // Get all of the drivers in the driver participant registry.
+    let authors = await participantRegistry.getAll();
+    // Get all the reviewers to chosen the new one
+    scheduler.revision.article.revisions.forEach(function (revision) {
+      if (scheduler.revision.reviewer.getIdentifier() !== revision.reviewer.email) {
+        console.log("revision.reviewer.email " + revision.reviewer.email);
+        prerevisors.push(revision.reviewer.email);
+      }
+    });
+    await authors.forEach(author => {
+      if (
+        author.email !== scheduler.revision.reviewer.getIdentifier() &&
+        author.isReviewer && author.email !== scheduler.revision.article.author.getIdentifier()
+      ) {
+        if (prerevisors.indexOf(author.email) > -1) {
+          console.log("have index " + prerevisors.indexOf(author.email));
+        } else {
+          console.log("is good " + author.email);
+          revisors.push(author);
+          count++;
+        }
+      }
+    });
+    // Verification needed in the case of get a same reviewer
+    let randRevisor = Math.floor(Math.random() * (count - 1 + 1) + 0);
+    // if(!revisors[randRevisor].email){
+
+    // }
+    console.log(revisors);
+
+    console.log("random num:" + randRevisor);
+    console.log(revisors[randRevisor].email);
+    let reviewer = factory.newRelationship(
+      ROOT_NAMESPACE,
+      "Author",
+      revisors[randRevisor].email
+    );
+    scheduler.revision.acc = false;
+    console.log("revisor choosed " + reviewer);
+
+    scheduler.revision.reviewer = reviewer;
+    scheduler.revision.date = scheduler.timestamp;
+    // Get the asset registry for the asset.
+    const revisionRegistry = await getAssetRegistry(REVISION);
+    // Update the asset in the asset registry.
+    await revisionRegistry.update(scheduler.revision);
+
+  }
+}
+/**
+ * creates an revisions with article and reviewer
  * @param {org.dasp.net.CreateRevision} createRevision
  * @transaction
  */

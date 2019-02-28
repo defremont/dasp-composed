@@ -13,25 +13,13 @@
 -->
 <div class="footer-main">
     <div class="footer-left">
-        <div *ngIf='config.links.legal.trim() !== ""' class="footer-item">
-            <a href="{{ config.links.legal }}" target="_blank">Legal</a>
-        </div>
         <div *ngIf='config.links.github.trim() !== ""' class="footer-item">
-            <a href="{{ config.links.github }}" target="_blank">GitHub</a>
+            <a href="{{ config.links.github }}" target="_blank">Defremont</a>
         </div>
     </div>
     <div class="footer-right">
         <div class="footer-item">
-            Playground v{{ playgroundVersion }}
-        </div>
-        <div *ngIf='config.links.tutorial.trim() !== ""' class="footer-item">
-            <a href="{{ config.links.tutorial }}" target="_blank">Tutorial</a>
-        </div>
-        <div *ngIf='config.links.docs.trim() !== ""' class="footer-item">
-            <a href="{{ config.links.docs }}" target="_blank">Docs</a>
-        </div>
-        <div *ngIf='config.links.community.trim() !== ""' class="footer-item">
-            <a href="{{ config.links.community }}" target="_blank">Community</a>
+            DASP v{{ playgroundVersion }}
         </div>
     </div>
 </div>

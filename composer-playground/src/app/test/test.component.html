@@ -36,6 +36,9 @@
                 <li [class.active]="chosenMenu === 'myArticleRevisions'" (click)="setChosenMenu('myArticleRevisions')">
                     <h3>My Articles Revisions</h3>
                 </li>
+                <li [class.active]="chosenMenu === 'reviewed'" (click)="setChosenMenu('reviewed')">
+                    <h3>Reviewed</h3>
+                </li>
                 <li [class.active]="chosenMenu === 'publicRevisions'" (click)="setChosenMenu('publicRevisions')">
                     <h3>Public Revisions</h3>
                 </li>
@@ -103,6 +106,16 @@
     </div>
     <div class="main-view-content">
         <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'publicRevisions'"></registry>
+    </div>
+
+    <app-footer></app-footer>
+</section>
+<section *ngIf="!isAdmin() && chosenMenu === 'reviewed'" class="main-view">
+    <div class="modal-header">
+        <h1>Reviewed Revisions</h1>
+    </div>
+    <div class="main-view-content">
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'reviewed'"></registry>
     </div>
 
     <app-footer></app-footer>

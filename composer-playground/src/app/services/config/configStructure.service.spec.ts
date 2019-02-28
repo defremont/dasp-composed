@@ -31,7 +31,6 @@ describe('Config', () => {
               webonly: true,
               title: 'My Title',
               banner: ['My', 'Banner'],
-              docURL: 'https://doc_url',
               links: {
                 docs: 'My Docs',
                 tutorial: 'My Tutorial',
@@ -48,7 +47,6 @@ describe('Config', () => {
           service.webonly.should.deep.equal(true);
           service.title.should.deep.equal('My Title');
           service.banner.should.deep.equal(['My', 'Banner']);
-          service.docURL.should.deep.equal('https://doc_url');
           service.links.should.deep.equal({
                                             docs: 'My Docs',
                                             tutorial: 'My Tutorial',
@@ -104,7 +102,6 @@ describe('Config', () => {
         service.webonly = true;
         service.title = 'My Title';
         service.banner = ['My', 'Banner'];
-        service.docURL = 'https://doc_url';
         service.links = {
           docs: 'My Docs',
           tutorial: 'My Tutorial',
@@ -120,7 +117,6 @@ describe('Config', () => {
         service.webonly.should.deep.equal(false);
         service.title.should.deep.equal('Hyperledger Composer');
         service.banner.should.deep.equal(['Hyperledger', 'Composer Playground']);
-        service.docURL.should.deep.equal('https://hyperledger.github.io/composer/latest');
         service.links.should.deep.equal({
                                             docs: 'https://hyperledger.github.io/composer/latest/introduction/introduction.html',
                                             tutorial: 'https://hyperledger.github.io/composer/latest/tutorials/playground-tutorial.html',

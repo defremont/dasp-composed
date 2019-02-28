@@ -103,3 +103,7 @@ transaction NewAuthor extends PublisherTransactions {
   o String firstName
   o String lastName
 }
+
+transaction Scheduler extends PublisherTransactions {
+  --> Revision revision
+}

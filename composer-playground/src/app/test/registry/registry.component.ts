@@ -100,21 +100,6 @@ export class RegistryComponent {
                             .localeCompare(b.getIdentifier());
                     });
                 }
-                if (this._type === 'myArticleRevisions') {
-                    this.resources.forEach(resource => {
-                        var currentdate = new Date();
-                        if ((currentdate.getTime() - resource.date.getTime()) > 850000000 && !resource.acc) {
-                            console.log("é maior")
-                            this.reviewRejected(resource.getIdentifier());
-                        }
-                        console.log("agora sao " + currentdate.getTime());
-
-                        console.log("a data é de " + resource.date.getTime())
-                        console.log("@@@@@ " + resource.getIdentifier());
-
-                    });
-
-                }
                 console.log(this.resources);
                 console.log(this.author);
             })

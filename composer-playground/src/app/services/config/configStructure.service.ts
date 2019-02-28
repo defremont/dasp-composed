@@ -15,13 +15,8 @@ export class Config {
   public webonly: boolean = false;
   public title: string = '';
   public banner: Array<string> = ['', ''];
-  public docURL: string = '';
   public links: object = {
-    docs: <string> '',
-    tutorial: <string> '',
-    community: <string> '',
     github: <string> '',
-    install: <string> '',
     legal: <string> ''
   };
   public analyticsID: string = null;
@@ -34,13 +29,8 @@ export class Config {
     this.webonly = false;
     this.title = 'Descentralized Autonomous Software Publisher';
     this.banner = ['DASP', ''];
-    this.docURL = 'https://hyperledger.github.io/composer/latest';
     this.links = {
-      docs: <string> 'https://hyperledger.github.io/composer/latest/introduction/introduction.html',
-      tutorial: <string> 'https://hyperledger.github.io/composer/latest/tutorials/playground-tutorial.html',
-      community: <string> 'https://hyperledger.github.io/composer/latest/support/support-index.html',
-      github: <string> 'https://github.com/hyperledger/composer',
-      install: <string> 'https://hyperledger.github.io/composer/latest/installing/installing-index.html',
+      github: <string> 'https://github.com/defremont',
       legal: <string> 'https://www.apache.org/licenses/LICENSE-2.0'
     };
     this.analyticsID = null;

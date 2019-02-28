@@ -106,7 +106,6 @@ describe('ConnectConfirmComponent', () => {
     });
 
     it('should include link to the documentation site in the config', () => {
-        mockConfig.docURL = 'https://doc_url';
 
         fixture.detectChanges();
 
