@@ -41,7 +41,7 @@ export class CanActivateViaLogin implements CanActivate {
             if (cardRef) {
                 return true;
             } else {
-                this.router.navigate(['login']);
+                this.router.navigate(['blockchain']);
                 return false;
             }
         });

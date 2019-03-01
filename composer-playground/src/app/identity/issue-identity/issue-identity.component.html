@@ -33,7 +33,6 @@
         <label class="required" for="userID">E-mail<abbr title="required">*</abbr></label>
         <input required (ngModelChange)="actualFQI($event)" type="text" [(ngModel)]="userID" id="userID" name="userID" autocomplete="off">
 
-      <!-- <resource-modal [email]="userID"></resource-modal> -->
       </div>
 
       <div *ngIf=false class="keyValue">
@@ -42,42 +41,28 @@
             <input [ngClass]="{'error-underline': !isParticipant}" required type="text" [(ngModel)]="participantFQI"
              id="participantFQI" name="participantFQI" [ngbTypeahead]="search" [resultTemplate]="participantTypeaheadResult" autocomplete="off"
               (ngModelChange)="isValidParticipant()">
-              <!-- <br/>{{participantFQI}} -->
             <div *ngIf="!isParticipant" class="error-message" style="position: absolute; top: 165px;">
                 {{ noMatchingParticipant }}
             </div>
         </div>
       </div>
-
-      <!-- <div>
-        <input type="checkbox" [(ngModel)]="issuer" id="issuer" name="issuer">
-        <label class="checkbox-label" for="issuer">Allow this ID to issue new IDs (
-          <svg class="standard-icon" aria-hidden="true">
-            <use xlink:href="#icon-relationship_16"></use>
-          </svg>
-          )
-        </label>
-      </div> -->
     </form>
-<h1 *ngIf="secret">GOOD! YOUR PASS: {{secret}}</h1>
     <p>Issuing an identity generates a one-time secret. You can choose to send this to somebody or use it yourself when it has been issued.</p>
   </section>
-  
+
   <footer>
     <button type="button" class="secondary" (click)="activeModal.dismiss();">
       <span>Cancel</span>
     </button>
-    
+
     <div *ngIf="_registry" class="resource-header">
       <div class="resource-header-left">
-          <!-- <h1 *ngIf="!isHistorian()">{{_registry.name}}</h1> -->
       </div>
       <div *ngIf="!isHistorian()">
           <button type="button" class="registry" (click)="openNewResourceModal()">
               <span>+ Create New {{_registry.registryType}}</span>
           </button>
       </div>
-      <!-- <button (click)="loadParticipants()">LOADP</button> -->
   </div>
     <button id="createNew" type="submit" form="issue-identity-form" class="primary" [disabled]="!issueIdentityForm.form.valid || issueInProgress || !isParticipant">
       <div *ngIf="!issueInProgress">
@@ -91,8 +76,8 @@
         </div>
       </div>
     </button>
-    
-    
+
+
   </footer>
 </section>
 

@@ -106,15 +106,15 @@ export class LoginComponent implements OnInit {
     }
 
     goLoginMain(): void {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/blockchain']);
     }
 
     goDeploy(connectionProfileRef): void {
-        this.router.navigate(['/login'], {fragment: 'deploy', queryParams: {ref: connectionProfileRef}});
+        this.router.navigate(['/blockchain'], {fragment: 'deploy', queryParams: {ref: connectionProfileRef}});
     }
 
     goCreateCard(): void {
-        this.router.navigate(['/login'], {fragment: 'create-card'});
+        this.router.navigate(['/blockchain'], {fragment: 'create-card'});
     }
 
     loadIdentityCards(reload: boolean = false): Promise<void> {
@@ -208,7 +208,7 @@ export class LoginComponent implements OnInit {
                 return this.clientService.ensureConnected(true);
             })
             .then(() => {
-                return this.router.navigate(['editor']);
+                return this.router.navigate(['']);
             })
             .catch((error) => {
                 if (error && error !== ModalDismissReasons.BACKDROP_CLICK && error !== ModalDismissReasons.ESC) {

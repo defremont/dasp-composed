@@ -17,11 +17,11 @@ import { NoContentComponent } from './no-content';
 import { CanActivateViaLogin } from './can-activate';
 
 export const ROUTES: Routes = [
-    {path: 'editor', redirectTo: 'home'},
+    {path: 'editor', loadChildren: 'app/identity/identity.module#IdentityModule', canActivate: [CanActivateViaLogin]},
     {path: 'panel', loadChildren: 'app/test/test.module#TestModule', canActivate: [CanActivateViaLogin]},
-    {path: 'home', loadChildren: 'app/identity/identity.module#IdentityModule', canActivate: [CanActivateViaLogin]},
-    {path: 'login', loadChildren: 'app/login/login.module#LoginModule'},
-    {path: '', redirectTo: 'home', pathMatch: 'full'},
+    {path: 'login', loadChildren: 'app/identity/identity.module#IdentityModule', canActivate: [CanActivateViaLogin]},
+    {path: 'blockchain', loadChildren: 'app/login/login.module#LoginModule'},
+    {path: '', redirectTo: 'login', pathMatch: 'full'},
     {path: '**', component: NoContentComponent}
 ];
 

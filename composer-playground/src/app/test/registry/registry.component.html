@@ -497,38 +497,38 @@
         <div class="title" [ngClass]="{
                 'resource-empty': !resources || resources.length === 0
             }">
-            <div class="id">ID</div>
-            <div class="data">Data</div>
+            <div class="id">Login</div>
+            <div class="data">Details</div>
         </div>
         <div *ngFor="let resource of resources" class="resource-container">
-            <div checkOverFlow [changed]="resource.getIdentifier()"
+            <div checkOverFlow style="padding-bottom: 0px;" [changed]="resource.getIdentifier()"
                 [expanded]="resource.getIdentifier() === expandedResource" (hasOverFlow)="hasOverFlow($event, resource)"
                 class="resource-content" [ngClass]="{
                     expanded: resource.getIdentifier() === expandedResource
                 }">
                 <div class="id">{{ resource.getIdentifier() }}</div>
-                <pre #resourcedata [ngClass]="{
-                        gradient:
-                            resource.getIdentifier() !== expandedResource &&
-                            overFlowedResources[resource.getIdentifier()],
-                        'tiny-gradient':
-                            resource.getIdentifier() === expandedResource ||
-                            !overFlowedResources[resource.getIdentifier()]
-                    }" class="data">{{ serialize(resource) }}</pre>
-                <div lass="resource-icon">
-                    <button type="button" class="icon edit-resource" (click)="editResource(resource)">
-                        <svg class="ibm-icon" aria-hidden="true">
-                            <use xlink:href="#icon-edit_32"></use>
-                        </svg>
-                    </button>
-                </div>
-                <div class="resource-icon">
-                    <button type="button" class="icon delete-resource" (click)="openDeleteResourceModal(resource)">
-                        <svg class="ibm-icon" aria-hidden="true">
-                            <use xlink:href="#icon-bin_icon"></use>
-                        </svg>
-                    </button>
-                </div>
+
+                    <div checkOverFlow style="padding-bottom: 0px;" [changed]="resource.getIdentifier()"
+                    [expanded]="resource.getIdentifier() === expandedResource"
+                    (hasOverFlow)="hasOverFlow($event, resource)" class="resource-content" [ngClass]="{
+                        expanded: resource.getIdentifier() === expandedResource
+                    }">
+                    <pre style="width: 100%;" #resourcedata [ngClass]="{
+                            gradient:
+                                resource.getIdentifier() !== expandedResource &&
+                                overFlowedResources[resource.getIdentifier()],
+                            'tiny-gradient':
+                                resource.getIdentifier() === expandedResource ||
+                                !overFlowedResources[resource.getIdentifier()]
+                        }" class="data">
+                        <br />ID: {{ resource.authorId }}
+                        <br />First Name: {{ resource.firstName }}
+                        <br />Last Name: {{ resource.lastName }}
+                        <br/>Password: {{resources[0].getIdentifier() === author ? secret : null}}
+                        <br/>Total Points: {{resource.points}}
+                        <br *ngIf="resource.isReviewer"/><b *ngIf="resource.isReviewer">{{ resource.isReviewer ? "You are Revisor!" : null }}</b>
+                        <br *ngIf="resource.isReviewer"/>{{resource.isReviewer ? "Revisor Reputation: " + resource.reputation : null}}
+                        </pre>
             </div>
             <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
                 (click)="expandResource(resource)">

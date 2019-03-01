@@ -131,7 +131,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.identityCardService.setCurrentIdentityCard(null).then(() => {
             this.fileService.deleteAllFiles();
 
-            return this.router.navigate(["/login"]);
+            return this.router.navigate(["/blockchain"]);
         });
     }
 
@@ -142,8 +142,8 @@ export class AppComponent implements OnInit, OnDestroy {
         }
 
         if (
-            event["url"].startsWith("/login") ||
-            event["urlAfterRedirects"].startsWith("/login")
+            event["url"].startsWith("/blockchain") ||
+            event["urlAfterRedirects"].startsWith("/blockchain")
         ) {
             this.showHeaderLinks = false;
             try {

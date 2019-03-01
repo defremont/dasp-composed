@@ -16,11 +16,11 @@
         <section class="header modal-header">
             <h1>Welcome to DASP, sign in or log in!</h1>
             <div>
+                <button [ngClass]="tabL ? 'primary' : 'secondary'" (click)="tab2()" type="button">
+                    <span>Log In</span>
+                </button>
                 <button [ngClass]="tabS ? 'primary' : 'secondary'" (click)="tab1()" type="button" class="">
                     <span>Sign Up</span>
-                </button>
-                <button [ngClass]="tabL ? 'primary' : 'secondary'"  (click)="tab2()" type="button">
-                    <span>Log In</span>
                 </button>
             </div>
         </section>
@@ -30,54 +30,24 @@
                     Issue a new ID/Participant in business network
                 </p>
 
-                <form
-                    #issueIdentityForm="ngForm"
-                    id="issue-identity-form"
-                    (ngSubmit)="newAuthor()"
-                >
-                <div class="justified-input">
-                        <label class="required" for="userID"
-                            >E-mail<abbr title="required">*</abbr></label
-                        >
-                        <input
-                            required
-                            (ngModelChange)="actualFQI($event)"
-                            type="text"
-                            [(ngModel)]="userID"
-                            id="userID"
-                            name="userID"
-                            autocomplete="off"
-                        />
-                </div>
-                <div class="justified-input">
-                        <label class="required" for="firstName"
-                            >First Name<abbr title="required">*</abbr></label
-                        >
-                        <input
-                            required
-                            type="text"
-                            [(ngModel)]="firstName"
-                            id="firstName"
-                            name="firstName"
-                            autocomplete="off"
-                        />
-                </div>
-                <div class="justified-input">
-                        <label class="required" for="lastName"
-                            >Last Name<abbr title="required">*</abbr></label
-                        >
-                        <input
-                            required
-                            type="text"
-                            [(ngModel)]="lastName"
-                            id="lastName"
-                            name="lastName"
-                            autocomplete="off"
-                        />
-                </div>
+                <form #issueIdentityForm="ngForm" id="issue-identity-form" (ngSubmit)="newAuthor()">
+                    <div class="justified-input">
+                        <label class="required" for="userID">E-mail<abbr title="required">*</abbr></label>
+                        <input required (ngModelChange)="actualFQI($event)" type="text" [(ngModel)]="userID" id="userID"
+                            name="userID" autocomplete="off" />
+                    </div>
+                    <div class="justified-input">
+                        <label class="required" for="firstName">First Name<abbr title="required">*</abbr></label>
+                        <input required type="text" [(ngModel)]="firstName" id="firstName" name="firstName"
+                            autocomplete="off" />
+                    </div>
+                    <div class="justified-input">
+                        <label class="required" for="lastName">Last Name<abbr title="required">*</abbr></label>
+                        <input required type="text" [(ngModel)]="lastName" id="lastName" name="lastName"
+                            autocomplete="off" />
+                    </div>
 
                 </form>
-                <h1 *ngIf="secret">GOOD! YOUR PASS: {{ secret }}</h1>
                 <p>
                     Issuing an identity generates a one-time secret. You can
                     choose to send this to somebody or use it yourself when it
@@ -86,30 +56,16 @@
             </section>
 
             <footer>
-                <button
-                    id="createNew"
-                    type="submit"
-                    form="issue-identity-form"
-                    class="primary"
-                    [disabled]="
+                <button id="createNew" type="submit" form="issue-identity-form" class="primary" [disabled]="
                         !issueIdentityForm.form.valid || issueInProgress
-                    "
-                >
+                    ">
                     <div *ngIf="!issueInProgress">
                         <span>Sign Up</span>
                     </div>
-                    <div
-                        *ngIf="issueInProgress"
-                        class="ibm-spinner-indeterminate small loop"
-                    >
+                    <div *ngIf="issueInProgress" class="ibm-spinner-indeterminate small loop">
                         <div class="loader">
                             <svg class="circular" viewBox="25 25 50 50">
-                                <circle
-                                    class="circle-path"
-                                    cx="50"
-                                    cy="50"
-                                    r="20"
-                                />
+                                <circle class="circle-path" cx="50" cy="50" r="20" />
                             </svg>
                         </div>
                     </div>
@@ -121,63 +77,29 @@
                 <p>
                     Log in on the business network
                 </p>
-                <form
-                    #issueIdentityForm="ngForm"
-                    id="log-in-form"
-                    (ngSubmit)="logIn()"
-                >
+                <form #issueIdentityForm="ngForm" id="log-in-form" (ngSubmit)="logIn()">
                     <div class="justified-input">
-                        <label class="required" for="user"
-                            >E-mail<abbr title="required">*</abbr></label
-                        >
-                        <input
-                            required
-                            type="text"
-                            [(ngModel)]="user"
-                            id="user"
-                            name="user"
-                        />
+                        <label class="required" for="user">E-mail<abbr title="required">*</abbr></label>
+                        <input required type="text" [(ngModel)]="userID" id="userID" name="userID" />
                     </div>
                     <div class="justified-input">
-                        <label class="required" for="secret"
-                            >Secret<abbr title="required">*</abbr></label
-                        >
-                        <input
-                            required
-                            type="password"
-                            [(ngModel)]="pass"
-                            id="pass"
-                            name="pass"
-                        />
+                        <label class="required" for="secret">Secret<abbr title="required">*</abbr></label>
+                        <input required type="password" [(ngModel)]="pass" id="pass" name="pass" />
                     </div>
                 </form>
             </section>
 
             <footer>
-                <button
-                    id="createNew"
-                    type="submit"
-                    form="log-in-form"
-                    class="primary"
-                    [disabled]="
+                <button id="createNew" type="submit" form="log-in-form" class="primary" [disabled]="
                         !issueIdentityForm.form.valid || issueInProgress
-                    "
-                >
+                    ">
                     <div *ngIf="!issueInProgress">
                         <span>Log In</span>
                     </div>
-                    <div
-                        *ngIf="issueInProgress"
-                        class="ibm-spinner-indeterminate small loop"
-                    >
+                    <div *ngIf="issueInProgress" class="ibm-spinner-indeterminate small loop">
                         <div class="loader">
                             <svg class="circular" viewBox="25 25 50 50">
-                                <circle
-                                    class="circle-path"
-                                    cx="50"
-                                    cy="50"
-                                    r="20"
-                                />
+                                <circle class="circle-path" cx="50" cy="50" r="20" />
                             </svg>
                         </div>
                     </div>

@@ -177,7 +177,7 @@ export class TestComponent implements OnInit, OnDestroy {
             this.identityCardService.getCurrentIdentityCard()["metadata"]
                 .userName === "admin"
         ) {
-            return true && this.router.navigate(['/login']);;
+            return true && this.router.navigate(['/blockchain']);;
         } else {
             return false;
         }

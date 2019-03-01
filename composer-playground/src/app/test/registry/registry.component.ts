@@ -56,6 +56,7 @@ export class RegistryComponent {
     showChangeHash: boolean = true;
     needReschedule: boolean;
     currentdate: Date;
+    secret: any;
 
     @Input()
     set registry(registry: any) {
@@ -84,7 +85,9 @@ export class RegistryComponent {
         private modalService: NgbModal,
         private identityCardService: IdentityCardService
     ) { }
+
     loadResources(): Promise<void> {
+
         this.overFlowedResources = {};
         return this._registry
             .getAll()
@@ -103,6 +106,8 @@ export class RegistryComponent {
                 this.currentdate = new Date();
                 console.log(this.resources);
                 console.log(this.author);
+                this.secret = this.identityCardService.getIdentityCard(this.author + "@dasp-net")["metadata"].enrollmentSecret;
+
             })
             .catch(error => {
                 this.alertService.errorStatus$.next(error);

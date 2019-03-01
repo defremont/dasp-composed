@@ -92,12 +92,11 @@ export class IdentityComponent implements OnInit {
     private eventsTriggered = [];
     loaded: boolean = false;
     secret: any;
-    user: any;
     needPass: boolean;
     identity: string;
     pass: any;
-    tabS: boolean = true;
-    tabL: boolean;
+    tabS: boolean;
+    tabL: boolean = true;
 
     constructor(
         public router: Router,
@@ -105,7 +104,7 @@ export class IdentityComponent implements OnInit {
         private alertService: AlertService,
         private clientService: ClientService,
         private identityCardService: IdentityCardService
-    ) {}
+    ) { }
     @Input() resource: any = null;
     ngOnInit(): Promise<any> {
         this.loadAllIdentities();
@@ -281,15 +280,16 @@ export class IdentityComponent implements OnInit {
             console.log(`userSecret = ${result.userSecret}`);
             this.secret = result.userSecret
 
-            this.addIdentityToWallet({
+            await this.addIdentityToWallet({
                 userID: this.userID,
                 userSecret: result.userSecret
             });
-            await businessNetworkConnection.disconnect();
             this.issueInProgress = false;
+            this.pass = this.secret;
+            this.trylog({ ref: this.userID + "@dasp-net", usable: true }, true);
+            await businessNetworkConnection.disconnect();
         } catch (error) {
             console.log(error);
-            process.exit(1);
         }
     }
 
@@ -314,11 +314,11 @@ export class IdentityComponent implements OnInit {
                 term === ""
                     ? []
                     : this.participantFQIs
-                          .filter(v => new RegExp(term, "gi").test(v))
-                          .slice(0, 10)
+                        .filter(v => new RegExp(term, "gi").test(v))
+                        .slice(0, 10)
             );
     logIn() {
-        this.trylog({ ref: this.user + "@dasp-net", usable: true }, true);
+        this.trylog({ ref: this.userID + "@dasp-net", usable: true }, true);
         console.log("then1");
     }
 
@@ -326,37 +326,37 @@ export class IdentityComponent implements OnInit {
         let secret;
         let cardRef = ID.ref;
 
-        secret = this.identityCardService.getIdentityCard(this.user + "@dasp-net")["metadata"].enrollmentSecret;
+        secret = this.identityCardService.getIdentityCard(this.userID + "@dasp-net")["metadata"].enrollmentSecret;
 
         console.log("@@@ SET CURRENT ID @@@");
 
-        console.log(this.identityCardService.getIdentityCard(this.user + "@dasp-net")["metadata"].enrollmentSecret);
+        console.log(this.identityCardService.getIdentityCard(this.userID + "@dasp-net")["metadata"].enrollmentSecret);
 
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
         }
-        if(secret === this.pass){
+        if (secret === this.pass) {
             this.identityCardService
-            .setCurrentIdentityCard(cardRef)
-            .then(() => {
-                this.currentIdentity = cardRef;
-                this.alertService.busyStatus$.next({
-                    title: "Reconnecting...",
-                    text: "Using identity " + this.currentIdentity
+                .setCurrentIdentityCard(cardRef)
+                .then(() => {
+                    this.currentIdentity = cardRef;
+                    this.alertService.busyStatus$.next({
+                        title: "Reconnecting...",
+                        text: "Using identity " + this.currentIdentity
+                    });
+                    return this.clientService.ensureConnected(true);
+                })
+                .then(() => {
+                    this.alertService.busyStatus$.next(null);
+                    this.loadAllIdentities();
+
+                    secret = this.identityCardService.getIdentityCard(this.userID + "@dasp-net")["metadata"].enrollmentSecret;
+
+                    return this.router.navigate(["/panel"]);
+                })
+                .catch(error => {
+                    console.log(error);
                 });
-                return this.clientService.ensureConnected(true);
-            })
-            .then(() => {
-                this.alertService.busyStatus$.next(null);
-                this.loadAllIdentities();
-
-                secret = this.identityCardService.getIdentityCard(this.user + "@dasp-net")["metadata"].enrollmentSecret;
-
-                return this.router.navigate(["/panel"]);
-            })
-            .catch(error => {
-                console.log(error);
-            });
         }
 
     }
@@ -704,10 +704,10 @@ export class IdentityComponent implements OnInit {
                         if (
                             !this.getParticipant(
                                 el["participant"].getNamespace() +
-                                    "." +
-                                    el["participant"].getType() +
-                                    "#" +
-                                    el["participant"].getIdentifier()
+                                "." +
+                                el["participant"].getType() +
+                                "#" +
+                                el["participant"].getIdentifier()
                             )
                         ) {
                             ids[index]["state"] = "BOUND PARTICIPANT NOT FOUND";
@@ -831,7 +831,7 @@ export class IdentityComponent implements OnInit {
                 ) {
                     console.log(
                         this.identityCardService.getCurrentIdentityCard()[
-                            "metadata"
+                        "metadata"
                         ]
                     );
 
@@ -1053,18 +1053,6 @@ export class IdentityComponent implements OnInit {
             identity.userSecret,
             connectionProfile
         );
-        // .then((cardRef: string) => {
-        //     this.alertService.successStatus$.next({
-        //         title: "ID Card added to wallet",
-        //         text:
-        //             "The ID card " +
-        //             this.identityCardService
-        //                 .getIdentityCard(cardRef)
-        //                 .getUserName() +
-        //             " was successfully added to your wallet",
-        //         icon: "#icon-role_24"
-        //     });
-        // });
     }
     private isHistorian(): boolean {
         return (
