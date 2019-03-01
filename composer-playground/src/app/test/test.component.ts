@@ -83,6 +83,7 @@ export class TestComponent implements OnInit, OnDestroy {
     id: any;
     loadingHash: boolean;
     chosenMenu: any = 'upload';
+    isReviewer: any;
     constructor(private clientService: ClientService,
         public router: Router,
         private alertService: AlertService,
@@ -116,6 +117,9 @@ export class TestComponent implements OnInit, OnDestroy {
                         });
                         this.loadTransaction();
                         this.select("NewArticle");
+                        this.isReviewer = this.identityCardService.getCurrentIdentityCard()[
+                            "metadata"
+                        ].isReviewer;
 
                         return this.clientService.getBusinessNetworkConnection().getAllParticipantRegistries();
                     })
