@@ -42,7 +42,8 @@
                         }" class="data">ID: {{ resource.getIdentifier() }}
                         <br />Tags: {{ resource.tags }}
                         <br />Hash:
-                        <a target="_blank" href="https://ipfs.infura.io:5001/api/v0/cat/{{resource.hash}}">{{ resource.hash }}</a>
+                        <a target="_blank"
+                            href="https://ipfs.infura.io:5001/api/v0/cat/{{resource.hash}}">{{ resource.hash }}</a>
                         <br />Date: {{ resource.date }}
                     </div>
                     <button (click)="downloadFile(resource.hash)">
@@ -184,10 +185,7 @@
 
                     <input *ngIf="uploadInput && rate === resource.getIdentifier()" required name="article" type="file"
                         accept="application/pdf" (change)="handleInputChange($event)" />
-                    <button *ngIf="!resource.published" class="delete" type="button"
-                        (click)="delete(resource.getIdentifier())">
-                        Delete
-                    </button>
+
                 </div>
                 <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
                     (click)="expandResource(resource)">
@@ -508,7 +506,7 @@
                 }">
                 <div class="id">{{ resource.getIdentifier() }}</div>
 
-                    <div checkOverFlow style="padding-bottom: 0px;" [changed]="resource.getIdentifier()"
+                <div checkOverFlow style="padding-bottom: 0px;" [changed]="resource.getIdentifier()"
                     [expanded]="resource.getIdentifier() === expandedResource"
                     (hasOverFlow)="hasOverFlow($event, resource)" class="resource-content" [ngClass]="{
                         expanded: resource.getIdentifier() === expandedResource
@@ -529,37 +527,37 @@
                         <br *ngIf="resource.isReviewer"/><b *ngIf="resource.isReviewer">{{ resource.isReviewer ? "You are Revisor!" : null }}</b>
                         <br *ngIf="resource.isReviewer"/>{{resource.isReviewer ? "Revisor Reputation: " + resource.reputation : null}}
                         </pre>
-            </div>
-            <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
-                (click)="expandResource(resource)">
-                {{
+                </div>
+                <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
+                    (click)="expandResource(resource)">
+                    {{
                     resource.getIdentifier() === expandedResource
                         ? "Collapse"
                         : "Show All"
                 }}
-            </button>
+                </button>
+            </div>
         </div>
-    </div>
 
-    <table *ngIf="resources && resources.length > 0 && isHistorian()">
-        <thead [ngClass]="{ 'tbody-scrolled': tableScrolled }">
-            <tr>
-                <th class="normal-column">Date, Time</th>
-                <th class="normal-column">Entry Type</th>
-                <th class="normal-column">Participant</th>
-                <th class="narrow-column"></th>
-            </tr>
-        </thead>
-        <tbody id="transactiontbody" checkScroll (hasScroll)="updateTableScroll($event)">
-            <tr *ngFor="let resource of resources">
-                <td class="normal-column truncate-text">
-                    {{
+        <table *ngIf="resources && resources.length > 0 && isHistorian()">
+            <thead [ngClass]="{ 'tbody-scrolled': tableScrolled }">
+                <tr>
+                    <th class="normal-column">Date, Time</th>
+                    <th class="normal-column">Entry Type</th>
+                    <th class="normal-column">Participant</th>
+                    <th class="narrow-column"></th>
+                </tr>
+            </thead>
+            <tbody id="transactiontbody" checkScroll (hasScroll)="updateTableScroll($event)">
+                <tr *ngFor="let resource of resources">
+                    <td class="normal-column truncate-text">
+                        {{
                         resource.transactionTimestamp
                             | date: "y-MM-dd, HH:mm:ss"
                     }}
-                </td>
-                <td class="normal-column truncate-text">
-                    <span placement="top" container="body" ngbTooltip="{{ resource.transactionType || null }}">{{
+                    </td>
+                    <td class="normal-column truncate-text">
+                        <span placement="top" container="body" ngbTooltip="{{ resource.transactionType || null }}">{{
                             resource.transactionType
                                 ? resource.transactionType.substring(
                                       resource.transactionType.lastIndexOf(
@@ -568,9 +566,9 @@
                                   )
                                 : "TBC"
                         }}</span>
-                </td>
-                <td class="normal-column truncate-text">
-                    <span placement="top" container="body" ngbTooltip="{{
+                    </td>
+                    <td class="normal-column truncate-text">
+                        <span placement="top" container="body" ngbTooltip="{{
                             resource.participantInvoking
                                 ? resource.participantInvoking.$namespace +
                                   '.' +
@@ -584,23 +582,23 @@
                                   ")"
                                 : "none"
                         }}</span>
-                </td>
-                <td class="narrow-column">
-                    <a href="#" (click)="viewTransactionData(resource)">view record</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                    </td>
+                    <td class="narrow-column">
+                        <a href="#" (click)="viewTransactionData(resource)">view record</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-    <div *ngIf="!resources || resources.length === 0" class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
-        <h3>This registry is empty!</h3>
-        <p *ngIf="!isHistorian()">
-            To create resources in this registry click create new at the top of
-            this page
-        </p>
-        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+        <div *ngIf="!resources || resources.length === 0" class="no-resources">
+            <svg class="ibm-icon" aria-hidden="true">
+                <use xlink:href="#icon-Emptiness"></use>
+            </svg>
+            <h3>This registry is empty!</h3>
+            <p *ngIf="!isHistorian()">
+                To create resources in this registry click create new at the top of
+                this page
+            </p>
+            <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+        </div>
     </div>
-</div>

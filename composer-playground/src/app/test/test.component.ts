@@ -27,6 +27,7 @@ const ipfs = new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https" })
 
 /* tslint:disable-next-line:no-var-requires */
 const uuid = require('uuid');
+const $ = document.querySelector.bind(document);
 @Component({
     selector: 'app-test',
     templateUrl: './test.component.html',
@@ -146,6 +147,84 @@ export class TestComponent implements OnInit, OnDestroy {
             .catch((error) => {
                 this.alertService.errorStatus$.next(error);
             });
+    }
+
+    //Init
+    handleFileSelect(evt) {
+        var file = evt.dataTransfer ? evt.dataTransfer.files[0] : evt.target.files[0];
+        var pattern = 'pdf.*';
+        var reader = new FileReader();
+        if (!file.type.match(pattern)) {
+            alert('invalid format');
+            return;
+        }
+        reader.onload = this._handleReaderLoaded.bind(this);
+        reader.readAsDataURL(file);
+        const files = evt.target.files; // FileList object
+
+        //files template
+        let template = `${Object.keys(files)
+            .map(file => `<div class="file file--${file}">
+     <div class="name"><span>${files[file].name}</span></div>
+     <div class="progress active"></div>
+     <div class="done">
+	<a href="" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 1000 1000">
+		<g><path id="path" d="M500,10C229.4,10,10,229.4,10,500c0,270.6,219.4,490,490,490c270.6,0,490-219.4,490-490C990,229.4,770.6,10,500,10z M500,967.7C241.7,967.7,32.3,758.3,32.3,500C32.3,241.7,241.7,32.3,500,32.3c258.3,0,467.7,209.4,467.7,467.7C967.7,758.3,758.3,967.7,500,967.7z M748.4,325L448,623.1L301.6,477.9c-4.4-4.3-11.4-4.3-15.8,0c-4.4,4.3-4.4,11.3,0,15.6l151.2,150c0.5,1.3,1.4,2.6,2.5,3.7c4.4,4.3,11.4,4.3,15.8,0l308.9-306.5c4.4-4.3,4.4-11.3,0-15.6C759.8,320.7,752.7,320.7,748.4,325z"</g>
+        </svg>
+              </a>
+     </div>
+    </div>
+   `)
+            .join("")}`;
+
+        $("#drop").classList.add("hidden");
+        $("footer").classList.add("hasFiles");
+        $(".importar").classList.add("active");
+        $(".importare").classList.add("active");
+        setTimeout(() => {
+            $(".list-files").innerHTML = template;
+        }, 1000);
+
+        Object.keys(files).forEach(file => {
+            let load = 2000 + (file.length * 2000); // fake load
+            setTimeout(() => {
+                $(`.file--${file}`).querySelector(".progress").classList.remove("active");
+                $(`.file--${file}`).querySelector(".done").classList.add("anim");
+            }, load);
+        });
+    }
+
+    // trigger input
+    triggerFile(event: any) {
+        event.preventDefault();
+        let element: HTMLElement = document.getElementById('inputt') as HTMLElement;
+        element.click();
+    }
+    drop(ev) {
+        $("input[type=file]").files = ev.dataTransfer.files;
+        $("footer").classList.add("hasFiles");
+        $("#drop").classList.remove("active");
+        ev.preventDefault();
+    }
+
+    dragOver(ev) {
+        $("#drop").classList.add("active");
+        ev.preventDefault();
+    }
+
+    dragLeave(ev) {
+        $("#drop").classList.remove("active");
+        ev.preventDefault();
+    }
+    import() {
+        $(".list-files").innerHTML = "";
+        $("footer").classList.remove("hasFiles");
+        $(".importar").classList.remove("active");
+        $(".importare").classList.remove("active");
+        setTimeout(() => {
+            $("#drop").classList.remove("hidden");
+        }, 500);
     }
     downloadFile() {
         let link = document.createElement("a");
@@ -355,7 +434,7 @@ export class TestComponent implements OnInit, OnDestroy {
             this.setChosenMenu('myArticles'),
             this.submitInProgress = false
 
-            );
+        );
     }
     paid() {
         console.log(this.resourceDefinition);

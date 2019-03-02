@@ -11,9 +11,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <section *ngIf="!isAdmin()" class="side-bar">
     <div class="registries">
-            <h2>Upload</h2>
+        <h2>Upload</h2>
         <section class="side-bar-nav">
             <ul class="registry">
                 <li [class.active]="chosenMenu === 'upload'" (click)="setChosenMenu('upload')">
@@ -133,33 +135,75 @@
     <section class="modal-body">
         <section class="resource-container">
             <section class="resource-component">
-                <div>
-                    <div>
-                        <p class="resource-preview-text">Upload Article:</p>
-                    </div>
+                <div style="height: 480px; margin: 0 30%;" class="upload">
+                    <div class="upload-files">
+                        <header>
+                            <p>
+                                <i style="font-family: 'Font Awesome 5 Free';
+                                        font-weight: 900; font-style: normal;" class="fas fa-cloud-upload-alt"
+                                    aria-hidden="true"></i>
+                                <span class="up">up</span>
+                                <span class="load">load</span>
+                            </p>
+                        </header>
+                        <div class="body" id="drop" (drop)="drop($event)" (dragover)="dragOver($event)"
+                            (dragleave)="dragLeave($event)">
+                            <i style="font-family: 'Font Awesome 5 Free';
+                                    font-weight: 900; font-style: normal;" class="far fa-file-alt pointer-none"
+                                aria-hidden="true"></i>
+                            <p class="pointer-none"><b>Drag and drop</b> files here <br /> or <a
+                                    (click)="triggerFile($event)" class="trigger" id="triggerFile">browse</a> to begin
+                                the upload</p>
+                            <input required name="article" type="file" id="inputt" accept="application/pdf"
+                                (change)="handleFileSelect($event)" />
 
-                    <button *ngIf="loadingHash" type="button" class="primary" [disabled]="loadingHash">
-                        <div class="ibm-spinner-indeterminate small loop" ngDefaultControl>
-                            <div class="loader">
-                                <svg class="circular" viewBox="25 25 50 50">
-                                    <circle class="circle-path" cx="50" cy="50" r="20" />
-                                </svg>
-                            </div>
                         </div>
-                    </button><a target="_blank"
-                        href="https://ipfs.infura.io:5001/api/v0/cat/{{articleHash}}">{{ articleHash }}</a>
-                    <div>
-                        <input required name="article" type="file" accept="application/pdf"
-                            (change)="handleInputChange($event)" />
+                        <footer style="display: table;
+                         padding: 0;
+                         background-color: transparent;">
+                            <div class="divider">
+                                <span>ARTICLE</span>
+                            </div>
+                            <div class="list-files">
+                                <!--   template   -->
+
+                            </div>
+                            <div style="
+                            border-top: none;" class="divider">
+                                <span>TAGS:</span><br /><br /><input style="width: 50%" required type="text" name="tags"
+                                    id="tags" [(ngModel)]="tags" (change)="tag()" autocomplete="off" />
+
+                            </div>
+                            <div *ngIf="submitInProgress || loadingHash" class="ibm-spinner-indeterminate small loop"
+                                ngDefaultControl>
+                                <div style="height: 1rem; width: 1rem;" class="loader">
+                                    <svg class="circular" viewBox="25 25 50 50">
+                                        <circle class="circle-path" cx="50" cy="50" r="20" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <button *ngIf="!submitInProgress && !loadingHash" style="min-width: auto;"
+                                (click)="import()" class="importar">CANCEL</button>
+                            <button *ngIf="!submitInProgress || !loadingHash" [disabled]="!tags"
+                                style="min-width: auto;" name="submitButton" id="submitTransactionButton" type="button"
+                                class="importare" (click)="submitSpecTransaction()" ngDefaultControl>
+                                <div *ngIf="!submitInProgress && !loadingHash" ngDefaultControl>
+                                    <span>SUBMIT</span>
+                                </div>
+                                <div *ngIf="submitInProgress || loadingHash" ngDefaultControl>
+                                    <span>LOADING...</span>
+                                </div>
+                            </button>
+                        </footer>
                     </div>
 
                 </div>
-
                 <div>
-                    <p class="resource-preview-text">Tags:</p>
+                    <div>
+
+                    </div>
+
                 </div>
-                <input required type="text" name="tags" id="tags" [(ngModel)]="tags" (change)="tag()"
-                    autocomplete="off" />
                 <div>
                 </div>
                 <div class="resource-error-text" ng-if="definitionError!=null">
@@ -168,38 +212,6 @@
             </section>
         </section>
     </section>
-
-    <footer>
-        <div class="transaction-footer-cta">
-            <!-- <button type="button" class="primary" (click)="test()">
-                <div>
-                    <span>Test</span>
-                </div>
-            </button> -->
-            <button name="submitButton" id="submitTransactionButton" type="button" class="primary"
-                (click)="submitSpecTransaction()" [disabled]="
-                    definitionError != null ||
-                    submitInProgress ||
-                    !articleBase64 ||
-                    !tags
-                " ngDefaultControl>
-                <div *ngIf="!submitInProgress && !loadingHash" ngDefaultControl>
-                    <span>Submit</span>
-                </div>
-                <div *ngIf="submitInProgress && !loadingHash" class="ibm-spinner-indeterminate small loop"
-                    ngDefaultControl>
-                    <div class="loader">
-                        <svg class="circular" viewBox="25 25 50 50">
-                            <circle class="circle-path" cx="50" cy="50" r="20" />
-                        </svg>
-                    </div>
-                </div>
-                <div *ngIf="loadingHash" ngDefaultControl>
-                    <span>Loading Hash...</span>
-                </div>
-            </button>
-        </div>
-    </footer>
 
     <app-footer></app-footer>
 </section>
