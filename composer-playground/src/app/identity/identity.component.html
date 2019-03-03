@@ -13,15 +13,28 @@
 -->
 <section class="main-view">
     <div class="main-view-content">
+        <section class="show-on-resp">
+            <h1 style="margin: auto;">Welcome to DASP, sign in or log in!</h1>
+        </section>
         <section class="header modal-header">
-            <h1>Welcome to DASP, sign in or log in!</h1>
-            <div>
-                <button [ngClass]="tabL ? 'primary' : 'secondary'" (click)="tab2()" type="button">
-                    <span>Log In</span>
-                </button>
-                <button [ngClass]="tabS ? 'primary' : 'secondary'" (click)="tab1()" type="button" class="">
-                    <span>Sign Up</span>
-                </button>
+            <h1 class="hide-on-resp">Welcome to DASP, sign in or log in!</h1>
+
+            <div class="resp-margin">
+                <div>
+                    <button class="show-button-on-resp" [ngClass]="tabL ? 'primary' : 'secondary'" (click)="tab2()"
+                        type="button">
+                        <span>Log In</span>
+                    </button>
+
+                </div>
+                <div>
+                    <button class="hide-on-resp" [ngClass]="tabL ? 'primary' : 'secondary'" (click)="tab2()"
+                        type="button">
+                        <span>Log In</span>
+                    </button>
+                    <button [ngClass]="tabS ? 'primary' : 'secondary'" (click)="tab1()" type="button" class="">
+                        <span>Sign Up</span>
+                    </button></div>
             </div>
         </section>
         <section *ngIf="tabS" class="issue-identity">

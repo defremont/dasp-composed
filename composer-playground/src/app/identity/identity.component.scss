@@ -12,13 +12,43 @@
  * limitations under the License.
  */
 
-@import '../../assets/styles/base/_colors.scss';
-@import '../../assets/styles/base/_variables.scss';
+@import "../../assets/styles/base/_colors.scss";
+@import "../../assets/styles/base/_variables.scss";
 
 identity {
     display: flex;
     width: 100%;
-
+    .show-on-resp {
+        display: none;
+        align-items: center;
+        padding: 16px;
+        background-color: #f9f9f9;
+    }
+    .show-button-on-resp {
+        display: none;
+    }
+    @media only screen and (max-width: 768px) {
+        button + button {
+            margin-top: 0.8em !important;
+            margin-left: 0em !important;
+        }
+        .show-button-on-resp {
+            display: initial !important;
+        }
+        .resp-margin {
+            margin: auto;
+        }
+        .show-on-resp {
+            display: flex !important;
+            margin: 0.8em !important;
+        }
+        .hide-on-resp {
+            display: none !important;
+        }
+    }
+    .hide-on-resp {
+        display: initial;
+    }
     .main-view {
         overflow-y: auto;
         display: flex;
@@ -141,9 +171,10 @@ section.main-view {
             button.connection-profile-card {
                 border: 1px dashed $fifth-highlight;
                 border-radius: 5px;
-            
-                &:hover, &:focus {
-                    background-color: rgba(255,255,255,0.30);
+
+                &:hover,
+                &:focus {
+                    background-color: rgba(255, 255, 255, 0.3);
                 }
             }
 
@@ -157,7 +188,8 @@ section.main-view {
                     color: $secondary-text;
                     text-decoration: none;
 
-                    &:hover, &:focus {
+                    &:hover,
+                    &:focus {
                         text-decoration: underline;
                         outline: none;
                     }
@@ -174,7 +206,8 @@ section.main-view {
                 }
             }
 
-            identity-card, .connection-profile-card {
+            identity-card,
+            .connection-profile-card {
                 margin-left: $space-large;
                 margin-bottom: $space-large;
             }
@@ -198,7 +231,7 @@ section.sub-view {
             }
 
             span {
-                margin-left: $space-smedium
+                margin-left: $space-smedium;
             }
         }
     }
@@ -216,7 +249,7 @@ section.edit-connection-profile {
             }
 
             span {
-                margin-left: $space-smedium
+                margin-left: $space-smedium;
             }
         }
     }
