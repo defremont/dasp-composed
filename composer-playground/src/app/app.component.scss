@@ -33,3 +33,28 @@ app {
   border: 1px solid darkgray;
   font-size: 14px;
 }
+@media only screen and (max-width: 768px) {
+    .red-header {
+        overflow: auto !important;
+    }
+        .navlogo{
+            display: none !important;
+        }
+        .drop-select-item{
+            display: none !important;
+        }
+        .drop-select{
+            border-bottom: none !important;
+
+            i {
+                font-family: "Font Awesome 5 Free";
+                -webkit-font-smoothing: antialiased;
+                display: inline-block;
+                font-style: normal;
+                font-variant: normal;
+                text-rendering: auto;
+                line-height: 1;
+                font-weight: 900;
+            }
+        }
+}

@@ -11,22 +11,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<header>
+<header class="red-header">
     <nav class="indexnav">
         <div class="navcontent">
             <div class="navlogo">
                 <p title="{{config.banner[0]}}"><b>{{ composerBanner[0] }}</b></p>&nbsp;<p id="network-name" title="{{config.banner[1]}}">{{ composerBanner[1] }} </p>&nbsp;<p *ngIf=(composerBanner[1])><b> DASP</b></p>
             </div>
             <div class="navmain" [ngClass]="{'rightonly' : !showHeaderLinks && !usingLocally }">
+
                 <ul *ngIf="showHeaderLinks" class="links navleft">
-                    <!-- <li *ngIf="!isAdmin()">
-                        <button id='app_testbutton' class="action" [routerLink]="['panel']"
-                                [routerLinkActive]="['active']">Panel
-                        </button>
-                    </li> -->
                 </ul>
                 <div *ngIf="showHeaderLinks && !isAdmin()" class="drop-select navright" [routerLinkActive]="['active']" [ngClass]="{'dropListActive' : dropListActive}">
-                    <div class="drop-select-item flex-container flex">
+
+                        <button id="footer" class="dropdown-item action" (click)="logout()">
+                                <div class="flex-container flex">
+                                    <div>Log out</div><div style="margin-right:20px"></div>
+                                    <i style="margin: auto;" class="fas fa-sign-out-alt"></i>
+                                </div>
+                            </button> <div class="drop-select-item flex-container flex">
+
                         <div ngbDropdown class="d-inline-block" (openChange)="onToggle($event)">
                             <button type="button" class="action" id="dropdownMenu1" ngbDropdownToggle>
                                 <span title="{{ identityCardService.getCurrentIdentityCard().getUserName() }}">{{ identityCardService.getCurrentIdentityCard().getUserName() }}</span>

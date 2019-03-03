@@ -139,6 +139,71 @@
             <div class="data">Article Details:</div>
         </div>
         <div *ngFor="let resource of resources">
+                <!-- <div style="float: left; height: 480px; margin: 5% 0% 0% 5%;" class="upload">
+                        <div class="upload-files">
+                            <header>
+                                <p>
+                                    <i style="font-family: 'Font Awesome 5 Free';
+                                            font-weight: 900; font-style: normal;" class="fas fa-cloud-upload-alt"
+                                        aria-hidden="true"></i>
+                                    <span class="up">.pdf up</span>
+                                    <span class="load">load</span>
+                                </p>
+                            </header>
+                            <div class="body" id="drop" (drop)="drop($event)" (dragover)="dragOver($event)"
+                                (dragleave)="dragLeave($event)">
+                                <i style="font-family: 'Font Awesome 5 Free';
+                                        font-weight: 900; font-style: normal;" class="far fa-file-alt pointer-none"
+                                    aria-hidden="true"></i>
+                                <p class="pointer-none"><b>Drag and drop</b> article pdf here <br /> or <a
+                                        (click)="triggerFile($event)" class="trigger" id="triggerFile">browse</a> to begin
+                                    the upload</p>
+                                <input required name="article" type="file" id="inputt" accept="application/pdf"
+                                    (change)="handleFileSelect($event)" />
+
+                            </div>
+                            <footer style="display: table;
+                             padding: 0;
+                             background-color: transparent;">
+                                <div class="divider">
+                                    <span>ARTICLE</span>
+                                </div>
+                                <div class="list-files">
+
+                                </div>
+                                <div style="
+                                border-top: none;" class="divider">
+                                    <span>TAGS: <b>{{!tags ? "*" : null}}</b></span><br /><br /><input style="width: 50%; border: 1px #c25050 solid;
+                                    border-radius: 4px;
+                                " required type="text" name="tags"
+                                        id="tags" [(ngModel)]="tags" (change)="tag()" autocomplete="off" />
+
+                                </div>
+                                <div *ngIf="submitInProgress || loadingHash" class="ibm-spinner-indeterminate small loop"
+                                    ngDefaultControl>
+                                    <div style="height: 2rem; width: 2rem;" class="loader">
+                                        <svg class="circular" viewBox="25 25 50 50">
+                                            <circle class="circle-path" cx="50" cy="50" r="20" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <button *ngIf="!submitInProgress && !loadingHash" style="min-width: auto;"
+                                    (click)="import()" class="importar">CANCEL</button>
+                                <button *ngIf="!submitInProgress || !loadingHash" [disabled]="!tags"
+                                    style="min-width: auto;" name="submitButton" id="submitTransactionButton" type="button"
+                                    class="importare" (click)="submitSpecTransaction()" ngDefaultControl>
+                                    <div *ngIf="!submitInProgress && !loadingHash" ngDefaultControl>
+                                        <span>SUBMIT</span>
+                                    </div>
+                                    <div *ngIf="submitInProgress || loadingHash" ngDefaultControl>
+                                        <span>LOADING...</span>
+                                    </div>
+                                </button>
+                            </footer>
+                        </div>
+
+                    </div> -->
+
             <div *ngIf="resource['author']['$identifier'] === author" class="resource-container">
                 <div checkOverFlow [changed]="resource.getIdentifier()"
                     [expanded]="resource.getIdentifier() === expandedResource"

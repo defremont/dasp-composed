@@ -49,6 +49,7 @@ export class TestComponent implements OnInit, OnDestroy {
     private eventsTriggered = [];
     private articleBase64: string = '';
     articleHash: any;
+    private shouldShow: false
     // from transaction
     private transactionTypes: TransactionDeclaration[] = [];
     private selectedTransaction = null;

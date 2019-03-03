@@ -14,7 +14,8 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
     integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <section *ngIf="!isAdmin()" class="side-bar">
-    <div class="registries">
+    <div class="menu-button"><i class="fas fa-bars" [class.adjust]="shouldShow === true" (click)="shouldShow = !shouldShow"></i></div>
+    <div [class.show]="shouldShow === true" class="registries">
         <h2>Upload</h2>
         <section class="side-bar-nav">
             <ul class="registry">
@@ -135,14 +136,14 @@
     <section class="modal-body">
         <section class="resource-container">
             <section class="resource-component">
-                <div style="height: 480px; margin: 0 30%;" class="upload">
+                <div style="height: 480px; margin: 5% 0 0 5%;" class="upload">
                     <div class="upload-files">
                         <header>
                             <p>
                                 <i style="font-family: 'Font Awesome 5 Free';
                                         font-weight: 900; font-style: normal;" class="fas fa-cloud-upload-alt"
                                     aria-hidden="true"></i>
-                                <span class="up">up</span>
+                                <span class="up">.pdf up</span>
                                 <span class="load">load</span>
                             </p>
                         </header>
@@ -151,7 +152,7 @@
                             <i style="font-family: 'Font Awesome 5 Free';
                                     font-weight: 900; font-style: normal;" class="far fa-file-alt pointer-none"
                                 aria-hidden="true"></i>
-                            <p class="pointer-none"><b>Drag and drop</b> files here <br /> or <a
+                            <p class="pointer-none"><b>Drag and drop</b> article pdf here <br /> or <a
                                     (click)="triggerFile($event)" class="trigger" id="triggerFile">browse</a> to begin
                                 the upload</p>
                             <input required name="article" type="file" id="inputt" accept="application/pdf"
@@ -170,13 +171,15 @@
                             </div>
                             <div style="
                             border-top: none;" class="divider">
-                                <span>TAGS:</span><br /><br /><input style="width: 50%" required type="text" name="tags"
+                                <span>TAGS: <b>{{!tags ? "*" : null}}</b></span><br /><br /><input style="width: 50%; border: 1px #c25050 solid;
+                                border-radius: 4px;
+                            " required type="text" name="tags"
                                     id="tags" [(ngModel)]="tags" (change)="tag()" autocomplete="off" />
 
                             </div>
                             <div *ngIf="submitInProgress || loadingHash" class="ibm-spinner-indeterminate small loop"
                                 ngDefaultControl>
-                                <div style="height: 1rem; width: 1rem;" class="loader">
+                                <div style="height: 2rem; width: 2rem;" class="loader">
                                     <svg class="circular" viewBox="25 25 50 50">
                                         <circle class="circle-path" cx="50" cy="50" r="20" />
                                     </svg>
