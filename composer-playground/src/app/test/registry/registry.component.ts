@@ -94,13 +94,11 @@ export class RegistryComponent {
             .then(resources => {
                 if (this.isHistorian()) {
                     this.resources = resources.sort((a, b) => {
-                        return b.transactionTimestamp - a.transactionTimestamp;
+                        return a.transactionTimestamp - b.transactionTimestamp;
                     });
                 } else {
                     this.resources = resources.sort((a, b) => {
-                        return a
-                            .getIdentifier()
-                            .localeCompare(b.getIdentifier());
+                        return b.date - a.date;
                     });
                 }
                 this.currentdate = new Date();
@@ -200,9 +198,6 @@ export class RegistryComponent {
                 this.createRevisions(this.rate);
             });
         })
-    }
-    article(article: any): any {
-        throw new Error("Method not implemented.");
     }
     private showUpload(id) {
         this.uploadInput = true;

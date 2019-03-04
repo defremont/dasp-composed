@@ -186,7 +186,7 @@ async function Scheduler(scheduler) {
   let revisions = await revisionRegistry.getAll();
   let outDatedRevisions = [];
   let currentdate = new Date();
-  if ((currentdate.getTime() - scheduler.revision.date.getTime()) > 850000000 && !scheduler.revision.acc) {
+  if ((currentdate.getTime() - scheduler.revision.date.getTime()) > 850000000) {
 
     // Update the asset with the new value.
     let revisors = [];
@@ -200,7 +200,6 @@ async function Scheduler(scheduler) {
     // Get all the reviewers to chosen the new one
     scheduler.revision.article.revisions.forEach(function (revision) {
       if (scheduler.revision.reviewer.getIdentifier() !== revision.reviewer.email) {
-        console.log("revision.reviewer.email " + revision.reviewer.email);
         prerevisors.push(revision.reviewer.email);
       }
     });
@@ -210,9 +209,7 @@ async function Scheduler(scheduler) {
         author.isReviewer && author.email !== scheduler.revision.article.author.getIdentifier()
       ) {
         if (prerevisors.indexOf(author.email) > -1) {
-          console.log("have index " + prerevisors.indexOf(author.email));
         } else {
-          console.log("is good " + author.email);
           revisors.push(author);
           count++;
         }
@@ -220,20 +217,12 @@ async function Scheduler(scheduler) {
     });
     // Verification needed in the case of get a same reviewer
     let randRevisor = Math.floor(Math.random() * (count - 1 + 1) + 0);
-    // if(!revisors[randRevisor].email){
-
-    // }
-    console.log(revisors);
-
-    console.log("random num:" + randRevisor);
-    console.log(revisors[randRevisor].email);
     let reviewer = factory.newRelationship(
       ROOT_NAMESPACE,
       "Author",
       revisors[randRevisor].email
     );
     scheduler.revision.acc = false;
-    console.log("revisor choosed " + reviewer);
 
     scheduler.revision.reviewer = reviewer;
     scheduler.revision.date = scheduler.timestamp;
@@ -271,7 +260,6 @@ async function CreateRevision(createRevision) {
         if (
           JSON.stringify(rev.revisionId) === JSON.stringify(revision.revisionId)
         ) {
-          console.log("FOUND: " + rev);
           reviewers.push(rev.reviewer);
         }
       });
@@ -284,12 +272,12 @@ async function CreateRevision(createRevision) {
         createRevision.transactionId + i
       );
       revisions[i].hash = createRevision.article.hash;
-      revisions[i].notes = "notes";
+      revisions[i].notes = "#";
+      revisions[i].articleTitle = createRevision.article.title;
       revisions[i].revisionType = "HALFBLIND";
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
-      console.log("revision added: " + revisions[i]);
     }
     createRevision.article.revisions = revisions;
 
@@ -306,12 +294,8 @@ async function CreateRevision(createRevision) {
     // Else (if article has not 5 revisors) For each author, check if is reviewer.
     authors.forEach(function (author) {
       if (author.isReviewer) {
-        console.log("REVISOR TRUE " + author.email);
         if (author.email !== getCurrentParticipant().getIdentifier()) {
-          console.log("1" + author.email);
-          console.log("3" + getCurrentParticipant().getIdentifier());
           revisors.push(author);
-          console.log("revisor");
           count++;
         }
         // Push reviewer in revisors array
@@ -346,7 +330,6 @@ async function CreateRevision(createRevision) {
       rand = randoms();
     }
 
-    console.log(result);
     // For each chosen reviewer, create a revision
     const articleRegistry = await getAssetRegistry(ARTICLE);
     for (let i = 0; i < 5; i++) {
@@ -357,8 +340,6 @@ async function CreateRevision(createRevision) {
           revisors[result[i]].email
         )
       );
-      console.log("random num: " + result[i]);
-      console.log(revisors[result[i]]);
 
       revisions[i] = factory.newResource(
         ROOT_NAMESPACE,
@@ -368,10 +349,10 @@ async function CreateRevision(createRevision) {
       revisions[i].hash = createRevision.article.hash;
       revisions[i].notes = "#";
       revisions[i].revisionType = "FULLBLIND";
+      revisions[i].articleTitle = createRevision.article.title;
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
-      console.log("rev:" + revisions[i]);
       createRevision.article.revisions.push(revisions[i]);
       // Update the asset in the asset registry.
     }
@@ -424,7 +405,6 @@ async function ReviewRejected(reviewRejected) {
   // Get all the reviewers to chosen the new one
   reviewRejected.revision.article.revisions.forEach(function (revision) {
     if (getCurrentParticipant().getIdentifier() !== revision.reviewer.email) {
-      console.log("revision.reviewer.email " + revision.reviewer.email);
       prerevisors.push(revision.reviewer.email);
     }
   });
@@ -434,9 +414,7 @@ async function ReviewRejected(reviewRejected) {
       author.isReviewer && author.email !== reviewRejected.revision.article.author.getIdentifier()
     ) {
       if (prerevisors.indexOf(author.email) > -1) {
-        console.log("have index " + prerevisors.indexOf(author.email));
       } else {
-        console.log("is good " + author.email);
         revisors.push(author);
         count++;
       }
@@ -447,17 +425,12 @@ async function ReviewRejected(reviewRejected) {
   // if(!revisors[randRevisor].email){
 
   // }
-  console.log(revisors);
-
-  console.log("random num:" + randRevisor);
-  console.log(revisors[randRevisor].email);
   let reviewer = factory.newRelationship(
     ROOT_NAMESPACE,
     "Author",
     revisors[randRevisor].email
   );
   reviewRejected.revision.acc = false;
-  console.log("revisor choosed " + reviewer);
 
   reviewRejected.revision.reviewer = reviewer;
   reviewRejected.revision.date = reviewRejected.timestamp;
@@ -532,8 +505,8 @@ async function NewArticle(newArticle) {
 
   // Update the new asset with values.
   article.hash = newArticle.hash;
-  article.paid = newArticle.paid;
   article.tags = newArticle.tags;
+  article.title = newArticle.title;
   article.author = getCurrentParticipant();
   article.date = newArticle.timestamp;
   article.revisions = [];

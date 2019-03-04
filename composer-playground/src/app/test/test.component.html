@@ -65,6 +65,16 @@
                 </li>
             </ul>
         </section>
+        <h2>Transactions</h2>
+        <section class="side-bar-nav">
+            <ul class="registry">
+                <li
+                    [class.active]="chosenRegistry && chosenRegistry === registries['historian']"
+                    (click)="setChosenRegistry(registries['historian'])">
+                    <h3>All Transactions</h3>
+                </li>
+            </ul>
+        </section>
     </div>
 </section>
 
@@ -136,7 +146,7 @@
     <section class="modal-body">
         <section class="resource-container">
             <section class="resource-component">
-                <div style="height: 480px; margin: 5% 0 0 5%;" class="upload">
+                <div style="height: 580px; margin: 5% 0 0 5%;" class="upload">
                     <div class="upload-files">
                         <header>
                             <p>
@@ -163,7 +173,7 @@
                          padding: 0;
                          background-color: transparent;">
                             <div class="divider">
-                                <span>ARTICLE</span>
+                                <span>Article</span>
                             </div>
                             <div class="list-files">
                                 <!--   template   -->
@@ -171,7 +181,16 @@
                             </div>
                             <div style="
                             border-top: none;" class="divider">
-                                <span>TAGS: <b>{{!tags ? "*" : null}}</b></span><br /><br /><input style="width: 50%; border: 1px #c25050 solid;
+                                <span>Title: <b>{{!title ? "*" : null}}</b></span><br /><br />
+                                <input style="width: 50%; border: 1px #c25050 solid;
+                                border-radius: 4px;
+                            " required type="text" name="title"
+                                    id="title" [(ngModel)]="title" (change)="titled()" autocomplete="off" />
+
+                            </div>
+                            <div style="
+                            border-top: none;" class="divider">
+                                <span>Tags: <b>{{!tags ? "*" : null}}</b></span><br /><br /><input style="width: 50%; border: 1px #c25050 solid;
                                 border-radius: 4px;
                             " required type="text" name="tags"
                                     id="tags" [(ngModel)]="tags" (change)="tag()" autocomplete="off" />
@@ -187,7 +206,7 @@
                             </div>
                             <button *ngIf="!submitInProgress && !loadingHash" style="min-width: auto;"
                                 (click)="import()" class="importar">CANCEL</button>
-                            <button *ngIf="!submitInProgress || !loadingHash" [disabled]="!tags"
+                            <button *ngIf="!submitInProgress || !loadingHash" [disabled]="!tags || !title"
                                 style="min-width: auto;" name="submitButton" id="submitTransactionButton" type="button"
                                 class="importare" (click)="submitSpecTransaction()" ngDefaultControl>
                                 <div *ngIf="!submitInProgress && !loadingHash" ngDefaultControl>

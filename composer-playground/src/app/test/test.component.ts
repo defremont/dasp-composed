@@ -80,12 +80,12 @@ export class TestComponent implements OnInit, OnDestroy {
         gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
         scrollbarStyle: 'simple'
     };
-    isPaid: any;
     tags: any;
     id: any;
     loadingHash: boolean;
     chosenMenu: any = 'upload';
     isReviewer: any;
+    title: any;
     constructor(private clientService: ClientService,
         public router: Router,
         private alertService: AlertService,
@@ -119,10 +119,6 @@ export class TestComponent implements OnInit, OnDestroy {
                         });
                         this.loadTransaction();
                         this.select("NewArticle");
-                        this.isReviewer = this.identityCardService.getCurrentIdentityCard()[
-                            "metadata"
-                        ].isReviewer;
-
                         return this.clientService.getBusinessNetworkConnection().getAllParticipantRegistries();
                     })
                     .then((participantRegistries) => {
@@ -140,6 +136,17 @@ export class TestComponent implements OnInit, OnDestroy {
                     })
                     .then((historianRegistry) => {
                         this.registries['historian'] = historianRegistry;
+                        let resource = this.registries['participants'][0].getAll();
+                        this.registries['participants'][0].getAll()
+                        .then(resources => {
+                                resource = resources.sort((a, b) => {
+                                    return b.date - a.date;
+                                });
+                                this.isReviewer = resource[0].isReviewer;
+                        })
+                        .catch(error => {
+                            this.alertService.errorStatus$.next(error);
+                        });
                     })
                     .catch((error) => {
                         this.alertService.errorStatus$.next(error);
@@ -298,14 +305,13 @@ export class TestComponent implements OnInit, OnDestroy {
 
     setChosenRegistry(chosenRegistry) {
         this.chosenRegistry = chosenRegistry;
-        console.log(this.registries['assets'][1]);
-
         this.chosenMenu = null
     }
     setChosenMenu(chosenMenu) {
         this.submitInProgress = false
         this.articleHash = ''
         this.tags = ''
+        this.title = ''
         this.chosenMenu = chosenMenu;
         this.chosenRegistry = null
         this.chosenMenu === "upload" ? this.uploadArticle() : null
@@ -437,19 +443,19 @@ export class TestComponent implements OnInit, OnDestroy {
 
         );
     }
-    paid() {
-        console.log(this.resourceDefinition);
-        let existingJSON = JSON.parse(this.resourceDefinition);
-        console.log(existingJSON);
-        existingJSON.paid = this.isPaid;
-        this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
-        this.onDefinitionChanged();
-    }
     tag() {
         console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
         console.log(existingJSON);
         existingJSON.tags = this.tags;
+        this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
+        this.onDefinitionChanged();
+    }
+    titled() {
+        console.log(this.resourceDefinition);
+        let existingJSON = JSON.parse(this.resourceDefinition);
+        console.log(existingJSON);
+        existingJSON.title = this.title;
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
     }
@@ -461,14 +467,6 @@ export class TestComponent implements OnInit, OnDestroy {
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
         this.loadingHash = false;
-    }
-    async test() {
-        this.loadingHash = true;
-        await ipfs.addJSON({ article: this.tags, test: 1 }, (err, result) => {
-            console.log(err, result);
-            this.articleHash = result;
-            this.loadingHash = false;
-        })
     }
     /**
      * Generate a TransactionDeclaration definition, accounting for need to hide fields

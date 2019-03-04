@@ -193,7 +193,7 @@
       operation: UPDATE
       resource(r): "org.dasp.net.Article"
       transaction: "org.dasp.net.NewHash"
-      condition: (r.article.author.getIdentifier() == a.getIdentifier() && r.article.needRev == true)
+      condition: (r.author.getIdentifier() == a.getIdentifier() && r.needRev == true)
       action: ALLOW
   }
   rule ComunityCanReadPublishedArticles {

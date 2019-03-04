@@ -32,7 +32,7 @@ asset Article identified by articleId {
   o String articleId
   o String hash
   o Boolean published default=false
-  o Boolean paid default=false
+  o String title
   o String tags
   o DateTime date
   --> Author author
@@ -42,6 +42,7 @@ asset Article identified by articleId {
   --> Revision[] revisions optional
 }
 asset Revision identified by revisionId {
+  o String articleTitle
   o String revisionId
   o String hash
   o String notes
@@ -95,7 +96,7 @@ transaction RevisionReview extends PublisherTransactions {
 }
 transaction NewArticle extends PublisherTransactions {
   o String hash
-  o Boolean paid
+  o String title
   o String tags
 }
 transaction NewAuthor extends PublisherTransactions {
