@@ -257,7 +257,7 @@
     [ngClass]="{ 'transaction-list': isHistorian() }">
     <div *ngIf="!isHistorian()">
         <div *ngFor="let resource of resources">
-            <div *ngIf="resource['reviewer'].getIdentifier() !== author" style="float: left; margin: 5% 0% 0% 5%; min-height: 600px;" class="upload">
+            <div *ngIf="resource['reviewer'].getIdentifier() !== author" style="float: left; margin: 5% 0% 0% 5%; height: 665px;" class="upload">
                 <div class="upload-files">
                     <header
                         [style.background]="resource.complete ? '#5069c2' : !resource.acc ? null : '#50c273'">

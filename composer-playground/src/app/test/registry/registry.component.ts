@@ -117,6 +117,8 @@ export class RegistryComponent {
     }
     closeRateModal() {
         this.rate = false;
+        this.points = '';
+        this.notes = '';
     }
     downloadFile(hash) {
         let link = document.createElement("a");
@@ -146,6 +148,7 @@ export class RegistryComponent {
         });
         console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.closeRateModal();
             this.loadResources();
             return (this.loading = false);
         });
