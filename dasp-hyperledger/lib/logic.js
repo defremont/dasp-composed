@@ -93,50 +93,20 @@ function onBootstrap(bootstrap) {
   alfred.lastName = "Pennyworth";
   alfred.isReviewer = true;
   authors.push(alfred);
-
-  // Create Articles
-  let bossmanForeignKey = factory.newRelationship(
+  let mike = factory.newResource(
     ROOT_NAMESPACE,
     "Author",
-    "autor0@email.com"
+    "revisor5@email.com"
   );
+  mike.firstName = "mike";
+  mike.lastName = "Pennyworth";
+  mike.isReviewer = true;
+  authors.push(mike);
 
-  let a1 = factory.newResource(ROOT_NAMESPACE, "Article", "artigo0");
-  a1.hash = "hash_IPFS_1";
-  a1.tags = "tags for article";
-  a1.author = bossmanForeignKey;
-  a1.date = bootstrap.timestamp;
-  a1.revisions = [];
-  articles.push(a1);
-
-  let bossmanForeignKey2 = factory.newRelationship(
-    ROOT_NAMESPACE,
-    "Author",
-    "revisor0@email.com"
-  );
-
-  let r1 = factory.newResource(ROOT_NAMESPACE, "Revision", "revisao0");
-  r1.hash = "hashIPFS";
-  r1.notes = "notes";
-  r1.revisionType = "HALFBLIND";
-  r1.reviewer = bossmanForeignKey2;
-  r1.date = bootstrap.timestamp;
 
   return getParticipantRegistry(AUTHOR)
     .then(function (authorRegistry) {
       return authorRegistry.addAll(authors);
-    })
-    .then(function () {
-      return getAssetRegistry(REVISION);
-    })
-    .then(function (revisionRegistry) {
-      return revisionRegistry.add(r1);
-    })
-    .then(function () {
-      return getAssetRegistry(ARTICLE);
-    })
-    .then(function (articleRegistry) {
-      return articleRegistry.addAll(articles);
     })
     .catch(function (error) {
       console.log(error);
