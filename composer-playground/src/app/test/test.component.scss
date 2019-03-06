@@ -156,18 +156,17 @@ app-test {
                     }
                     .up {
                         font-weight: bold;
-                        transform: translateX(-20px);
+                        transform: translateY(20px);
                         display: inline-block;
                         opacity: 0;
-                        animation: faderight 0.5s 1.5s ease both;
+                        animation: fadeup 0.5s 1.0s ease both;
                     }
                     .load {
                         display: inline-block;
                         font-weight: 100;
-                        margin-left: -8px;
-                        transform: translateX(-20px);
+                        transform: translateY(20px);
                         opacity: 0;
-                        animation: faderight 1s 1.5s ease both;
+                        animation: fadeup 1s 1.0s ease both;
                     }
                 }
             }

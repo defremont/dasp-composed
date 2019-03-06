@@ -57,6 +57,7 @@ export class RegistryComponent {
     needReschedule: boolean;
     currentdate: Date;
     secret: any;
+    details: boolean = true;
 
     @Input()
     set registry(registry: any) {
@@ -113,6 +114,7 @@ export class RegistryComponent {
     }
     rateModal(definition) {
         this.rate = definition;
+        this.details = false;
 
     }
     closeRateModal() {

@@ -149,14 +149,14 @@ async function newHash(NewHash) {
  */
 
 async function Scheduler(scheduler) {
+  let currentdate = new Date();
+  if ((currentdate.getTime() - scheduler.revision.date.getTime()) > 850000000 && !scheduler.revision.complete) {
   let articleRegistry = await getAssetRegistry(ARTICLE);
   // pega revisoes atrasadas
   let revisionRegistry = await getAssetRegistry(REVISION);
   // Get all of the drivers in the driver participant registry.
   let revisions = await revisionRegistry.getAll();
   let outDatedRevisions = [];
-  let currentdate = new Date();
-  if ((currentdate.getTime() - scheduler.revision.date.getTime()) > 850000000) {
 
     // Update the asset with the new value.
     let revisors = [];
@@ -196,8 +196,6 @@ async function Scheduler(scheduler) {
 
     scheduler.revision.reviewer = reviewer;
     scheduler.revision.date = scheduler.timestamp;
-    // Get the asset registry for the asset.
-    const revisionRegistry = await getAssetRegistry(REVISION);
     // Update the asset in the asset registry.
     await revisionRegistry.update(scheduler.revision);
 
@@ -242,7 +240,7 @@ async function CreateRevision(createRevision) {
         createRevision.transactionId + i
       );
       revisions[i].hash = createRevision.article.hash;
-      revisions[i].notes = "#";
+      revisions[i].notes = "not yet reviewed";
       revisions[i].articleTitle = createRevision.article.title;
       revisions[i].revisionType = "HALFBLIND";
       revisions[i].reviewer = reviewers[i];
