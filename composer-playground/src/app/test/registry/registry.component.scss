@@ -20,6 +20,20 @@ registry {
     display: block;
     position: relative;
     $highlighted: #e4e4e4;
+    $gray: #AFAFAF;
+
+    .avatar {
+        width: 46px;
+        height: 46px;
+        background: $gray;
+        color: white;
+        margin: 5px;
+        text-align: center;
+        font-size: 18px;
+        line-height: 46px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
     #style-3::-webkit-scrollbar {
         border-radius: 5px;
         width: 6px;

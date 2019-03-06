@@ -442,69 +442,6 @@
         <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
     </div>
 </div>
-<div *ngIf="_registry && !_type && !isHistorian()" class="resource-list"
-    [ngClass]="{ 'transaction-list': isHistorian() }">
-    <div *ngIf="!isHistorian()">
-        <div class="title" [ngClass]="{
-                'resource-empty': !resources || resources.length === 0
-            }">
-            <div class="id">Login</div>
-            <div class="data">Details</div>
-        </div>
-        <div *ngFor="let resource of resources" class="resource-container">
-            <div checkOverFlow style="padding-bottom: 0px;" [changed]="resource.getIdentifier()"
-                [expanded]="resource.getIdentifier() === expandedResource" (hasOverFlow)="hasOverFlow($event, resource)"
-                class="resource-content" [ngClass]="{
-                    expanded: resource.getIdentifier() === expandedResource
-                }">
-                <div class="id">{{ resource.getIdentifier() }}</div>
-
-                <div checkOverFlow style="padding-bottom: 0px;" [changed]="resource.getIdentifier()"
-                    [expanded]="resource.getIdentifier() === expandedResource"
-                    (hasOverFlow)="hasOverFlow($event, resource)" class="resource-content" [ngClass]="{
-                        expanded: resource.getIdentifier() === expandedResource
-                    }">
-                    <pre style="width: 100%;" #resourcedata [ngClass]="{
-                            gradient:
-                                resource.getIdentifier() !== expandedResource &&
-                                overFlowedResources[resource.getIdentifier()],
-                            'tiny-gradient':
-                                resource.getIdentifier() === expandedResource ||
-                                !overFlowedResources[resource.getIdentifier()]
-                        }" class="data">
-                        <br />ID: {{ resource.authorId }}
-                        <br />First Name: {{ resource.firstName }}
-                        <br />Last Name: {{ resource.lastName }}
-                        <br/>Password: {{resources[0].getIdentifier() === author ? secret : null}}
-                        <br/>Total Points: {{resource.points}}
-                        <br *ngIf="resource.isReviewer"/><b *ngIf="resource.isReviewer">{{ resource.isReviewer ? "You are Revisor!" : null }}</b>
-                        <br *ngIf="resource.isReviewer"/>{{resource.isReviewer ? "Revisor Reputation: " + resource.reputation : null}}
-                        </pre>
-                </div>
-                <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
-                    (click)="expandResource(resource)">
-                    {{
-                        resource.getIdentifier() === expandedResource
-                            ? "Collapse"
-                            : "Show All"
-                    }}
-                </button>
-            </div>
-        </div>
-
-        <div *ngIf="!resources || resources.length === 0" class="no-resources">
-            <svg class="ibm-icon" aria-hidden="true">
-                <use xlink:href="#icon-Emptiness"></use>
-            </svg>
-            <h3>This registry is empty!</h3>
-            <p *ngIf="!isHistorian()">
-                To create resources in this registry click create new at the top
-                of this page
-            </p>
-            <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
-        </div>
-    </div>
-</div>
 <div *ngIf="_registry && _type === 'publicRevisions'" class="resource-list"
     [ngClass]="{ 'transaction-list': isHistorian() }">
     <div *ngIf="!isHistorian()">
@@ -559,45 +496,6 @@
                         </div>
                     </div>
             </div>
-            <!-- <div *ngIf="resource.public" class="resource-container">
-                <div checkOverFlow [changed]="resource.getIdentifier()"
-                    [expanded]="resource.getIdentifier() === expandedResource"
-                    (hasOverFlow)="hasOverFlow($event, resource)" class="resource-content" [ngClass]="{
-                        expanded: resource.getIdentifier() === expandedResource
-                    }">
-                    <div class="id">{{ resource.getIdentifier() }}</div>
-                    <pre #resourcedata [ngClass]="{
-                            gradient:
-                                resource.getIdentifier() !== expandedResource &&
-                                overFlowedResources[resource.getIdentifier()],
-                            'tiny-gradient':
-                                resource.getIdentifier() === expandedResource ||
-                                !overFlowedResources[resource.getIdentifier()]
-                        }" class="data">
-                    <br/>Hash:<a
-                        target="_blank"
-                        href="https://ipfs.infura.io:5001/api/v0/cat/{{
-                            resource.hash
-                        }}"
-                        ><br/>{{ resource.hash }}</a>
-                    <br />Date: {{ resource.date }}
-                    <br />Points: {{ resource.points }}
-                    <br />Notes: {{ resource.notes }}
-                    <br />Type: {{ resource.revisionType }}
-                    <br />Public: {{ resource.public }}
-                    <br />Article: {{ resource.article.getIdentifier() }}
-                    <br />Revision Rate: {{ resource.rate }}
-                    </pre>
-                </div>
-                <button *ngIf="overFlowedResources[resource.getIdentifier()]" class="expand" type="button"
-                    (click)="expandResource(resource)">
-                    {{
-                        resource.getIdentifier() === expandedResource
-                            ? "Collapse"
-                            : "Show All"
-                    }}
-                </button>
-            </div> -->
         </div>
     </div>
     <div *ngIf="!resources || resources.length === 0" class="no-resources">
@@ -610,6 +508,60 @@
             this page
         </p>
         <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+    </div>
+</div>
+<div *ngIf="_registry && !_type && !isHistorian()" class="resource-list"
+    [ngClass]="{ 'transaction-list': isHistorian() }">
+    <div *ngIf="!isHistorian()">
+        <div *ngFor="let resource of resources">
+                <div *ngIf="resource['$identifier'] === author" style="
+                min-height: 515px; float: left; margin: 5% 0% 0% 5%;" class="upload">
+                    <div class="upload-files">
+
+                        <header [style.background]="
+                                resource.isReviewer
+                                    ? '#5069c2'
+                                    : '#50c273'
+                            ">
+
+                            <p style="padding: 20px 0;">
+                                    <i width="60" height="60" style="
+                                    font-style: unset;
+                                    padding: 10px;" [style.background-color]="color !== '' ? color : getColor(resource.email)" class="avatar">{{getInitials(resource.firstName,resource.lastName)}}</i>
+
+                       <span id="style-3" style="overflow: overlay;
+                                margin-bottom: -20px;
+                            " class="up">{{ resource.firstName }} {{ resource.lastName }}</span>
+
+                            <span style="font-size: 30px;" class="load">{{resource.isReviewer ? "Author & Revisor" : "Author"}}</span></p>
+                        </header>
+                        <div style="padding: 30px 0px;" class="body">
+                            <div style="
+                                    border-top: none;" class="divider">
+                                E-mail:<br/><br/><h2>
+                                    <b>{{ resource.email }}</b>
+                                </h2>
+                                <br />Total Points: {{ resource.points }}
+                                <br *ngIf="resource.isReviewer"/>{{resource.isReviewer ? "Revisor Reputation: " + resource.reputation : null}}
+                                <br /><br />ID:<br/><h6 style="font-size: 10px;">{{ resource.authorId }}</h6>
+                                <br/>Password: {{secret}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+        <div *ngIf="!resources || resources.length === 0" class="no-resources">
+            <svg class="ibm-icon" aria-hidden="true">
+                <use xlink:href="#icon-Emptiness"></use>
+            </svg>
+            <h3>This registry is empty!</h3>
+            <p *ngIf="!isHistorian()">
+                To create resources in this registry click create new at the top
+                of this page
+            </p>
+            <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+        </div>
     </div>
 </div>
 <div *ngIf="_registry" class="resource-list" [ngClass]="{ 'transaction-list': isHistorian() }">

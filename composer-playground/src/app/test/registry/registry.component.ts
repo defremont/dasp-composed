@@ -58,6 +58,8 @@ export class RegistryComponent {
     currentdate: Date;
     secret: any;
     details: boolean = true;
+    initials: string = "";
+    color: string = "";
 
     @Input()
     set registry(registry: any) {
@@ -87,6 +89,34 @@ export class RegistryComponent {
         private identityCardService: IdentityCardService
     ) { }
 
+    getInitials(firstName, lastName){
+        if(this.initials === ""){
+            let firstLetter = firstName.charAt(0)
+            let lastLetter = lastName.charAt(0)
+            this.initials = firstLetter.toUpperCase() + lastLetter.toUpperCase()
+        }
+        return this.initials
+    }
+    getColor(email){
+        if(this.color === ""){
+            var hash = 0, len = email.length;
+            for (var i = 0; i < len; i++) {
+                hash  = ((hash << 5) - hash) + email.charCodeAt(i);
+                hash |= 0; // to 32bit integer
+            }
+            console.log(hash);
+            let fullValue = hash;
+            console.log(fullValue);
+
+            var hue = Math.floor(fullValue * 360)/1000;
+            console.log(hue);
+
+            var color = 'hsl(' + hue + ', 55%, 55%)';
+            this.color = color
+            console.log(this.color);
+            return this.color;
+        }
+    }
     loadResources(): Promise<void> {
 
         this.overFlowedResources = {};
