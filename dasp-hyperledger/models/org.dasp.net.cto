@@ -37,6 +37,7 @@ asset Article identified by articleId {
   o DateTime date
   --> Author author
   o Double points default=0.0
+  o String concept default='none' optional
   o Integer revCount default=0
   o Boolean needRev default=false
   --> Revision[] revisions optional
@@ -44,6 +45,7 @@ asset Article identified by articleId {
 asset Revision identified by revisionId {
   o String articleTitle
   o String revisionId
+  o String concept default='none' optional
   o String hash
   o String notes
   o RevisionType revisionType

@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClientService } from '../services/client.service';
@@ -22,9 +23,10 @@ import { DrawerDismissReasons } from '../common/drawer';
 import { IdentityCardService } from "../../app/services/identity-card.service";
 import { Router } from '@angular/router';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-const IPFS = require('ipfs-mini');
-const ipfs = new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https" });
-
+var ipfsClient = require('ipfs-http-client')
+// connect to ipfs daemon API server
+var ipfs = ipfsClient('localhost', '5001', { protocol: 'http' })
+// leaving out the arguments will default to these values
 /* tslint:disable-next-line:no-var-requires */
 const uuid = require('uuid');
 const $ = document.querySelector.bind(document);
@@ -237,9 +239,12 @@ export class TestComponent implements OnInit, OnDestroy {
     downloadFile() {
         let link = document.createElement("a");
         link.download = "filename";
-        ipfs.catJSON(this.articleHash).then((result) => {
-            link.href = result.article;
-            console.log(result);
+        console.log(this.articleHash);
+
+        ipfs.cat(this.articleHash).then((result) => {
+            let jsoned = JSON.parse(result)
+            link.href = jsoned[0];
+            console.log(jsoned[0]);
 
             link.click();
 
@@ -525,30 +530,36 @@ export class TestComponent implements OnInit, OnDestroy {
     private async submitSpecTransaction() {
         this.submitInProgress = true;
         this.loadingHash = true;
-        await ipfs.addJSON({ article: this.articleBase64 }, (err, result) => {
-            console.log(err, result);
-            this.articleHash = result;
-            this.hash();
-            return Promise.resolve()
-                .then(() => {
-                    let json = JSON.parse(this.resourceDefinition);
-                    let serializer = this.clientService.getBusinessNetwork().getSerializer();
-                    this.submittedTransaction = serializer.fromJSON(json);
-
-                    return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
-                })
-                .then(() => {
-                    this.definitionError = null;
-                    console.log(this.submittedTransaction);
-                    console.log(JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, ''));
-                    this.id = JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, '');
-                    this.createRevision();
-                    return this.submittedTransaction;
-                })
-                .catch((error) => {
-                    this.definitionError = error.toString();
-                    this.submitInProgress = false;
-                });
+        const input = this.articleBase64;
+         await ipfs.add(Buffer.from(JSON.stringify(input)))
+        .then(res => {
+            const hash = res[0].hash
+            console.log('added data hash:', hash)
+            this.articleHash = hash;
+            return ipfs.cat(hash)
         })
+        .then(output => {
+            this.hash();
+            console.log(output);
+            console.log('retrieved data:', JSON.parse(output))
+        }).then(() => {
+            let json = JSON.parse(this.resourceDefinition);
+            let serializer = this.clientService.getBusinessNetwork().getSerializer();
+            this.submittedTransaction = serializer.fromJSON(json);
+
+            return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
+        })
+        .then(() => {
+            this.definitionError = null;
+            console.log(this.submittedTransaction);
+            console.log(JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, ''));
+            this.id = JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, '');
+            this.createRevision();
+            return this.submittedTransaction;
+        })
+        .catch((error) => {
+            this.definitionError = error.toString();
+            this.submitInProgress = false;
+        });
     }
 }

@@ -240,7 +240,7 @@ async function CreateRevision(createRevision) {
         createRevision.transactionId + i
       );
       revisions[i].hash = createRevision.article.hash;
-      revisions[i].notes = "not yet reviewed";
+      revisions[i].notes = "not reviewed yet";
       revisions[i].articleTitle = createRevision.article.title;
       revisions[i].revisionType = "HALFBLIND";
       revisions[i].reviewer = reviewers[i];
@@ -419,6 +419,18 @@ async function RateRevision(rateRevision) {
   rateRevision.revision.notes = rateRevision.notes;
   rateRevision.revision.points = rateRevision.points;
   rateRevision.revision.complete = true;
+  // If article reach x or more points
+    if (rateRevision.points == 2) {
+      rateRevision.revision.concept = 'Rejected';      
+    }else if(rateRevision.points == 4){
+      rateRevision.revision.concept = 'Weak Rejected';    
+    }else if(rateRevision.points == 6){
+      rateRevision.revision.concept = 'Border Line';   
+    }else if(rateRevision.points == 8){
+      rateRevision.revision.concept = 'Weak Accepted';    
+    }else if(rateRevision.points == 10){
+      rateRevision.revision.concept = 'Accepted';    
+    }
   // Get the asset registry for the asset.
   const revisionRegistry = await getAssetRegistry(REVISION);
   // Update the asset in the asset registry.
@@ -431,9 +443,20 @@ async function RateRevision(rateRevision) {
   rateRevision.revision.article.revCount += 1;
   // Update the asset in the asset registry.
   await articleRegistry.update(rateRevision.revision.article);
-  // If article reach 6 or more points
   if (rateRevision.revision.article.revCount >= 5) {
-    if (rateRevision.revision.article.points >= 6) {
+    // Insert author concept
+    if (rateRevision.revision.article.points <= 2) {
+      rateRevision.revision.article.concept = 'Rejected';      
+    }else if(rateRevision.revision.article.points <= 4){
+      rateRevision.revision.article.concept = 'Weak Rejected';    
+    }else if(rateRevision.revision.article.points <= 6){
+      rateRevision.revision.article.concept = 'Border Line';   
+    }else if(rateRevision.revision.article.points <= 8){
+      rateRevision.revision.article.concept = 'Weak Accepted';    
+    }else if(rateRevision.revision.article.points <= 10){
+      rateRevision.revision.article.concept = 'Accepted';    
+    }
+    if (rateRevision.revision.article.points > 6) {
       // Publish the article
       rateRevision.revision.article.published = true;
       // Author turns in Reviewer

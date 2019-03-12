@@ -14,6 +14,7 @@
 import { Component, NgZone } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { LocalStorageService } from 'angular-2-local-storage';
+import { ThrowStmt } from '@angular/compiler/src/output/output_ast';
 
 @Component({
     selector: 'version-check-modal',
@@ -26,7 +27,10 @@ export class VersionCheckComponent {
                 private zone: NgZone,
                 private localStorageService: LocalStorageService) {
     }
-
+    ngOnInit(){
+        this.clearLocalStorage();
+        this.activeModal.close();
+    }
     public clearLocalStorage() {
         indexedDB.deleteDatabase('_pouch_Composer');
         if (this.localStorageService.clearAll()) {

@@ -32,7 +32,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 const mockResponseAboutService = {
-    name: 'composer-playground',
+    name: 'dasp-composed',
     version: '1',
     dependencies: {
         'composer-admin': {

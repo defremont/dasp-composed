@@ -67,15 +67,15 @@ let packages = [
     'composer-connector-embedded',
     'composer-runtime-embedded',
     'composer-runtime-pouchdb',
-    'composer-playground-api',
-    'composer-playground',
+    'dasp-composed-api',
+    'dasp-composed',
     'composer-documentation'
 ];
 
 // Packages to be installed in integration test(s)
 let testPackages = [
     'composer-cli',
-    'composer-playground'
+    'dasp-composed'
 ];
 
 // Third party packages.

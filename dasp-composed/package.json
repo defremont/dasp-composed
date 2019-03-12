@@ -1,6 +1,6 @@
 {
     "name": "dasp-composed",
-    "version": "0.20.7",
+    "version": "0.0.1",
     "description": "A test harness/UI for the web runtime container for DASP",
     "engines": {
         "node": ">=8",
@@ -10,10 +10,6 @@
         "dasp-composed": "cli.js"
     },
     "main": "index.js",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/defremont/dasp-composed"
-    },
     "keywords": [
         "blockchain",
         "hyperledger",
@@ -135,10 +131,11 @@
     "dependencies": {
         "cheerio": "0.22.0",
         "composer-common": "0.20.7",
-        "composer-playground-api": "0.20.7",
+        "dasp-composed-api": "0.0.1",
         "composer-wallet-filesystem": "0.20.7",
         "composer-wallet-inmemory": "0.20.7",
         "express": "4.15.2",
+        "ipfs-http-client": "29.1.1",
         "ipfs-mini": "1.1.5",
         "is-docker": "1.1.0",
         "opener": "1.4.2",

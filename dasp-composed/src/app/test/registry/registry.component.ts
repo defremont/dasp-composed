@@ -21,12 +21,11 @@ import { DeleteComponent } from "../../basic-modals/delete-confirm/delete-confir
 import { ViewTransactionComponent } from "../view-transaction/view-transaction.component";
 import { DrawerDismissReasons } from "../../common/drawer";
 import { IdentityCardService } from "app/services/identity-card.service";
-const IPFS = require("ipfs-mini");
-const ipfs = new IPFS({
-    host: "ipfs.infura.io",
-    port: 5001,
-    protocol: "https"
-});
+var ipfsClient = require('ipfs-http-client')
+
+// connect to ipfs daemon API server
+var ipfs = ipfsClient('localhost', '5001', { protocol: 'http' }) // leaving out the arguments will default to these values
+
 @Component({
     selector: "registry",
     templateUrl: "./registry.component.html",
@@ -60,6 +59,14 @@ export class RegistryComponent {
     details: boolean = true;
     initials: string = "";
     color: string = "";
+    concept: any;
+    options = [
+      { name: "Rejected", value: 2 },
+      { name: "Weak Rejected", value: 4 },
+      { name: "Border Line", value: 6 },
+      { name: "Weak Accepted", value: 8 },
+      { name: "Accepted", value: 10 }
+    ]
 
     @Input()
     set registry(registry: any) {
@@ -88,7 +95,6 @@ export class RegistryComponent {
         private modalService: NgbModal,
         private identityCardService: IdentityCardService
     ) { }
-
     getInitials(firstName, lastName){
         if(this.initials === ""){
             let firstLetter = firstName.charAt(0)
@@ -155,14 +161,16 @@ export class RegistryComponent {
     downloadFile(hash) {
         let link = document.createElement("a");
         link.download = "filename";
-        ipfs.catJSON(hash)
-            .then(result => {
-                link.href = result.article;
-                console.log(result);
+        console.log(hash);
 
-                link.click();
-            })
-            .catch(console.log);
+        ipfs.cat(hash).then((result) => {
+            console.log(result);
+            let jsoned = JSON.parse(result)
+            link.href = jsoned;
+            console.log(jsoned);
+            link.click();
+
+        }).catch(console.log);
     }
     async rateRevision(id) {
         this.loading = true;
@@ -176,7 +184,7 @@ export class RegistryComponent {
             $class: "org.dasp.net.RateRevision",
             revision: "resource:org.dasp.net.Revision#" + id,
             notes: this.notes,
-            points: this.points
+            points: this.concept
         });
         console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
@@ -226,13 +234,21 @@ export class RegistryComponent {
      */
     private async ipfsUpload() {
         this.loading = true;
-        await ipfs.addJSON({ article: this.articleBase64 }, (err, result) => {
-            console.log(err, result);
-            this.articleHash = result;
+        const input = this.articleBase64;
+         await ipfs.add(Buffer.from(JSON.stringify(input)))
+        .then(res => {
+            const hash = res[0].hash
+            console.log('added data hash:', hash)
+            this.articleHash = hash;
+            return ipfs.cat(hash)
+        })
+        .then(output => {
             return this.changeHash(this.articleHash).then(() => {
+                console.log(output);
+                console.log('retrieved data:', JSON.parse(output))
                 this.createRevisions(this.rate);
             });
-        })
+        });
     }
     private showUpload(id) {
         this.uploadInput = true;

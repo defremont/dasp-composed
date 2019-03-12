@@ -1,13 +1,13 @@
 {
-  "name": "composer-playground-api",
-  "version": "0.20.7",
-  "description": "The REST API for the Hyperledger Composer Playground",
+  "name": "dasp-composed-api",
+  "version": "0.0.1",
+  "description": "The REST API for the Hyperledger DASP Composed",
   "engines": {
     "node": ">=8",
     "npm": ">=5"
   },
   "bin": {
-    "composer-playground-api": "cli.js"
+    "dasp-composed-api": "cli.js"
   },
   "main": "index.js",
   "scripts": {
@@ -20,16 +20,14 @@
     "start": "node cli.js",
     "test": "nyc mocha --recursive -t 10000"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hyperledger/composer.git"
-  },
   "keywords": [
     "blockchain",
     "hyperledger",
-    "solutions"
+    "solutions",
+    "dasp",
+    "publisher"
   ],
-  "author": "Hyperledger Composer",
+  "author": "André Defrémont",
   "license": "Apache-2.0",
   "license-check-and-add-config": {
     "folder": ".",

@@ -61,7 +61,7 @@
                             Revision: {{ resource.needRev }}
                             <br />
                             <h6>{{ resource.date }}</h6>
-                            <a href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                            <a href="http://localhost:5001/api/v0/cat/{{
                                     resource.hash
                                 }}" target="_blank">IPFS Link<b></b></a>
                             <br /><button (click)="downloadFile(resource.hash)">
@@ -149,7 +149,7 @@
                         </div>
                         <h6>{{ resource.date }}</h6>
                         <br />
-                        <a href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                        <a href="http://localhost:5001/api/v0/cat/{{
                                 resource.hash
                             }}" target="_blank">IPFS Link<b></b></a>
                         <br /><button (click)="downloadFile(resource.hash)">
@@ -198,7 +198,7 @@
                                     ? "complete"
                                     : !resource.acc
                                     ? "not accepted yet"
-                                    : "in process revision"
+                                    : "being revised"
                             }}</span>
                         </p>
                     </header>
@@ -206,6 +206,7 @@
                         <div style="
                                 border-top: none;" class="divider">
                             <h2>
+                                <b>Concept: {{ resource.concept }}</b><br/>
                                 <b>Points: {{ resource.points }}</b>
                             </h2>
                             <br />Notes:
@@ -218,7 +219,7 @@
                             <br />Revision Rate: {{ resource.rate }}
                             <br />Public: {{ resource.public }}
                             <h6>{{ resource.date }}</h6>
-                            <a href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                            <a href="http://localhost:5001/api/v0/cat/{{
                                     resource.hash
                                 }}" target="_blank">IPFS Link<b></b></a>
                             <br /><button (click)="downloadFile(resource.hash)">
@@ -294,7 +295,7 @@
                             </h2>
                             <br />
                             <h6>{{ resource.date }}</h6>
-                            <a href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                            <a href="http://localhost:5001/api/v0/cat/{{
                                     resource.hash
                                 }}" target="_blank">IPFS Link<b></b></a>
                             <br /><button (click)="downloadFile(resource.hash)">
@@ -317,26 +318,24 @@
                                 ">
                                 Reject
                             </button>
-                            <pre *ngIf="rate === resource.getIdentifier()">Points: <input style="visibility: unset;"
-                        name="points"
-                        id="points"
-                        [(ngModel)]="points"
-                        min="0"
-                        max="10"
-                        required
-                        type="number"
-                    /></pre>
-                            <pre *ngIf="rate === resource.getIdentifier()">Notes
-                                <input style="visibility: unset;"
+                            <div *ngIf="rate === resource.getIdentifier()">
+                                Concept:  <select [(ngModel)]="concept">
+                                        <option [value]="o.value" *ngFor="let o of options">
+                                           {{o.name}}
+                                        </option>
+                                     </select></div><br/>
+                            <div *ngIf="rate === resource.getIdentifier()">Notes<br/>
+                                <textarea style="visibility: unset;
+                                height: 90px;
+                                width: 80%;"
                                     required
-                                    type="text"
                                     name="notes"
                                     id="notes"
                                     [(ngModel)]="notes"
-                                    autocomplete="off"
-                                /></pre>
+                                    autocomplete="off"></textarea>
+                                </div><br/>
                             <button *ngIf="rate === resource.getIdentifier()" type="button" class="primary"
-                                [disabled]="!notes || !points || loading"
+                                [disabled]="!notes || !concept || loading"
                                 (click)="rateRevision(resource.getIdentifier())">
                                 <div *ngIf="loading" class="ibm-spinner-indeterminate small loop" ngDefaultControl>
                                     <div class="loader">
@@ -418,7 +417,7 @@
                             </div>
                                 </h2>
                                 <h6>{{ resource.date }}</h6>
-                                <a href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                                <a href="http://localhost:5001/api/v0/cat/{{
                                         resource.hash
                                     }}" target="_blank">IPFS Link<b></b></a>
                                 <br /><button (click)="downloadFile(resource.hash)">
@@ -486,7 +485,7 @@
                                 </div>
                                 <br />Revision Rate: {{ resource.rate }}
                                 <h6>{{ resource.date }}</h6>
-                                <a href="https://ipfs.infura.io:5001/api/v0/cat/{{
+                                <a href="http://localhost:5001/api/v0/cat/{{
                                         resource.hash
                                     }}" target="_blank">IPFS Link<b></b></a>
                                 <br /><button (click)="downloadFile(resource.hash)">
@@ -527,12 +526,12 @@
                             <p style="padding: 20px 0;">
                                     <i width="60" height="60" style="
                                     font-style: unset;
-                                    padding: 10px;" [style.background-color]="color !== '' ? color : getColor(resource.email)" class="avatar">{{getInitials(resource.firstName,resource.lastName)}}</i>
+                                    padding: 10px;" [style.background-color]="color !== '' ? color : getColor(resource.email)" class="avatar">{{getInitials(resource.firstName,resource.lastName)}}</i><br/>
 
                        <span id="style-3" style="overflow: overlay;
                                 margin-bottom: -20px;
                             " class="up">{{ resource.firstName }} {{ resource.lastName }}</span>
-
+                            <br />
                             <span style="font-size: 30px;" class="load">{{resource.isReviewer ? "Author & Revisor" : "Author"}}</span></p>
                         </header>
                         <div style="padding: 30px 0px;" class="body">

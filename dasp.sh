@@ -22,8 +22,16 @@ composer network ping --card admin@dasp-net
 
 cd ..
 
-npm install --prefix ./composer-playground & npm install --prefix ./composer-playground-api
+ipfs init
 
-npm start --prefix ./composer-playground & npm start --prefix ./composer-playground-api
+ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001
+
+ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
+
+ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
+
+ipfs daemon && npm install --prefix ./dasp-composed & npm install --prefix ./dasp-composed-api
+
+npm start --prefix ./dasp-composed & npm start --prefix ./dasp-composed-api
 
 
