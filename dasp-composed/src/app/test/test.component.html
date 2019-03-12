@@ -83,7 +83,7 @@
         <h1>Revisions to Review</h1>
     </div>
     <div class="main-view-content">
-        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'review'"></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'review'" (someEvent)="setChosenMenu($event)"></registry>
     </div>
 
     <app-footer></app-footer>

@@ -242,6 +242,7 @@ async function CreateRevision(createRevision) {
       revisions[i].hash = createRevision.article.hash;
       revisions[i].notes = "not reviewed yet";
       revisions[i].articleTitle = createRevision.article.title;
+      revisions[i].articleTags = createRevision.article.tags;
       revisions[i].revisionType = "HALFBLIND";
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
@@ -318,6 +319,7 @@ async function CreateRevision(createRevision) {
       revisions[i].notes = "#";
       revisions[i].revisionType = "FULLBLIND";
       revisions[i].articleTitle = createRevision.article.title;
+      revisions[i].articleTags = createRevision.article.tags;
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
@@ -431,6 +433,8 @@ async function RateRevision(rateRevision) {
     }else if(rateRevision.points == 10){
       rateRevision.revision.concept = 'Accepted';    
     }
+    // Get the asset registry for the asset.
+    const authorRegistry = await getParticipantRegistry(AUTHOR);
   // Get the asset registry for the asset.
   const revisionRegistry = await getAssetRegistry(REVISION);
   // Update the asset in the asset registry.
@@ -457,12 +461,12 @@ async function RateRevision(rateRevision) {
       rateRevision.revision.article.concept = 'Accepted';    
     }
     if (rateRevision.revision.article.points > 6) {
+      // Author turns in Reviewer
+      rateRevision.revision.article.author.points += rateRevision.revision.article.points;
       // Publish the article
       rateRevision.revision.article.published = true;
       // Author turns in Reviewer
       rateRevision.revision.article.author.isReviewer = true;
-      // Get the asset registry for the asset.
-      const authorRegistry = await getParticipantRegistry(AUTHOR);
       // Update the asset in the asset registry.
       rateRevision.revision.article.needRev = false;
       await authorRegistry.update(rateRevision.revision.article.author);

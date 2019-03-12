@@ -13,11 +13,12 @@
  */
 import { Component, Input } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-
+import { Output, EventEmitter } from '@angular/core';
 import { ClientService } from "../../services/client.service";
 import { AlertService } from "../../basic-modals/alert.service";
 import { ResourceComponent } from "../resource/resource.component";
 import { DeleteComponent } from "../../basic-modals/delete-confirm/delete-confirm.component";
+import { TestComponent } from "../test.component";
 import { ViewTransactionComponent } from "../view-transaction/view-transaction.component";
 import { DrawerDismissReasons } from "../../common/drawer";
 import { IdentityCardService } from "app/services/identity-card.service";
@@ -31,6 +32,7 @@ var ipfs = ipfsClient('localhost', '5001', { protocol: 'http' }) // leaving out 
     templateUrl: "./registry.component.html",
     styleUrls: ["./registry.component.scss".toString()]
 })
+
 export class RegistryComponent {
     tableScrolled = false;
     private rate = false;
@@ -67,6 +69,7 @@ export class RegistryComponent {
       { name: "Weak Accepted", value: 8 },
       { name: "Accepted", value: 10 }
     ]
+    @Output() someEvent = new EventEmitter<string>();
 
     @Input()
     set registry(registry: any) {
@@ -190,6 +193,7 @@ export class RegistryComponent {
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.closeRateModal();
             this.loadResources();
+            this.someEvent.next('reviewed');
             return (this.loading = false);
         });
     }
@@ -306,6 +310,7 @@ export class RegistryComponent {
         console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.loadResources();
+            //go to reviewed
             return (this.loading = false);
         });
     }
