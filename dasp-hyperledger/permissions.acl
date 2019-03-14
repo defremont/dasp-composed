@@ -242,7 +242,15 @@
       participant(a): "org.dasp.net.Author"
       operation: READ
       resource(r): "org.dasp.net.Revision"
-      condition: (r.reviewer.getIdentifier() == a.getIdentifier() || r.article.author.getIdentifier() == a.getIdentifier())
+      condition: (r.reviewer.getIdentifier() == a.getIdentifier())
+      action: ALLOW
+  }
+  rule AuthorCanReadAuthorRevision {
+      description: "Allow the owner of a article total access to their revision listing"
+      participant(a): "org.dasp.net.Author"
+      operation: READ
+      resource(r): "org.dasp.net.Revision"
+      condition: (r.article.author.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
 
