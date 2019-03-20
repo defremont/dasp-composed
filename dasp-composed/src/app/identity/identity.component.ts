@@ -15,10 +15,10 @@ import { Component, OnInit, Input } from "@angular/core";
 
 import { NgbModal, ModalDismissReasons } from "@ng-bootstrap/ng-bootstrap";
 import { DeleteComponent } from "../basic-modals/delete-confirm/delete-confirm.component";
-
 import { IssueIdentityComponent } from "./issue-identity";
 import { IdentityIssuedComponent } from "./identity-issued";
 import { AlertService } from "../basic-modals/alert.service";
+import { Http } from '@angular/http';
 import { ClientService } from "../services/client.service";
 import { IdentityCardService } from "../services/identity-card.service";
 import {
@@ -99,6 +99,7 @@ export class IdentityComponent implements OnInit {
     tabL: boolean = true;
 
     constructor(
+        private http: Http,
         public router: Router,
         private modalService: NgbModal,
         private alertService: AlertService,
@@ -107,6 +108,7 @@ export class IdentityComponent implements OnInit {
     ) { }
     @Input() resource: any = null;
     ngOnInit(): Promise<any> {
+
         this.loadAllIdentities();
         this.loadParticipantsIssue();
         console.log(this.participants);
@@ -193,6 +195,7 @@ export class IdentityComponent implements OnInit {
                                     { ref: "admin@dasp-net", usable: true },
                                     true
                                 );
+
                             }
                         } else if (this.registries["assets"].length !== 0) {
                             this.chosenRegistry = this.registries["assets"][0];
@@ -265,6 +268,10 @@ export class IdentityComponent implements OnInit {
         await businessNetworkConnection.submitTransaction(resource);
 
         await this.identityIssue();
+    }
+    test(){
+       this.http.get('http://127.0.0.1:1880/hello');
+
     }
     async identityIssue() {
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();

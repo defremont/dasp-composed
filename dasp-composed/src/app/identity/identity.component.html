@@ -83,6 +83,11 @@
                         </div>
                     </div>
                 </button>
+                <button class="primary" (click)="test()">
+            <div *ngIf="!issueInProgress">
+                <span>TEST</span>
+            </div>
+        </button>
             </footer>
         </section>
         <section *ngIf="tabL" class="issue-identity">

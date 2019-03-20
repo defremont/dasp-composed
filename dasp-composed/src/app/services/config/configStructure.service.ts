@@ -30,7 +30,7 @@ export class Config {
     this.title = 'Descentralized Autonomous Software Publisher';
     this.banner = ['DASP', ''];
     this.links = {
-      github: <string> 'https://github.com/defremont',
+      github: <string> 'https://gitlab.com/gercom',
       legal: <string> 'https://www.apache.org/licenses/LICENSE-2.0'
     };
     this.analyticsID = null;
