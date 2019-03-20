@@ -270,8 +270,15 @@ export class IdentityComponent implements OnInit {
         await this.identityIssue();
     }
     test(){
-       this.http.get('http://127.0.0.1:1880/hello');
-
+        this.http.get('http://127.0.0.1:1880/hello').subscribe(data=>{
+        console.log("Work, recive: " + data);
+       },
+       err =>{
+        console.log("Err, recive: " + err);
+       },
+       () => {
+        console.log("Finish");
+       });
     }
     async identityIssue() {
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();

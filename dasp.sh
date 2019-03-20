@@ -6,6 +6,7 @@ composer card delete --card admin@dasp-net && composer card delete --card PeerAd
 docker rm $(docker ps -a -q) -f
 
 #docker rmi $(docker images -a -q) -f
+
 docker images -a | grep "dev-peer0" | awk '{print $3}' | xargs docker rmi
 
 export FABRIC_VERSION=hlfv12
@@ -30,8 +31,8 @@ ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
 
 ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
 
-ipfs daemon && npm install --prefix ./dasp-composed & npm install --prefix ./dasp-composed-api
+npm install --prefix ./dasp-composed
 
-npm start --prefix ./dasp-composed & npm start --prefix ./dasp-composed-api
+npm install --prefix ./dasp-composed-api
 
-
+ipfs daemon & npm start --prefix ./dasp-composed & npm start --prefix ./dasp-composed-api

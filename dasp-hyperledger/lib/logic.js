@@ -522,6 +522,15 @@ async function NewArticle(newArticle) {
  */
 
 async function NewAuthor(newAuthor) {
+  const priceAsStr = await request.get('http://172.17.0.1:1880/hello').then(data=>{
+        console.log("Work, recive: " + data);
+       },
+       err =>{
+        console.log("Err, recive: " + err);
+       },
+       () => {
+        console.log("Finish");
+       });
   let participantRegistry = await getParticipantRegistry(AUTHOR);
   let author;
   let factory = getFactory();
@@ -537,7 +546,7 @@ async function NewAuthor(newAuthor) {
     author.isReviewer = true;
   }
   return getParticipantRegistry(AUTHOR)
-    .then(function (authorRegistry) {
+    .then(function (authorRegistry) {      
       return authorRegistry.add(author);
     })
     .catch(function (error) {

@@ -16,7 +16,6 @@ import { CommonModule }       from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpModule } from '@angular/http';
-
 import { IdentityRoutingModule } from './identity-routing.module';
 import { ConnectionProfileComponent } from './connection-profile.component';
 
