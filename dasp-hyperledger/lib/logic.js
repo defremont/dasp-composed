@@ -247,6 +247,7 @@ async function CreateRevision(createRevision) {
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier()} });
     }
     createRevision.article.revisions = revisions;
 
@@ -324,6 +325,7 @@ async function CreateRevision(createRevision) {
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
       createRevision.article.revisions.push(revisions[i]);
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier()} });
       // Update the asset in the asset registry.
     }
     await articleRegistry.update(createRevision.article);
@@ -402,6 +404,7 @@ async function ReviewRejected(reviewRejected) {
   );
   reviewRejected.revision.acc = false;
 
+  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier()} });
   reviewRejected.revision.reviewer = reviewer;
   reviewRejected.revision.date = reviewRejected.timestamp;
   // Get the asset registry for the asset.
@@ -522,15 +525,7 @@ async function NewArticle(newArticle) {
  */
 
 async function NewAuthor(newAuthor) {
-  const priceAsStr = await request.get('http://172.17.0.1:1880/hello').then(data=>{
-        console.log("Work, recive: " + data);
-       },
-       err =>{
-        console.log("Err, recive: " + err);
-       },
-       () => {
-        console.log("Finish");
-       });
+  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email} });
   let participantRegistry = await getParticipantRegistry(AUTHOR);
   let author;
   let factory = getFactory();
