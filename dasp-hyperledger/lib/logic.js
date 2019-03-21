@@ -194,6 +194,7 @@ async function Scheduler(scheduler) {
     );
     scheduler.revision.acc = false;
 
+    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"You received a revision to evaluate"} });
     scheduler.revision.reviewer = reviewer;
     scheduler.revision.date = scheduler.timestamp;
     // Update the asset in the asset registry.
@@ -247,7 +248,7 @@ async function CreateRevision(createRevision) {
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier()} });
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(),"topic":"You received a revision to evaluate"} });
     }
     createRevision.article.revisions = revisions;
 
@@ -325,7 +326,7 @@ async function CreateRevision(createRevision) {
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
       createRevision.article.revisions.push(revisions[i]);
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier()} });
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(), "topic":"You received a revision to evaluate"} });
       // Update the asset in the asset registry.
     }
     await articleRegistry.update(createRevision.article);
@@ -403,8 +404,7 @@ async function ReviewRejected(reviewRejected) {
     revisors[randRevisor].email
   );
   reviewRejected.revision.acc = false;
-
-  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier()} });
+  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"You received a revision to evaluate"} });
   reviewRejected.revision.reviewer = reviewer;
   reviewRejected.revision.date = reviewRejected.timestamp;
   // Get the asset registry for the asset.
@@ -451,6 +451,7 @@ async function RateRevision(rateRevision) {
   // Update the asset in the asset registry.
   await articleRegistry.update(rateRevision.revision.article);
   if (rateRevision.revision.article.revCount >= 5) {
+    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"Your article has been rated"} });
     // Insert author concept
     if (rateRevision.revision.article.points <= 2) {
       rateRevision.revision.article.concept = 'Rejected';      
@@ -464,6 +465,8 @@ async function RateRevision(rateRevision) {
       rateRevision.revision.article.concept = 'Accepted';    
     }
     if (rateRevision.revision.article.points > 6) {
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"Congratulations, your article has been published! You are now a reviewer."} });
+      
       // Author turns in Reviewer
       rateRevision.revision.article.author.points += rateRevision.revision.article.points;
       // Publish the article
@@ -525,7 +528,7 @@ async function NewArticle(newArticle) {
  */
 
 async function NewAuthor(newAuthor) {
-  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email} });
+  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"Account Created"} });
   let participantRegistry = await getParticipantRegistry(AUTHOR);
   let author;
   let factory = getFactory();

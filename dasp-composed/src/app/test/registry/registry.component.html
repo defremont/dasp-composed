@@ -261,7 +261,7 @@
             <div *ngIf="
                     resource['reviewer'].getIdentifier() === author &&
                     !resource['complete']
-                " style="float: left; margin: 5% 0% 0% 5%; height: 625px;" class="upload">
+                " style="float: left; margin: 5% 0% 0% 5%; height: 625px;"[style.height]="rate ? '755px;' : null" class="upload">
                 <div class="upload-files">
                     <header [style.background]="
                             resource.complete
@@ -282,11 +282,16 @@
                                     !resource.acc" class="load">not accepted yet</span>
                            </p>
                     </header>
-                    <div [style.padding]="rate ? '50px 0' : ''" class="body">
+                    <div style="padding: 40px 0 !important;" class="body">
                         <div style="
                                 border-top: none;" class="divider">
-                                <br />Article Tags: {{ resource.tags }}
-
+                                <br />Tags:
+                                <div id="style-3" style="padding: 20px 25px;
+                                max-height: 90px;
+                                min-height: 90px;
+                                overflow: auto;">
+                                    {{ resource.articleTags }}
+                                </div>
 <br /><button class="primary" (click)="downloadFile(resource.hash)">
     <b><a>Download<br /></a></b>
 </button><br />

@@ -271,7 +271,7 @@ export class IdentityComponent implements OnInit {
     }
     test(){
         this.http.post('http://127.0.0.1:1880/hello',{
-            "to": "andre.def93@gmail.com", "subject":"New revision recieved"
+            "to": "andre.def93@gmail.com", "topic":"New revision recieved"
         }).subscribe(data=>{
         console.log("Work, recive: " + data);
        },
