@@ -46,6 +46,7 @@ Instalando o IPFS a partir do pacote
 Primeiro, baixe a versão correta do IPFS para sua plataforma:
 https://dist.ipfs.io/#go-ipfs
 
+
 Após o download, descompacte o arquivo e mova o ipfs binário para algum lugar nos executáveis $PATH usando o install.sh script:
 tar xvfz go-ipfs.tar.gz
 cd go-ipfs
