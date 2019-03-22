@@ -1,8 +1,6 @@
 # DASP v0.0.1
 Decentralized Autonomous Scientific Publisher
 Install & Use guide
-André Defrémont
-andre.def93@gmail.com
 
 DASP pré-requisitos
 Hyperledger Fabric
