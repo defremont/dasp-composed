@@ -19,7 +19,7 @@ Docker-Compose: versão 1.8 ou superior
 Node: 8.9 ou superior (a versão 9 da nota não é suportada)
 Npm: v5.x
 Git: 2.9.x ou superior
-Python: 2.7.x
+Python: 2.7.x 
 Um editor de código de sua escolha, recomendamos o VSCode.
 
 
