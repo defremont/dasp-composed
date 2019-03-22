@@ -16,7 +16,7 @@
     <div *ngIf="!isHistorian()">
         <div *ngFor="let resource of resources">
             <div *ngIf="resource['author']['$identifier'] === author" style="
-            min-height: 675px; float: left; margin: 5% 0% 0% 5%;" class="upload">
+            min-height: 675px; float: left; margin: 1% 0% 0% 5%;" class="upload">
                 <div class="upload-files">
                     <header [style.background]="
                             resource.published && !resource.needRev
