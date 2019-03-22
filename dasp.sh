@@ -1,4 +1,4 @@
-#!/bin/bash
+# !/bin/bash
 ./fabric-dev-servers/stopFabric.sh && ./fabric-dev-servers/teardownFabric.sh
 
 composer card delete --card admin@dasp-net && composer card delete --card PeerAdmin@hlfv1
@@ -37,4 +37,4 @@ npm install --prefix ./dasp-composed
 
 npm install --prefix ./dasp-composed-api
 
-docker run -it -p 1880:1880 --user=root:root -v $(pwd)/node-red-data:/data --name mynodered nodered/node-red-docker & ipfs daemon & npm start --prefix ./dasp-composed & npm start --prefix ./dasp-composed-api
+ipfs daemon & npm start --prefix ./dasp-composed & npm start --prefix ./dasp-composed-api & docker run -it -p 1880:1880 --user=root:root -v $(pwd)/node-red-data:/data --name mynodered nodered/node-red-docker
