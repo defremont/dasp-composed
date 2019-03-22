@@ -7,7 +7,7 @@ andre.def93@gmail.com
 DASP pré-requisitos
 Hyperledger Fabric
 Hyperledger Composer
-IPFS Daemon
+IPFS Daemon s
 
 Hyperledger Composer pré-requisitos
 Para executar o Hyperledger Composer e o Hyperledger Fabric, recomendamos que você tenha pelo menos 4 GB de memória.
