@@ -75,6 +75,7 @@ export class RegistryComponent {
     validPass: boolean = false;
     pass2: any;
     oldPass: any;
+    errorPass: boolean = false;
 
     @Input()
     set registry(registry: any) {
@@ -355,7 +356,13 @@ export class RegistryComponent {
             newPassword: this.pass
         });
         await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.showChangePassword = !this.showChangePassword;
             this.loadResources();
+            this.errorPass = false;
+            return (this.loading = false);
+        }).catch((error) => {
+            console.log(error);
+            this.errorPass = true;
             return (this.loading = false);
         });
     }
