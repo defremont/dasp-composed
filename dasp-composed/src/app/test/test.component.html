@@ -156,14 +156,12 @@
                                 <span class="up">.pdf up</span><span class="load">load</span>
                             </p>
                         </header>
-                        <div class="body" id="drop" (drop)="drop($event)" (dragover)="dragOver($event)"
-                            (dragleave)="dragLeave($event)">
-                            <i style="font-family: 'Font Awesome 5 Free';
-                                    font-weight: 900; font-style: normal;" class="far fa-file-alt pointer-none"
-                                aria-hidden="true"></i>
-                            <p class="pointer-none"><b>Drag and drop</b> article pdf here <br /> or <a
-                                    (click)="triggerFile($event)" class="trigger" id="triggerFile">browse</a> to begin
-                                the upload</p>
+                        <div class="body" id="drop">
+                                    <p class="pointer-none"><a
+                                        (click)="triggerFile($event)" class="trigger" id="triggerFile"><i  style="font-family: 'Font Awesome 5 Free';
+                                        font-weight: 900; font-style: normal;" class="fas fa-cloud-upload-alt"
+                                    aria-hidden="true"></i><br /><b>Click to upload</b> your Article</a></p>
+
                             <input required name="article" type="file" id="inputt" accept="application/pdf"
                                 (change)="handleFileSelect($event)" />
 

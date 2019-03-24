@@ -24,6 +24,15 @@ identity {
         padding: 16px;
         background-color: #f9f9f9;
     }
+    .passw{
+        color: #c2505070;;
+        font-size: 0.7em;
+    }
+    .passw:hover{
+        color: #c25050;
+        text-decoration: underline;
+        cursor: pointer;
+    }
     .show-button-on-resp {
         display: none;
     }

@@ -140,15 +140,15 @@ export class TestComponent implements OnInit, OnDestroy {
                         this.registries['historian'] = historianRegistry;
                         let resource = this.registries['participants'][0].getAll();
                         this.registries['participants'][0].getAll()
-                        .then(resources => {
+                            .then(resources => {
                                 resource = resources.sort((a, b) => {
                                     return b.date - a.date;
                                 });
                                 this.isReviewer = resource[0].isReviewer;
-                        })
-                        .catch(error => {
-                            this.alertService.errorStatus$.next(error);
-                        });
+                            })
+                            .catch(error => {
+                                this.alertService.errorStatus$.next(error);
+                            });
                     })
                     .catch((error) => {
                         this.alertService.errorStatus$.next(error);
@@ -211,22 +211,6 @@ export class TestComponent implements OnInit, OnDestroy {
         let element: HTMLElement = document.getElementById('inputt') as HTMLElement;
         element.click();
     }
-    drop(ev) {
-        $("input[type=file]").files = ev.dataTransfer.files;
-        $("footer").classList.add("hasFiles");
-        $("#drop").classList.remove("active");
-        ev.preventDefault();
-    }
-
-    dragOver(ev) {
-        $("#drop").classList.add("active");
-        ev.preventDefault();
-    }
-
-    dragLeave(ev) {
-        $("#drop").classList.remove("active");
-        ev.preventDefault();
-    }
     import() {
         $(".list-files").innerHTML = "";
         $("footer").classList.remove("hasFiles");
@@ -239,12 +223,10 @@ export class TestComponent implements OnInit, OnDestroy {
     downloadFile() {
         let link = document.createElement("a");
         link.download = "filename";
-        console.log(this.articleHash);
 
         ipfs.cat(this.articleHash).then((result) => {
             let jsoned = JSON.parse(result)
             link.href = jsoned[0];
-            console.log(jsoned[0]);
 
             link.click();
 
@@ -265,8 +247,6 @@ export class TestComponent implements OnInit, OnDestroy {
     _handleReaderLoaded(e) {
         let reader = e.target;
         this.articleBase64 = reader.result;
-        console.log(reader)
-        console.log(this.articleBase64)
     }
     isAdmin() {
         if (
@@ -289,7 +269,6 @@ export class TestComponent implements OnInit, OnDestroy {
                 if (this.transactionTypes[transactions]["name"] === value) {
                     this.selectedTransaction = this.transactionTypes[transactions];
                     this.selectedTransactionName = this.selectedTransaction.getName();
-                    console.log(this.selectedTransactionName);
                 }
 
             }
@@ -439,7 +418,6 @@ export class TestComponent implements OnInit, OnDestroy {
             $class: "org.dasp.net.CreateRevision",
             article: "resource:org.dasp.net.Article#" + this.id.replace(/"/g, '')
         });
-        console.log(resource);
 
 
         await businessNetworkConnection.submitTransaction(resource).then(
@@ -449,25 +427,19 @@ export class TestComponent implements OnInit, OnDestroy {
         );
     }
     tag() {
-        console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
-        console.log(existingJSON);
         existingJSON.tags = this.tags;
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
     }
     titled() {
-        console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
-        console.log(existingJSON);
         existingJSON.title = this.title;
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
     }
     hash() {
-        console.log(this.resourceDefinition);
         let existingJSON = JSON.parse(this.resourceDefinition);
-        console.log(existingJSON);
         existingJSON.hash = this.articleHash;
         this.resourceDefinition = JSON.stringify(existingJSON, null, 2);
         this.onDefinitionChanged();
@@ -488,7 +460,6 @@ export class TestComponent implements OnInit, OnDestroy {
             this.selectedTransaction.getName(),
             undefined,
             generateParameters);
-        console.log(resource);
         this.articleHash ? resource.hash = this.articleHash : null;
         let serializer = this.clientService.getBusinessNetwork().getSerializer();
         try {
@@ -531,35 +502,30 @@ export class TestComponent implements OnInit, OnDestroy {
         this.submitInProgress = true;
         this.loadingHash = true;
         const input = this.articleBase64;
-         await ipfs.add(Buffer.from(JSON.stringify(input)))
-        .then(res => {
-            const hash = res[0].hash
-            console.log('added data hash:', hash)
-            this.articleHash = hash;
-            return ipfs.cat(hash)
-        })
-        .then(output => {
-            this.hash();
-            console.log(output);
-            console.log('retrieved data:', JSON.parse(output))
-        }).then(() => {
-            let json = JSON.parse(this.resourceDefinition);
-            let serializer = this.clientService.getBusinessNetwork().getSerializer();
-            this.submittedTransaction = serializer.fromJSON(json);
+        await ipfs.add(Buffer.from(JSON.stringify(input)))
+            .then(res => {
+                const hash = res[0].hash
+                this.articleHash = hash;
+                return ipfs.cat(hash)
+            })
+            .then(output => {
+                this.hash();
+            }).then(() => {
+                let json = JSON.parse(this.resourceDefinition);
+                let serializer = this.clientService.getBusinessNetwork().getSerializer();
+                this.submittedTransaction = serializer.fromJSON(json);
 
-            return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
-        })
-        .then(() => {
-            this.definitionError = null;
-            console.log(this.submittedTransaction);
-            console.log(JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, ''));
-            this.id = JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, '');
-            this.createRevision();
-            return this.submittedTransaction;
-        })
-        .catch((error) => {
-            this.definitionError = error.toString();
-            this.submitInProgress = false;
-        });
+                return this.clientService.getBusinessNetworkConnection().submitTransaction(this.submittedTransaction);
+            })
+            .then(() => {
+                this.definitionError = null;
+                this.id = JSON.stringify(this.submittedTransaction["transactionId"]).replace(/"/g, '');
+                this.createRevision();
+                return this.submittedTransaction;
+            })
+            .catch((error) => {
+                this.definitionError = error.toString();
+                this.submitInProgress = false;
+            });
     }
 }

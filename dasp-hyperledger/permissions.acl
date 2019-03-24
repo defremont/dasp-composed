@@ -18,6 +18,14 @@
 
 
   
+  rule ChangePassword {
+      description: "Allow all author access to all resources"
+      participant(a): "org.dasp.net.Author"
+      operation: CREATE
+      resource(tx): "org.dasp.net.ChangePassword"
+      condition: (!tx.revision.complete && tx.revision.article.author.getIdentifier() == a.getIdentifier())
+      action: ALLOW
+  }
   rule CanScheduler {
       description: "Allow all author access to all resources"
       participant(a): "org.dasp.net.Author"
@@ -265,15 +273,29 @@
   rule NetworkAdminUser {
       description: "Grant business network administrators full access to user resources"
       participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: ALL
-      resource: "**"
+      operation: CREATE
+      resource: "org.dasp.net.NewAuthor"
       action: ALLOW
   } 
-
-  rule NetworkAdminSystem {
-      description: "Grant business network administrators full access to system resources"
+  rule NetworkAdminUserLogIn {
+      description: "Grant business network administrators full access to user resources"
+      participant(p): "org.hyperledger.composer.system.NetworkAdmin"
+      operation: CREATE
+      resource(r): "org.dasp.net.LogIn"
+      condition: (r.password == r.author.password)
+      action: ALLOW
+  } 
+  rule NetworkAdminUserRecoverPass {
+      description: "Grant business network administrators full access to user resources"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: CREATE
+      resource: "org.dasp.net.RecoverPassword"
+      action: ALLOW
+  } 
+  rule NetworkAdminUserParticipantAccess {
+      description: "Grant business network administrators full access to user resources"
       participant: "org.hyperledger.composer.system.NetworkAdmin"
       operation: ALL
-      resource: "org.hyperledger.composer.system.**"
+      resource: "org.dasp.net.Author"
       action: ALLOW
-  }
+  } 

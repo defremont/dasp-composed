@@ -26,6 +26,7 @@ participant Author identified by email {
   o Boolean isReviewer default=false
   o Double points default=0.0
   o Double reputation default=0.0
+  o String password
 }
 
 asset Article identified by articleId {
@@ -77,8 +78,6 @@ event NewHashEvent {
   o String oldHash
   o String newHash
 }
-transaction Bootstrap extends PublisherTransactions {
-}
 transaction ReviewAccept extends PublisherTransactions {
   --> Revision revision
 }
@@ -106,8 +105,19 @@ transaction NewAuthor extends PublisherTransactions {
   o String email
   o String firstName
   o String lastName
+  o String password
 }
-
 transaction Scheduler extends PublisherTransactions {
   --> Revision revision
+}
+transaction ChangePassword extends PublisherTransactions {
+  --> Author author
+  o String newPassword
+}
+transaction RecoverPassword extends PublisherTransactions {
+  --> Author author
+}
+transaction LogIn extends PublisherTransactions {
+  --> Author author
+  o String password
 }

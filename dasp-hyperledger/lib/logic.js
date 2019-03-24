@@ -21,100 +21,6 @@ let REVISION = ROOT_NAMESPACE + ".Revision";
 let ARTICLE = ROOT_NAMESPACE + ".Article";
 
 /**
- * Bootstrap various objects for convenience.
- *
- * @param {org.dasp.net.Bootstrap} bootstrap -- Bootstrap transaction
- * @transaction
- */
-function onBootstrap(bootstrap) {
-  let authors = [];
-  let reviewers = [];
-  let articles = [];
-  let factory = getFactory();
-
-  // Create Author
-  let bossman = factory.newResource(
-    ROOT_NAMESPACE,
-    "Author",
-    "autor0@email.com"
-  );
-  bossman.firstName = "André";
-  bossman.lastName = "Defrémont";
-  bossman.isReviewer = false;
-  authors.push(bossman);
-
-  // Create Reviewers
-  let mr_incredible = factory.newResource(
-    ROOT_NAMESPACE,
-    "Author",
-    "revisor0@email.com"
-  );
-  mr_incredible.firstName = "Bob";
-  mr_incredible.lastName = "Parr";
-  mr_incredible.isReviewer = true;
-  authors.push(mr_incredible);
-
-  let gecko = factory.newResource(
-    ROOT_NAMESPACE,
-    "Author",
-    "revisor1@email.com"
-  );
-  gecko.firstName = "Gecko";
-  gecko.lastName = "Geico";
-  gecko.isReviewer = true;
-  authors.push(gecko);
-
-  let duck = factory.newResource(
-    ROOT_NAMESPACE,
-    "Author",
-    "revisor2@email.com"
-  );
-  duck.firstName = "Duck";
-  duck.lastName = "Aflac";
-  duck.isReviewer = true;
-  authors.push(duck);
-
-  let peyton = factory.newResource(
-    ROOT_NAMESPACE,
-    "Author",
-    "revisor3@email.com"
-  );
-  peyton.firstName = "Peyton";
-  peyton.lastName = "Manning";
-  peyton.isReviewer = true;
-  authors.push(peyton);
-
-  let alfred = factory.newResource(
-    ROOT_NAMESPACE,
-    "Author",
-    "revisor4@email.com"
-  );
-  alfred.firstName = "Alfred";
-  alfred.lastName = "Pennyworth";
-  alfred.isReviewer = true;
-  authors.push(alfred);
-  let mike = factory.newResource(
-    ROOT_NAMESPACE,
-    "Author",
-    "revisor5@email.com"
-  );
-  mike.firstName = "mike";
-  mike.lastName = "Pennyworth";
-  mike.isReviewer = true;
-  authors.push(mike);
-
-
-  return getParticipantRegistry(AUTHOR)
-    .then(function (authorRegistry) {
-      return authorRegistry.addAll(authors);
-    })
-    .catch(function (error) {
-      console.log(error);
-      throw error;
-    });
-}
-
-/**
  * Change Article Hash
  * @param {org.dasp.net.NewHash} NewHash
  * @transaction
@@ -194,7 +100,7 @@ async function Scheduler(scheduler) {
     );
     scheduler.revision.acc = false;
 
-    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"You received a revision to evaluate"} });
+    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"DASP - You received a revision to evaluate"} });
     scheduler.revision.reviewer = reviewer;
     scheduler.revision.date = scheduler.timestamp;
     // Update the asset in the asset registry.
@@ -248,7 +154,7 @@ async function CreateRevision(createRevision) {
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(),"topic":"You received a revision to evaluate"} });
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(),"topic":"DASP - You received a revision to evaluate"} });
     }
     createRevision.article.revisions = revisions;
 
@@ -326,7 +232,7 @@ async function CreateRevision(createRevision) {
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
       createRevision.article.revisions.push(revisions[i]);
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(), "topic":"You received a revision to evaluate"} });
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(), "topic":"DASP - You received a revision to evaluate"} });
       // Update the asset in the asset registry.
     }
     await articleRegistry.update(createRevision.article);
@@ -404,7 +310,7 @@ async function ReviewRejected(reviewRejected) {
     revisors[randRevisor].email
   );
   reviewRejected.revision.acc = false;
-  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"You received a revision to evaluate"} });
+  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"DASP - You received a revision to evaluate"} });
   reviewRejected.revision.reviewer = reviewer;
   reviewRejected.revision.date = reviewRejected.timestamp;
   // Get the asset registry for the asset.
@@ -451,7 +357,7 @@ async function RateRevision(rateRevision) {
   // Update the asset in the asset registry.
   await articleRegistry.update(rateRevision.revision.article);
   if (rateRevision.revision.article.revCount >= 5) {
-    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"Your article has been rated"} });
+    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"DASP - Your article has been rated"} });
     // Insert author concept
     if (rateRevision.revision.article.points <= 2) {
       rateRevision.revision.article.concept = 'Rejected';      
@@ -465,7 +371,7 @@ async function RateRevision(rateRevision) {
       rateRevision.revision.article.concept = 'Accepted';    
     }
     if (rateRevision.revision.article.points > 6) {
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"Congratulations, your article has been published! You are now a reviewer."} });
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"DASP - Congratulations, your article has been published! You are now a reviewer."} });
       
       // Author turns in Reviewer
       rateRevision.revision.article.author.points += rateRevision.revision.article.points;
@@ -528,7 +434,7 @@ async function NewArticle(newArticle) {
  */
 
 async function NewAuthor(newAuthor) {
-  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"Account Created"} });
+  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
   let participantRegistry = await getParticipantRegistry(AUTHOR);
   let author;
   let factory = getFactory();
@@ -538,6 +444,7 @@ async function NewAuthor(newAuthor) {
   author.email = newAuthor.email;
   author.firstName = newAuthor.firstName;
   author.lastName = newAuthor.lastName;
+  author.password = newAuthor.password;
   author.authorId = newAuthor.transactionId;
   let authors = await participantRegistry.getAll();
   if (authors.length < 6) {
@@ -564,4 +471,45 @@ async function PublishRevision(publishRevision) {
   const revisionRegistry = await getAssetRegistry(REVISION);
   // Update the asset in the asset registry.
   await revisionRegistry.update(publishRevision.revision);
+}
+/**
+ * Transaction for new Author, maybe not needed
+ * @param {org.dasp.net.ChangePassword} changePassword
+ * @transaction
+ */
+
+async function ChangePassword(changePassword) {
+  await request.post({ uri: 'http://172.17.0.1:1880/hello',
+  json: {"to" : changePassword.author.email,
+  "topic":"DASP - Password Changed",
+  "body":"You Password has been changed!"} });
+  changePassword.author.password = changePassword.password;
+  // Get the asset registry for the asset.
+  const revisionRegistry = await getAssetRegistry(AUTHOR);
+  // Update the asset in the asset registry.
+  await revisionRegistry.update(changePassword.author);
+}
+/**
+ * Transaction for new Author, maybe not needed
+ * @param {org.dasp.net.RecoverPassword} recoverPassword
+ * @transaction
+ */
+
+async function RecoverPassword(recoverPassword) {
+  await request.post({ uri: 'http://172.17.0.1:1880/hello',
+  json: {"to" : recoverPassword.author.email,
+  "topic":"DASP - Account Recovered",
+  "body":"You account has been recovered!<br/>Password: "
+  +recoverPassword.author.password+"<br/>Please change soon"}
+});
+}
+
+/**
+ * Transaction for new Author, maybe not needed
+ * @param {org.dasp.net.LogIn} logIn
+ * @transaction
+ */
+
+async function LogIn(logIn) {
+  return true;
 }

@@ -1,13 +1,13 @@
 # !/bin/bash
 ./fabric-dev-servers/stopFabric.sh && ./fabric-dev-servers/teardownFabric.sh
 
-composer card delete --card admin@dasp-net && composer card delete --card PeerAdmin@hlfv1
+# composer card delete --card admin@dasp-net && composer card delete --card PeerAdmin@hlfv1
 
 docker rm $(docker ps -a -q) -f
 
-docker rm mynodered
+# docker rmi $(docker images -a -q) -f
 
-#docker rmi $(docker images -a -q) -f
+rm -rf ~/.composer
 
 docker images -a | grep "dev-peer0" | awk '{print $3}' | xargs docker rmi
 

@@ -113,16 +113,12 @@ export class RegistryComponent {
                 hash  = ((hash << 5) - hash) + email.charCodeAt(i);
                 hash |= 0; // to 32bit integer
             }
-            console.log(hash);
             let fullValue = hash;
-            console.log(fullValue);
 
             var hue = Math.floor(fullValue * 360)/1000;
-            console.log(hue);
 
             var color = 'hsl(' + hue + ', 55%, 55%)';
             this.color = color
-            console.log(this.color);
             return this.color;
         }
     }
@@ -142,8 +138,6 @@ export class RegistryComponent {
                     });
                 }
                 this.currentdate = new Date();
-                console.log(this.resources);
-                console.log(this.author);
                 this.secret = this.identityCardService.getIdentityCard(this.author + "@dasp-net")["metadata"].enrollmentSecret;
 
             })
@@ -164,13 +158,10 @@ export class RegistryComponent {
     downloadFile(hash) {
         let link = document.createElement("a");
         link.download = "filename";
-        console.log(hash);
 
         ipfs.cat(hash).then((result) => {
-            console.log(result);
             let jsoned = JSON.parse(result)
             link.href = jsoned;
-            console.log(jsoned);
             link.click();
 
         }).catch(console.log);
@@ -189,7 +180,6 @@ export class RegistryComponent {
             notes: this.notes,
             points: this.concept
         });
-        console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.closeRateModal();
             this.loadResources();
@@ -209,7 +199,6 @@ export class RegistryComponent {
             $class: "org.dasp.net.ReviewAccept",
             revision: "resource:org.dasp.net.Revision#" + id
         });
-        console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.loadResources();
             return (this.loading = false);
@@ -227,7 +216,6 @@ export class RegistryComponent {
             $class: "org.dasp.net.ReviewRejected",
             revision: "resource:org.dasp.net.Revision#" + id
         });
-        console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.loadResources();
             return (this.loading = false);
@@ -242,14 +230,11 @@ export class RegistryComponent {
          await ipfs.add(Buffer.from(JSON.stringify(input)))
         .then(res => {
             const hash = res[0].hash
-            console.log('added data hash:', hash)
             this.articleHash = hash;
             return ipfs.cat(hash)
         })
         .then(output => {
             return this.changeHash(this.articleHash).then(() => {
-                console.log(output);
-                console.log('retrieved data:', JSON.parse(output))
                 this.createRevisions(this.rate);
             });
         });
@@ -275,8 +260,6 @@ export class RegistryComponent {
         let reader = e.target;
         this.articleBase64 = reader.result;
         this.ipfsUpload();
-        console.log(reader)
-        console.log(this.articleBase64)
     }
     async changeHash(id) {
         this.loading = true;
@@ -291,7 +274,6 @@ export class RegistryComponent {
             article: "resource:org.dasp.net.Article#" + this.rate,
             newHash: id
         });
-        console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
         });
     }
@@ -307,7 +289,6 @@ export class RegistryComponent {
             $class: "org.dasp.net.CreateRevision",
             article: "resource:org.dasp.net.Article#" + article
         });
-        console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.loadResources();
             //go to reviewed
@@ -326,7 +307,6 @@ export class RegistryComponent {
             $class: "org.dasp.net.PublishRevision",
             revision: "resource:org.dasp.net.Revision#" + id
         });
-        console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.loadResources();
             return (this.loading = false);
@@ -344,7 +324,6 @@ export class RegistryComponent {
             $class: "org.dasp.net.Scheduler",
             revision: "resource:org.dasp.net.Revision#" + id
         });
-        console.log(resource);
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.loadResources();
             return (this.loading = false);

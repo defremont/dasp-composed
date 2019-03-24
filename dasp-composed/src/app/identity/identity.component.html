@@ -60,12 +60,11 @@
                             autocomplete="off" />
                     </div>
 
+                    <div class="justified-input">
+                        <label class="required" for="secret">Secret<abbr title="required">*</abbr></label>
+                        <input required type="password" [(ngModel)]="pass" id="pass" name="pass" />
+                    </div>
                 </form>
-                <p>
-                    Issuing an identity generates a one-time secret. You can
-                    choose to send this to somebody or use it yourself when it
-                    has been issued.
-                </p>
             </section>
 
             <footer>
@@ -83,11 +82,6 @@
                         </div>
                     </div>
                 </button>
-                <!-- <button class="primary" (click)="test()">
-            <div *ngIf="!issueInProgress">
-                <span>TEST</span>
-            </div>
-        </button> -->
             </footer>
         </section>
         <section *ngIf="tabL" class="issue-identity">
@@ -104,7 +98,8 @@
                         <label class="required" for="secret">Secret<abbr title="required">*</abbr></label>
                         <input required type="password" [(ngModel)]="pass" id="pass" name="pass" />
                     </div>
-                </form>
+                </form><a class="passw"
+                        (click)="coverPass()"><b>Forgot your password?</b></a>
             </section>
 
             <footer>

@@ -99,14 +99,10 @@
         </div>
     </div>
     <div *ngIf="!resources || resources.length === 0" class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
         <h3>You have no Articles!</h3>
         <p *ngIf="!isHistorian()">
-            To send articles to this registry click Upload Article in menu
+            To send articles to DASP click Upload Article in left menu
         </p>
-        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
     </div>
 </div>
 <div *ngIf="_registry && _type === 'publicArticles'" style="margin: 0;" class="resource-list"
@@ -161,16 +157,8 @@
             </div>
         </div>
     </div>
-    <div *ngIf="!resources || resources.length === 0" class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
-        <h3>This registry is empty!</h3>
-        <p *ngIf="!isHistorian()">
-            To create resources in this registry click create new at the top of
-            this page
-        </p>
-        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+    <div class="no-resources">
+        <h3>{{resources.length}} Published Articles.</h3>
     </div>
 </div>
 <div *ngIf="_registry && _type === 'myArticleRevisions'" style="margin: 0;" class="resource-list"
@@ -186,8 +174,11 @@
                                 : !resource.acc
                                 ? null
                                 : '#50c273'
-                        "><p style="padding: 20px 0;">
-                                <span style="font-size: 20px;" class="load">Revision #{{resource.getIdentifier().substr(resource.getIdentifier().length - 1)}} of</span><br/><span id="style-3" style="overflow: overlay;
+                        ">
+                        <p style="padding: 20px 0;">
+                            <span style="font-size: 20px;" class="load">Revision
+                                #{{resource.getIdentifier().substr(resource.getIdentifier().length - 1)}}
+                                of</span><br /><span id="style-3" style="overflow: overlay;
                             max-height: 90px;
                             min-height: 90px;
                             font-size: 30px;
@@ -207,7 +198,7 @@
                         <div style="
                                 border-top: none;" class="divider">
                             <h2>
-                                <b>Concept: {{ resource.concept }}</b><br/>
+                                <b>Concept: {{ resource.concept }}</b><br />
                             </h2>
                             <br />Notes:
                             <div id="style-3" style="padding: 20px 25px;
@@ -244,15 +235,10 @@
         </div>
     </div>
     <div *ngIf="!resources || resources.length === 0" class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
-        <h3>This registry is empty!</h3>
+        <h3>You have no reviews yet!</h3>
         <p *ngIf="!isHistorian()">
-            To create resources in this registry click create new at the top of
-            this page
+            To send articles to DASP click Upload Article in left menu
         </p>
-        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
     </div>
 </div>
 <div *ngIf="_registry && _type === 'review'" class="resource-list" [ngClass]="{ 'transaction-list': isHistorian() }">
@@ -261,7 +247,8 @@
             <div *ngIf="
                     resource['reviewer'].getIdentifier() === author &&
                     !resource['complete']
-                " style="float: left; margin: 5% 0% 0% 5%; height: 625px;"[style.height]="rate ? '755px;' : null" class="upload">
+                " style="float: left; margin: 5% 0% 0% 5%; height: 625px;" [style.height]="rate ? '755px;' : null"
+                class="upload">
                 <div class="upload-files">
                     <header [style.background]="
                             resource.complete
@@ -271,7 +258,7 @@
                                 : '#50c273'
                         ">
                         <p style="padding: 20px 0;">
-                                <span id="style-3" style="overflow: overlay;
+                            <span id="style-3" style="overflow: overlay;
                                 max-height: 90px;
                                 min-height: 90px;
                                 font-size: 30px;
@@ -280,21 +267,21 @@
                             " class="up">{{ resource.articleTitle }}</span><br />
                             <span style="font-size: 0.5em;" *ngIf="
                                     !resource.acc" class="load">not accepted yet</span>
-                           </p>
+                        </p>
                     </header>
                     <div style="padding: 40px 0 !important;" class="body">
                         <div style="
                                 border-top: none;" class="divider">
-                                <br />Tags:
-                                <div id="style-3" style="padding: 20px 25px;
+                            <br />Tags:
+                            <div id="style-3" style="padding: 20px 25px;
                                 max-height: 90px;
                                 min-height: 90px;
                                 overflow: auto;">
-                                    {{ resource.articleTags }}
-                                </div>
-<br /><button class="primary" (click)="downloadFile(resource.hash)">
-    <b><a>Download<br /></a></b>
-</button><br />
+                                {{ resource.articleTags }}
+                            </div>
+                            <br /><button class="primary" (click)="downloadFile(resource.hash)">
+                                <b><a>Download<br /></a></b>
+                            </button><br />
                             <h6>{{ resource.date }}</h6>
                             <a href="http://localhost:5001/api/v0/cat/{{
                                     resource.hash
@@ -318,21 +305,17 @@
                                 Reject
                             </button>
                             <div *ngIf="rate === resource.getIdentifier()">
-                                Concept:  <select [(ngModel)]="concept">
-                                        <option [value]="o.value" *ngFor="let o of options">
-                                           {{o.name}}
-                                        </option>
-                                     </select></div><br/>
-                            <div *ngIf="rate === resource.getIdentifier()">Notes<br/>
+                                Concept: <select [(ngModel)]="concept">
+                                    <option [value]="o.value" *ngFor="let o of options">
+                                        {{o.name}}
+                                    </option>
+                                </select></div><br />
+                            <div *ngIf="rate === resource.getIdentifier()">Notes<br />
                                 <textarea style="visibility: unset;
                                 height: 90px;
-                                width: 80%;"
-                                    required
-                                    name="notes"
-                                    id="notes"
-                                    [(ngModel)]="notes"
+                                width: 80%;" required name="notes" id="notes" [(ngModel)]="notes"
                                     autocomplete="off"></textarea>
-                                </div><br/>
+                            </div><br />
                             <button *ngIf="rate === resource.getIdentifier()" type="button" class="primary"
                                 [disabled]="!notes || !concept || loading"
                                 (click)="rateRevision(resource.getIdentifier())">
@@ -359,206 +342,176 @@
     </div>
 
     <div *ngIf="!resources || resources.length === 0" class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
-        <h3>This registry is empty!</h3>
+        <h3>You have no reviews yet!</h3>
         <p *ngIf="!isHistorian()">
-            To create resources in this registry click create new at the top of
-            this page
+            You must wait to be chosen
         </p>
-        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
     </div>
 </div>
 <div *ngIf="_registry && _type === 'reviewed'" class="resource-list" [ngClass]="{ 'transaction-list': isHistorian() }">
     <div *ngIf="!isHistorian()">
-        <div class="title" [ngClass]="{
-                'resource-empty': !resources || resources.length === 0
-            }">
-            <div class="data">Revision Details:</div>
-        </div>
         <div *ngFor="let resource of resources">
             <div *ngIf="
                     resource.complete &&
                     resource['reviewer'].getIdentifier() === author
                 " style="float: left; margin: 5% 0% 0% 5%; height: 510px;" class="upload">
                 <div class="upload-files">
-                        <header [style.background]="
+                    <header [style.background]="
                                 resource.complete
                                     ? '#5069c2'
                                     : !resource.acc
                                     ? null
                                     : '#50c273'
                             ">
-                            <p style="padding: 20px 0;">
-                                    <span id="style-3" style="overflow: overlay;
+                        <p style="padding: 20px 0;">
+                            <span id="style-3" style="overflow: overlay;
                                     max-height: 90px;
                                     min-height: 90px;
                                     font-size: 30px;
                                     padding: 0 25px;
                                     margin-bottom: -20px;
                                 " class="up">{{ resource.articleTitle }}</span><br />
-                                <span style="font-size: 0.5em;" *ngIf="
+                            <span style="font-size: 0.5em;" *ngIf="
                                         !resource.acc" class="load">not accepted yet</span>
-                               </p>
-                        </header>
-                        <div style="padding: 50px 0;" class="body">
-                            <div style="
+                        </p>
+                    </header>
+                    <div style="padding: 50px 0;" class="body">
+                        <div style="
                                     border-top: none;" class="divider">
-                                <h2>
-                                    <b>Concept: {{ resource.concept }}</b>
-                                    <br /><br />Notes:
-                            <div id="style-3" style="padding: 20px 25px;
+                            <h2>
+                                <b>Concept: {{ resource.concept }}</b>
+                                <br /><br />Notes:
+                                <div id="style-3" style="padding: 20px 25px;
                             max-height: 90px;
                             min-height: 90px;
                             overflow: auto;">
-                                {{ resource.notes }}
-                            </div>
-                                </h2>
-                                <h6>{{ resource.date }}</h6>
-                                <a href="http://localhost:5001/api/v0/cat/{{
+                                    {{ resource.notes }}
+                                </div>
+                            </h2>
+                            <h6>{{ resource.date }}</h6>
+                            <a href="http://localhost:5001/api/v0/cat/{{
                                         resource.hash
                                     }}" target="_blank">IPFS Link<b></b></a>
-                                <br /><button (click)="downloadFile(resource.hash)">
-                                    <b><a href="#">Download<br /></a></b>
-                                </button>
-                            </div>
+                            <br /><button (click)="downloadFile(resource.hash)">
+                                <b><a href="#">Download<br /></a></b>
+                            </button>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
     <div *ngIf="!resources || resources.length === 0" class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
-        <h3>This registry is empty!</h3>
+        <h3>You have no reviews yet!</h3>
         <p *ngIf="!isHistorian()">
-            To create resources in this registry click create new at the top of
-            this page
+            You must wait to be chosen
         </p>
-        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
     </div>
 </div>
 <div *ngIf="_registry && _type === 'publicRevisions'" class="resource-list"
     [ngClass]="{ 'transaction-list': isHistorian() }">
     <div *ngIf="!isHistorian()">
-        <div class="title" [ngClass]="{
-                'resource-empty': !resources || resources.length === 0
-            }">
-            <div class="data">Revision Details:</div>
-        </div>
         <div *ngFor="let resource of resources">
             <div *ngIf="resource.public" style="float: left; margin: 5% 0% 0% 5%; height: 665px;" class="upload">
 
-                    <div class="upload-files">
-                        <header [style.background]="
+                <div class="upload-files">
+                    <header [style.background]="
                                 resource.complete
                                     ? '#5069c2'
                                     : !resource.acc
                                     ? null
                                     : '#50c273'
                             ">
-                            <p style="padding: 20px 0;">
-                                    <span style="font-size: 20px;" class="load">Revision #{{resource.getIdentifier().substr(resource.getIdentifier().length - 1)}} of</span><br/><span id="style-3" style="overflow: overlay;
+                        <p style="padding: 20px 0;">
+                            <span style="font-size: 20px;" class="load">Revision
+                                #{{resource.getIdentifier().substr(resource.getIdentifier().length - 1)}}
+                                of</span><br /><span id="style-3" style="overflow: overlay;
                                 max-height: 90px;
                                 min-height: 90px;
                                 font-size: 30px;
                                 padding: 0 25px;
                                 margin-bottom: -20px;
                             " class="up">{{ resource.articleTitle }}</span>
-                            </p>
-                        </header>
-                        <div style="padding: 30px 0px;" class="body">
-                            <div style="
+                        </p>
+                    </header>
+                    <div style="padding: 30px 0px;" class="body">
+                        <div style="
                                     border-top: none;" class="divider">
-                                <h2>
-                                    <b>Concept: {{ resource.concept }}</b>
-                                </h2>
-                                <br />Notes:
-                                <div id="style-3" style="padding: 20px 25px;
+                            <h2>
+                                <b>Concept: {{ resource.concept }}</b>
+                            </h2>
+                            <br />Notes:
+                            <div id="style-3" style="padding: 20px 25px;
                                 max-height: 90px;
                                 min-height: 90px;
                                 overflow: auto;">
-                                    {{ resource.notes }}
-                                </div>
-                                <br />Revision Rate: {{ resource.rate }}
-                                <h6>{{ resource.date }}</h6>
-                                <a href="http://localhost:5001/api/v0/cat/{{
+                                {{ resource.notes }}
+                            </div>
+                            <br />Revision Rate: {{ resource.rate }}
+                            <h6>{{ resource.date }}</h6>
+                            <a href="http://localhost:5001/api/v0/cat/{{
                                         resource.hash
                                     }}" target="_blank">IPFS Link<b></b></a>
-                                <br /><button (click)="downloadFile(resource.hash)">
-                                    <b><a href="#">Download<br /></a></b>
-                                </button>
-                            </div>
+                            <br /><button (click)="downloadFile(resource.hash)">
+                                <b><a href="#">Download<br /></a></b>
+                            </button>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
     <div *ngIf="!resources || resources.length === 0" class="no-resources">
-        <svg class="ibm-icon" aria-hidden="true">
-            <use xlink:href="#icon-Emptiness"></use>
-        </svg>
-        <h3>This registry is empty!</h3>
-        <p *ngIf="!isHistorian()">
-            To create resources in this registry click create new at the top of
-            this page
-        </p>
-        <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+        <div class="no-resources">
+            <h3>{{resources.length}} Published Revisions.</h3>
+        </div>
     </div>
 </div>
 <div *ngIf="_registry && !_type && !isHistorian()" class="resource-list"
     [ngClass]="{ 'transaction-list': isHistorian() }">
     <div *ngIf="!isHistorian()">
         <div *ngFor="let resource of resources">
-                <div *ngIf="resource['$identifier'] === author" style="
+            <div *ngIf="resource['$identifier'] === author" style="
                 min-height: 515px; float: left; margin: 5% 0% 0% 5%;" class="upload">
-                    <div class="upload-files">
+                <div class="upload-files">
 
-                        <header [style.background]="
+                    <header [style.background]="
                                 resource.isReviewer
                                     ? '#5069c2'
                                     : '#50c273'
                             ">
 
-                            <p style="padding: 20px 0;">
-                                    <i width="60" height="60" style="
+                        <p style="padding: 20px 0;">
+                            <i width="60" height="60" style="
                                     font-style: unset;
-                                    padding: 10px;" [style.background-color]="color !== '' ? color : getColor(resource.email)" class="avatar">{{getInitials(resource.firstName,resource.lastName)}}</i><br/>
+                                    padding: 10px;"
+                                [style.background-color]="color !== '' ? color : getColor(resource.email)"
+                                class="avatar">{{getInitials(resource.firstName,resource.lastName)}}</i><br />
 
-                       <span id="style-3" style="overflow: overlay;
-                                margin-bottom: -20px;
+                            <span id="style-3" style="overflow: overlay;
+                                    margin: 10px 10px -20px 10px;
                             " class="up">{{ resource.firstName }} {{ resource.lastName }}</span>
                             <br />
-                            <span style="font-size: 30px;" class="load">{{resource.isReviewer ? "Author & Revisor" : "Author"}}</span></p>
-                        </header>
-                        <div style="padding: 30px 0px;" class="body">
-                            <div style="
+                            <span style="font-size: 30px;"
+                                class="load">{{resource.isReviewer ? "Author & Revisor" : "Author"}}</span></p>
+                    </header>
+                    <div style="padding: 30px 0px;" class="body">
+                        <div style="
                                     border-top: none;" class="divider">
-                                E-mail:<br/><br/><h2>
-                                    <b>{{ resource.email }}</b>
-                                </h2>
-                                <br />Total Points: {{ resource.points }}
-                                <br *ngIf="resource.isReviewer"/>{{resource.isReviewer ? "Revisor Reputation: " + resource.reputation : null}}
-                                <br /><br />ID:<br/><h6 style="font-size: 10px;">{{ resource.authorId }}</h6>
-                                <br/>Password: {{secret}}
-                            </div>
+                            E-mail:<br /><br />
+                            <h2>
+                                <b>{{ resource.email }}</b>
+                            </h2>
+                            <br />Total Points: {{ resource.points }}
+                            <br
+                                *ngIf="resource.isReviewer" />{{resource.isReviewer ? "Revisor Reputation: " + resource.reputation : null}}
+                            <br /><br />ID:<br />
+                            <h6 style="font-size: 10px;">{{ resource.authorId }}</h6>
+                            <br />Password: {{secret}}
                         </div>
                     </div>
                 </div>
-        </div>
-
-        <div *ngIf="!resources || resources.length === 0" class="no-resources">
-            <svg class="ibm-icon" aria-hidden="true">
-                <use xlink:href="#icon-Emptiness"></use>
-            </svg>
-            <h3>This registry is empty!</h3>
-            <p *ngIf="!isHistorian()">
-                To create resources in this registry click create new at the top
-                of this page
-            </p>
-            <p *ngIf="isHistorian()">Submit a Transaction via the side menu</p>
+            </div>
         </div>
     </div>
 </div>

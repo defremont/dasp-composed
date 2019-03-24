@@ -262,14 +262,41 @@ export class IdentityComponent implements OnInit {
             $class: "org.dasp.net.NewAuthor",
             email: this.userID,
             firstName: this.firstName,
-            lastName: this.lastName
+            lastName: this.lastName,
+            password: this.pass
         });
-        await businessNetworkConnection.connect("admin@dasp-net");
         await businessNetworkConnection.submitTransaction(resource);
 
         await this.identityIssue();
     }
     test(){
+        // this.http.post('http://localhost:1880/hello',
+        // { "to": this.userID,
+        // "topic": "test recieved2"}).subscribe(
+        //     data => {
+        //         console.log("Work, recive: " + data); },
+        //          err => { console.log("Err, recive: " + err); },
+        //           () => { console.log("Finish");
+        //             });
+    }
+    private async coverPass(){
+        this.alertService.busyStatus$.next({
+            title: "Recover password",
+            text: "Sending to your e-mail..."
+        });
+        this.issueInProgress = true;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.RecoverPassword",
+            author: "resource:org.dasp.net.Author#" + this.userID
+        });
+        await businessNetworkConnection.submitTransaction(resource);
+        this.alertService.busyStatus$.next(null);
+        this.issueInProgress = false;
     }
     async identityIssue() {
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
@@ -281,8 +308,6 @@ export class IdentityComponent implements OnInit {
                 "org.dasp.net.Author#" + this.userID,
                 this.userID
             );
-            console.log(`userID = ${result.userID}`);
-            console.log(`userSecret = ${result.userSecret}`);
             this.secret = result.userSecret
 
             await this.addIdentityToWallet({
@@ -322,25 +347,46 @@ export class IdentityComponent implements OnInit {
                         .filter(v => new RegExp(term, "gi").test(v))
                         .slice(0, 10)
             );
-    logIn() {
-        this.trylog({ ref: this.userID + "@dasp-net", usable: true }, true);
-        console.log("then1");
+    private async logIn() {
+        this.alertService.busyStatus$.next(null);
+        this.alertService.busyStatus$.next({
+            title: "Login",
+            text: "Please wait..."
+        });
+        this.issueInProgress = true;
+        try {
+            this.issueInProgress = true;
+            let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+
+            let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+            let serializer = businessNetworkDefinition.getSerializer();
+
+            let resource = serializer.fromJSON({
+                $class: "org.dasp.net.LogIn",
+                author: "resource:org.dasp.net.Author#" + this.userID,
+                password: this.pass
+            });
+            await businessNetworkConnection.connect("admin@dasp-net");
+            let result = await businessNetworkConnection.submitTransaction(resource)
+            if(!result){
+                this.trylog({ ref: this.userID + "@dasp-net", usable: true }, true)
+            }
+
+        } catch (error) {
+            console.log(error);
+            this.alertService.busyStatus$.next({
+                title: "Fail!",
+                text: "Wrong pass or user"
+            });
+            this.issueInProgress = false;
+        }
     }
 
     private trylog(ID: { ref; usable }, revertOnError: boolean): Promise<void> {
-        let secret;
         let cardRef = ID.ref;
-
-        secret = this.identityCardService.getIdentityCard(this.userID + "@dasp-net")["metadata"].enrollmentSecret;
-
-        console.log("@@@ SET CURRENT ID @@@");
-
-        console.log(this.identityCardService.getIdentityCard(this.userID + "@dasp-net")["metadata"].enrollmentSecret);
-
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
         }
-        if (secret === this.pass) {
             this.identityCardService
                 .setCurrentIdentityCard(cardRef)
                 .then(() => {
@@ -355,14 +401,12 @@ export class IdentityComponent implements OnInit {
                     this.alertService.busyStatus$.next(null);
                     this.loadAllIdentities();
 
-                    secret = this.identityCardService.getIdentityCard(this.userID + "@dasp-net")["metadata"].enrollmentSecret;
-
                     return this.router.navigate(["/panel"]);
                 })
                 .catch(error => {
                     console.log(error);
                 });
-        }
+
 
     }
     actualFQI(userID) {
