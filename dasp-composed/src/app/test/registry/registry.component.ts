@@ -70,6 +70,11 @@ export class RegistryComponent {
       { name: "Accepted", value: 10 }
     ]
     @Output() someEvent = new EventEmitter<string>();
+    showChangePassword: boolean = false;
+    pass: any;
+    validPass: boolean = false;
+    pass2: any;
+    oldPass: any;
 
     @Input()
     set registry(registry: any) {
@@ -335,7 +340,43 @@ export class RegistryComponent {
             .getSerializer();
         return JSON.stringify(serializer.toJSON(resource), null, 2);
     }
+    private async changePassword(){
+        this.loading = true;
+        this.identityCardService;
+        let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
 
+        let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+        let serializer = businessNetworkDefinition.getSerializer();
+
+        let resource = serializer.fromJSON({
+            $class: "org.dasp.net.ChangePassword",
+            author: "resource:org.dasp.net.Author#" + this.author,
+            oldPassword: this.oldPass,
+            newPassword: this.pass
+        });
+        await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadResources();
+            return (this.loading = false);
+        });
+    }
+    private showChangePass(){
+        this.showChangePassword = !this.showChangePassword;
+    }
+
+    private passwordAgain(pass2){
+        if (pass2 === this.pass){
+            return this.validPass = true;
+        }else{
+            return this.validPass = false;
+        }
+    }
+    private password(pass){
+        if (pass === this.pass2){
+            return this.validPass = true;
+        }else{
+            return this.validPass = false;
+        }
+    }
     expandResource(resourceToExpand) {
         if (this.expandedResource === resourceToExpand.getIdentifier()) {
             this.expandedResource = null;

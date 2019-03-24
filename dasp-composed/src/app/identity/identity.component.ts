@@ -36,6 +36,11 @@ import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/distinctUntilChanged";
 import { saveAs } from "file-saver";
 import { Router } from "@angular/router";
+import { Test } from "../../../e2e/component/test";
+import { timingSafeEqual } from "crypto";
+const BusinessNetworkConnection = require("composer-client")
+    .BusinessNetworkConnection;
+
 @Component({
     selector: "identity",
     templateUrl: "./identity.component.html",
@@ -239,8 +244,7 @@ export class IdentityComponent implements OnInit {
     async newAuthor() {
         this.issueInProgress = true;
         this.alertService.busyStatus$.next({
-            title: "Recover password",
-            text: "Sending to your e-mail..."
+            title: "Creating account"
         });
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
@@ -255,8 +259,6 @@ export class IdentityComponent implements OnInit {
         try {
             await businessNetworkConnection.submitTransaction(resource);
             await this.identityIssue();
-            this.issueInProgress = false;
-            this.alertService.busyStatus$.next(null);
         } catch (error) {
             this.authorError = true;
             this.issueInProgress = false;
@@ -353,8 +355,7 @@ export class IdentityComponent implements OnInit {
         } else {
             this.alertService.busyStatus$.next(null);
             this.alertService.busyStatus$.next({
-                title: "Login",
-                text: "Please wait..."
+                title: "Login"
             });
             this.issueInProgress = true;
             try {

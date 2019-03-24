@@ -451,14 +451,13 @@ async function NewAuthor(newAuthor) {
   }
   return getParticipantRegistry(AUTHOR)
     .then(function (authorRegistry) { 
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
-       
       return authorRegistry.add(author);
     })
     .catch(function (error) {
       console.log(error);
       throw error;
-    });
+    }).then(
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} }));
 }
 /**
  * Transaction for new Author, maybe not needed
@@ -480,15 +479,15 @@ async function PublishRevision(publishRevision) {
  */
 
 async function ChangePassword(changePassword) {
-  await request.post({ uri: 'http://172.17.0.1:1880/hello',
-  json: {"to" : changePassword.author.email,
-  "topic":"DASP - Password Changed",
-  "body":"You Password has been changed!"} });
-  changePassword.author.password = changePassword.password;
+  changePassword.author.password = changePassword.newPassword;
   // Get the asset registry for the asset.
-  const revisionRegistry = await getAssetRegistry(AUTHOR);
+  let participantRegistry = await getParticipantRegistry(AUTHOR);
   // Update the asset in the asset registry.
-  await revisionRegistry.update(changePassword.author);
+  await participantRegistry.update(changePassword.author).then(
+    await request.post({ uri: 'http://172.17.0.1:1880/hello',
+    json: {"to" : changePassword.author.email,
+    "topic":"DASP - Password Changed",
+    "body":"You Password has been changed!"} }));
 }
 /**
  * Transaction for new Author, maybe not needed

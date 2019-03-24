@@ -18,6 +18,14 @@
 
 
   
+  rule AuthorCanUpdateChangePassword {
+      description: "Allow all author access to resources from scheduler"
+      participant: "org.dasp.net.Author"
+      operation: UPDATE
+      resource: "org.dasp.net.Author"
+      transaction: "org.dasp.net.ChangePassword"
+      action: ALLOW
+  }
   rule AuthorCanCreateChangePassword {
       description: "Allow all author to change your password"
       participant(a): "org.dasp.net.Author"
@@ -268,14 +276,6 @@
       resource: "org.dasp.net.NewAuthor"
       action: ALLOW
   } 
-  rule NetworkAdminUserCreateAuthorFromNewAuthor {
-      description: "Grant business network administrators full access to RecoverPassword"
-      participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: ALL
-      resource: "org.dasp.net.Author"
-      transaction: "org.dasp.net.NewAuthor"
-      action: ALLOW
-  } 
   rule NetworkAdminUserLogIn {
       description: "Grant business network administrators full access to LogIn"
       participant(p): "org.hyperledger.composer.system.NetworkAdmin"
@@ -284,34 +284,18 @@
       condition: (r.password == r.author.password)
       action: ALLOW
   } 
-  rule NetworkAdminUserReadAuthor {
-      description: "Grant business network administrators full access to LogIn"
-      participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: READ
-      resource: "org.dasp.net.Author"
-      action: ALLOW
-  } 
-  rule NetworkAdminUserParticipantAccessFromLogin {
-      description: "Grant business network administrators full access to user resources from LogIn"
-      participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: ALL
-      resource: "org.dasp.net.Author"
-      transaction: "org.dasp.net.LogIn"
-      action: ALLOW
-  } 
-  rule NetworkAdminUserParticipantAccessFromRecoverPassword {
-      description: "Grant business network administrators full access to user resources from RecoverPassword"
-      participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: ALL
-      resource: "org.dasp.net.Author"
-      transaction: "org.dasp.net.RecoverPassword"
-      action: ALLOW
-  } 
   rule NetworkAdminUserRecoverPass {
       description: "Grant business network administrators full access to RecoverPassword"
       participant: "org.hyperledger.composer.system.NetworkAdmin"
       operation: CREATE
       resource: "org.dasp.net.RecoverPassword"
+      action: ALLOW
+  } 
+  rule NetworkAdminUserReadAuthor {
+      description: "Grant business network administrators read Author"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: ALL
+      resource: "org.dasp.net.Author"
       action: ALLOW
   } 
   rule SystemACL {

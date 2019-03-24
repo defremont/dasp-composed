@@ -507,7 +507,42 @@
                                 *ngIf="resource.isReviewer" />{{resource.isReviewer ? "Revisor Reputation: " + resource.reputation : null}}
                             <br /><br />ID:<br />
                             <h6 style="font-size: 10px;">{{ resource.authorId }}</h6>
-                            <br />Password: {{secret}}
+                            <br />
+                            <section class="modal-body">
+                <form *ngIf="showChangePassword" #changePassForm="ngForm" id="change-pass-form" (ngSubmit)="changePassword()">
+
+                    <div style="margin-bottom: 0;" class="justified-input">
+                        <label style="margin: 10px;" class="required" for="secret">Old Password<abbr title="required"> *</abbr></label>
+                        <input required style="visibility: visible" type="password" [(ngModel)]="oldPass" id="oldPass" name="oldPass" />
+                    </div>
+                    <div style="margin-bottom: 0;" class="justified-input">
+                        <label style="margin: 10px;"class="required" for="secret">New Password<abbr title="required"> *</abbr></label>
+                        <input required style="visibility: visible" (ngModelChange)="password($event)" type="password" [(ngModel)]="pass" id="pass" name="pass" />
+                    </div>
+                    <div style="margin-bottom: 0;" class="justified-input">
+                        <label style="margin: 10px;"class="required" for="secret">New Password Again<abbr title="required"> *</abbr></label>
+                        <input required style="visibility: visible" (ngModelChange)="passwordAgain($event)" type="password" [(ngModel)]="pass2" id="pass2" name="pass2"  />
+                    </div><b style="color: red"><br/>{{validPass ? null : "Password not matching"}}<br/></b><br/>
+                    <footer style="background-color: none;" *ngIf="showChangePassword">
+                        <button id="createNew" type="submit" form="change-pass-form" class="primary"
+                        [disabled]="!changePassForm.form.valid || !validPass">
+                            <div style="margin-bottom: 0;" *ngIf="!issueInProgress">
+                                <span>Change Password</span>
+                            </div>
+                            <div style="margin-bottom: 0;" *ngIf="issueInProgress" class="ibm-spinner-indeterminate small loop">
+                                <div style="margin-bottom: 0;" class="loader">
+                                    <svg class="circular" viewBox="25 25 50 50">
+                                        <circle class="circle-path" cx="50" cy="50" r="20" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </button>
+                    </footer>
+                </form>
+            </section>
+            <button *ngIf="!showChangePassword" class="primary" (click)="showChangePass()">
+                                <b><span>Change Password<br /></span></b>
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -47,7 +47,7 @@ export class InitializationService {
             .then((config) => {
                 let force = !this.identityCardService.getCurrentIdentityCard();
                 this.alertService.busyStatus$.next({
-                    title: 'Initializing Playground',
+                    title: 'Initializing DASP',
                     force: force
                 });
                 this.config = config;

@@ -25,7 +25,8 @@
     "hyperledger",
     "solutions",
     "dasp",
-    "publisher"
+    "publisher",
+    "gercom"
   ],
   "author": "André Defrémont",
   "license": "Apache-2.0",
