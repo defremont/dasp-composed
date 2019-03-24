@@ -113,6 +113,7 @@ transaction Scheduler extends PublisherTransactions {
 transaction ChangePassword extends PublisherTransactions {
   --> Author author
   o String newPassword
+  o String oldPassword
 }
 transaction RecoverPassword extends PublisherTransactions {
   --> Author author

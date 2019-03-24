@@ -18,48 +18,48 @@
 
 
   
-  rule ChangePassword {
-      description: "Allow all author access to all resources"
+  rule AuthorCanCreateChangePassword {
+      description: "Allow all author to change your password"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(tx): "org.dasp.net.ChangePassword"
-      condition: (!tx.revision.complete && tx.revision.article.author.getIdentifier() == a.getIdentifier())
+      condition: (a.password == tx.oldPassword)
       action: ALLOW
   }
-  rule CanScheduler {
-      description: "Allow all author access to all resources"
+  rule AuthorCanCreateScheduler {
+      description: "Allow all author to reschedule your article revisions"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(tx): "org.dasp.net.Scheduler"
       condition: (!tx.revision.complete && tx.revision.article.author.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
-  rule CanAllRevisionFromScheduler {
-      description: "Allow all author access to all resources"
+  rule AuthorCanAllRevisionFromScheduler {
+      description: "Allow all author access to resources from scheduler"
       participant: "org.dasp.net.Author"
       operation: UPDATE, READ
       resource: "org.dasp.net.Revision"
       transaction: "org.dasp.net.Scheduler"
       action: ALLOW
   }
-  rule CanAllAuthorFromScheduler {
-      description: "Allow all author access to all resources"
+  rule AuthorCanReadAuthorFromScheduler {
+      description: "Allow all author access to resources from scheduler"
       participant: "org.dasp.net.Author"
       operation: READ
       resource: "org.dasp.net.Author"
       transaction: "org.dasp.net.Scheduler"
       action: ALLOW
   }
-  rule CanAllArticleFromScheduler {
-      description: "Allow all author access to all resources"
+  rule AuthorCanReadArticleFromScheduler {
+      description: "Allow all author access to resources from scheduler"
       participant: "org.dasp.net.Author"
       operation: READ
       resource: "org.dasp.net.Article"
       transaction: "org.dasp.net.Scheduler"
       action: ALLOW
   }
-  rule AuthorCanUpdateAuthorFromRevision {
-      description: "Allow all author access to all resources"
+  rule AuthorCanUpdateAuthorFromCreateRevision {
+      description: "Allow all author access to resources from CreateRevision"
       participant: "org.dasp.net.Author"
       operation: UPDATE, READ
       resource: "org.dasp.net.Author"
@@ -67,7 +67,7 @@
       action: ALLOW
   }
   rule AuthorCanUpdateArticleFromCreateRevision {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from CreateRevision"
       participant: "org.dasp.net.Author"
       operation: UPDATE, READ
       resource: "org.dasp.net.Article"
@@ -75,7 +75,7 @@
       action: ALLOW
   }
   rule AuthorCanCreateRevision {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from CreateRevision"
       participant: "org.dasp.net.Author"
       operation: CREATE, READ
       resource: "org.dasp.net.Revision"
@@ -83,7 +83,7 @@
       action: ALLOW
   }
   rule AuthorCanCreateRevisionTx{
-      description: "Allow Author to create revisions"
+      description: "Allow all author access to CreateRevision"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(r): "org.dasp.net.CreateRevision"
@@ -91,7 +91,7 @@
       action: ALLOW
   }
   rule AuthorCanUpdateRevisionFromPublishRevision {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from PublishRevision"
       participant: "org.dasp.net.Author"
       operation: UPDATE, READ
       resource: "org.dasp.net.Revision"
@@ -99,7 +99,7 @@
       action: ALLOW
   }
   rule AuthorCanPublishRevision {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to PublishRevision"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(tx): "org.dasp.net.PublishRevision"
@@ -107,7 +107,7 @@
       action: ALLOW
   }
   rule AuthorCanCreateRateRevision {
-      description: "Allow the owner of a revision total access to revision rating"
+      description: "Allow all author access to resources from RateRevision"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(r): "org.dasp.net.RateRevision"
@@ -115,7 +115,7 @@
       action: ALLOW
   }
   rule AuthorCanReadArticleFromRateRevision {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from RateRevision"
       participant: "org.dasp.net.Author"
       operation: UPDATE, READ
       resource: "org.dasp.net.Article"
@@ -123,7 +123,7 @@
       action: ALLOW
   }
   rule AuthorCanReadAuthorFromRateRevision {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from RateRevision"
       participant: "org.dasp.net.Author"
       operation: UPDATE, READ
       resource: "org.dasp.net.Author"
@@ -131,7 +131,7 @@
       action: ALLOW
   }
   rule AuthorCanUpdateRevisionFromRateRevision {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from RateRevision"
       participant: "org.dasp.net.Author"
       operation: UPDATE
       resource: "org.dasp.net.Revision"
@@ -139,7 +139,7 @@
       action: ALLOW
   }
   rule AuthorCanReadRevisionFromReject {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from ReviewRejected"
       participant: "org.dasp.net.Author"
       operation: READ, UPDATE
       resource: "org.dasp.net.Revision"
@@ -147,7 +147,7 @@
       action: ALLOW
   }
   rule AuthorCanReadAuthorFromReject {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from ReviewRejected"
       participant: "org.dasp.net.Author"
       operation: READ
       resource: "org.dasp.net.Author"
@@ -155,7 +155,7 @@
       action: ALLOW
   }
   rule AuthorCanReadArticleFromReject {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from ReviewRejected"
       participant: "org.dasp.net.Author"
       operation: READ
       resource: "org.dasp.net.Article"
@@ -163,7 +163,7 @@
       action: ALLOW
   }
   rule AuthorCanCreateReviewRejected{
-      description: "Allow Author to submit a new article"
+      description: "Allow all author access to resources from ReviewRejected"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(r): "org.dasp.net.ReviewRejected"
@@ -171,7 +171,7 @@
       action: ALLOW
   }
   rule AuthorCanCreateReviewAccept{
-      description: "Allow Author to submit a new article"
+      description: "Allow all author access to ReviewAccept"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(r): "org.dasp.net.ReviewAccept"
@@ -179,7 +179,7 @@
       action: ALLOW
   }
   rule AuthorCanUpdateRevisionFromReviewAccept{
-      description: "Allow Author to submit a new article"
+      description: "Allow all author access to resources from ReviewAccept"
       participant: "org.dasp.net.Author"
       operation: UPDATE
       resource: "org.dasp.net.Revision"
@@ -188,7 +188,7 @@
   }
 
   rule AuthorCanCreaterticleFromNewArticle {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from NewArticle"
       participant: "org.dasp.net.Author"
       operation: CREATE
       resource: "org.dasp.net.Article"
@@ -196,14 +196,14 @@
       action: ALLOW
   }
   rule AuthorCanCreateNewArticle{
-      description: "Allow Author to submit a new article"
+      description: "Allow all author access to NewArticle"
       participant: "org.dasp.net.Author"
       operation: CREATE
       resource: "org.dasp.net.NewArticle"
       action: ALLOW
   }
   rule AuthorCanCreateNewhash {
-      description: "Allow the owner of a article change they hash if needed by revision"
+      description: "Allow all author access to NewHash"
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(r): "org.dasp.net.NewHash"
@@ -211,7 +211,7 @@
       action: ALLOW
   }
   rule AuthorCanUpdateArticleFromNewHash {
-      description: "Allow all author access to all resources"
+      description: "Allow all author access to resources from NewHash"
       participant: "org.dasp.net.Author"
       operation: UPDATE
       resource: "org.dasp.net.Article"
@@ -227,8 +227,8 @@
       action: ALLOW
   }
 
-  rule AuthorCanAllAuthor {
-      description: "Allow all author access to all resources"
+  rule AuthorCanReadAuthor {
+      description: "Allow all author read access to own resources"
       participant(a): "org.dasp.net.Author"
       operation: READ
       resource(r): "org.dasp.net.Author"
@@ -236,8 +236,8 @@
       action: ALLOW
   }
 
-  rule AuthorCanAllArticle {
-      description: "Allow the owner of a article total access"
+  rule AuthorCanReadArticle {
+      description: "Allow all author read access to own resources"
       participant(a): "org.dasp.net.Author"
       operation: READ
       resource(r): "org.dasp.net.Article"
@@ -246,7 +246,7 @@
   }
 
   rule AuthorCanReadRevision {
-      description: "Allow the owner of a article total access to their revision listing"
+      description: "Allow all author read access to own resources"
       participant(a): "org.dasp.net.Author"
       operation: READ
       resource(r): "org.dasp.net.Revision"
@@ -254,14 +254,66 @@
       action: ALLOW
   }
   rule AuthorCanReadAuthorRevision {
-      description: "Allow the owner of a article total access to their revision listing"
+      description: "Allow all author read access to own resources"
       participant(a): "org.dasp.net.Author"
       operation: READ
       resource(r): "org.dasp.net.Revision"
       condition: (r.article.author.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
-
+  rule NetworkAdminUserCreateNewAuthor {
+      description: "Grant business network administrators full access to NewAuthor"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: CREATE
+      resource: "org.dasp.net.NewAuthor"
+      action: ALLOW
+  } 
+  rule NetworkAdminUserCreateAuthorFromNewAuthor {
+      description: "Grant business network administrators full access to RecoverPassword"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: ALL
+      resource: "org.dasp.net.Author"
+      transaction: "org.dasp.net.NewAuthor"
+      action: ALLOW
+  } 
+  rule NetworkAdminUserLogIn {
+      description: "Grant business network administrators full access to LogIn"
+      participant(p): "org.hyperledger.composer.system.NetworkAdmin"
+      operation: CREATE
+      resource(r): "org.dasp.net.LogIn"
+      condition: (r.password == r.author.password)
+      action: ALLOW
+  } 
+  rule NetworkAdminUserReadAuthor {
+      description: "Grant business network administrators full access to LogIn"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: READ
+      resource: "org.dasp.net.Author"
+      action: ALLOW
+  } 
+  rule NetworkAdminUserParticipantAccessFromLogin {
+      description: "Grant business network administrators full access to user resources from LogIn"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: ALL
+      resource: "org.dasp.net.Author"
+      transaction: "org.dasp.net.LogIn"
+      action: ALLOW
+  } 
+  rule NetworkAdminUserParticipantAccessFromRecoverPassword {
+      description: "Grant business network administrators full access to user resources from RecoverPassword"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: ALL
+      resource: "org.dasp.net.Author"
+      transaction: "org.dasp.net.RecoverPassword"
+      action: ALLOW
+  } 
+  rule NetworkAdminUserRecoverPass {
+      description: "Grant business network administrators full access to RecoverPassword"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: CREATE
+      resource: "org.dasp.net.RecoverPassword"
+      action: ALLOW
+  } 
   rule SystemACL {
     description:  "System ACL to permit all access"
     participant: "org.hyperledger.composer.system.Participant"
@@ -269,33 +321,3 @@
     resource: "org.hyperledger.composer.system.**"
     action: ALLOW
   }
-
-  rule NetworkAdminUser {
-      description: "Grant business network administrators full access to user resources"
-      participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: CREATE
-      resource: "org.dasp.net.NewAuthor"
-      action: ALLOW
-  } 
-  rule NetworkAdminUserLogIn {
-      description: "Grant business network administrators full access to user resources"
-      participant(p): "org.hyperledger.composer.system.NetworkAdmin"
-      operation: CREATE
-      resource(r): "org.dasp.net.LogIn"
-      condition: (r.password == r.author.password)
-      action: ALLOW
-  } 
-  rule NetworkAdminUserRecoverPass {
-      description: "Grant business network administrators full access to user resources"
-      participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: CREATE
-      resource: "org.dasp.net.RecoverPassword"
-      action: ALLOW
-  } 
-  rule NetworkAdminUserParticipantAccess {
-      description: "Grant business network administrators full access to user resources"
-      participant: "org.hyperledger.composer.system.NetworkAdmin"
-      operation: ALL
-      resource: "org.dasp.net.Author"
-      action: ALLOW
-  } 

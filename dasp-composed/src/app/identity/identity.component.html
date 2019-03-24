@@ -14,10 +14,10 @@
 <section class="main-view">
     <div class="main-view-content">
         <section class="show-on-resp">
-            <h1 style="margin: auto;">Welcome to DASP, sign in or log in!</h1>
+            <h1 style="margin: auto;">Welcome to DASP, Log in or Sign up!</h1>
         </section>
         <section class="header modal-header">
-            <h1 class="hide-on-resp">Welcome to DASP, sign in or log in!</h1>
+            <h1 class="hide-on-resp">Welcome to DASP, Log in or Sign up!</h1>
 
             <div class="resp-margin">
                 <div>
@@ -40,7 +40,7 @@
         <section *ngIf="tabS" class="issue-identity">
             <section class="modal-body">
                 <p>
-                    Issue a new ID/Participant in business network
+                    Issue a new ID/Participant in DASP<br/><b style="color:red">{{authorError ? "Email already registred" : ""}}</b>
                 </p>
 
                 <form #issueIdentityForm="ngForm" id="issue-identity-form" (ngSubmit)="newAuthor()">
@@ -61,15 +61,19 @@
                     </div>
 
                     <div class="justified-input">
-                        <label class="required" for="secret">Secret<abbr title="required">*</abbr></label>
-                        <input required type="password" [(ngModel)]="pass" id="pass" name="pass" />
+                        <label class="required" for="secret">Password<abbr title="required">*</abbr></label>
+                        <input (ngModelChange)="password($event)" required type="password" [(ngModel)]="pass" id="pass" name="pass" />
+                    </div>
+                    <div *ngIf="!recPass" class="justified-input">
+                        <label class="required" for="secret">Password Again<abbr title="required">*</abbr><br/><b style="color: red">{{validPass ? null : "Password not matching"}}</b></label>
+                        <input (ngModelChange)="passwordAgain($event)" required type="password" [(ngModel)]="pass2" id="pass2" name="pass2"  />
                     </div>
                 </form>
             </section>
 
             <footer>
                 <button id="createNew" type="submit" form="issue-identity-form" class="primary" [disabled]="
-                        !issueIdentityForm.form.valid || issueInProgress
+                        !issueIdentityForm.form.valid || issueInProgress || !validPass
                     ">
                     <div *ngIf="!issueInProgress">
                         <span>Sign Up</span>
@@ -86,20 +90,24 @@
         </section>
         <section *ngIf="tabL" class="issue-identity">
             <section class="modal-body">
-                <p>
-                    Log in on the business network
+                <p *ngIf="!recPass">
+                    Log in on the business network<br/><b style="color: red">{{wrongPass ? "User or Password Invalid" : ""}}</b>
+                </p>
+                <p *ngIf="recPass">
+                    Recover you password from e-mail:<br/><b style="color: red">{{wrongPass ? "Invalid E-mail" : ""}}</b>
                 </p>
                 <form #issueIdentityForm="ngForm" id="log-in-form" (ngSubmit)="logIn()">
                     <div class="justified-input">
                         <label class="required" for="user">E-mail<abbr title="required">*</abbr></label>
                         <input required type="text" [(ngModel)]="userID" id="userID" name="userID" />
                     </div>
-                    <div class="justified-input">
-                        <label class="required" for="secret">Secret<abbr title="required">*</abbr></label>
+                    <div *ngIf="!recPass" class="justified-input">
+                        <label class="required" for="secret">Password<abbr title="required">*</abbr></label>
                         <input required type="password" [(ngModel)]="pass" id="pass" name="pass" />
                     </div>
                 </form><a class="passw"
-                        (click)="coverPass()"><b>Forgot your password?</b></a>
+                        (click)="passAtv()"><b>{{recPass ? "<< Back to Login" : "Forgot your password?"}}</b></a>
+
             </section>
 
             <footer>
@@ -107,7 +115,7 @@
                         !issueIdentityForm.form.valid || issueInProgress
                     ">
                     <div *ngIf="!issueInProgress">
-                        <span>Log In</span>
+                        <span>{{recPass ? "Recover Password" : "Log In"}}</span>
                     </div>
                     <div *ngIf="issueInProgress" class="ibm-spinner-indeterminate small loop">
                         <div class="loader">

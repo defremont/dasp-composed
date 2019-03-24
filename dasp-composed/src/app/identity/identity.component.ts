@@ -12,13 +12,12 @@
  * limitations under the License.
  */
 import { Component, OnInit, Input } from "@angular/core";
-
 import { NgbModal, ModalDismissReasons } from "@ng-bootstrap/ng-bootstrap";
 import { DeleteComponent } from "../basic-modals/delete-confirm/delete-confirm.component";
 import { IssueIdentityComponent } from "./issue-identity";
 import { IdentityIssuedComponent } from "./identity-issued";
 import { AlertService } from "../basic-modals/alert.service";
-import { Http } from '@angular/http';
+import { Http } from "@angular/http";
 import { ClientService } from "../services/client.service";
 import { IdentityCardService } from "../services/identity-card.service";
 import {
@@ -31,19 +30,12 @@ import {
 import { TransactionComponent } from "../test/transaction/transaction.component";
 import { TransactionDeclaration } from "composer-common";
 import { DrawerDismissReasons } from "../common/drawer";
-
 import { Observable } from "rxjs/Observable";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/distinctUntilChanged";
-
 import { saveAs } from "file-saver";
-import { Test } from "../../../e2e/component/test";
-import { timingSafeEqual } from "crypto";
 import { Router } from "@angular/router";
-const BusinessNetworkConnection = require("composer-client")
-    .BusinessNetworkConnection;
-
 @Component({
     selector: "identity",
     templateUrl: "./identity.component.html",
@@ -59,7 +51,6 @@ export class IdentityComponent implements OnInit {
     private reserve;
     private firstName;
     private lastName;
-
     private includeOptionalFields: boolean = false;
     private resourceDeclaration: ClassDeclaration = null;
     private resourceAction: string = null;
@@ -75,12 +66,10 @@ export class IdentityComponent implements OnInit {
     private isParticipant: boolean = true;
     private noMatchingParticipant =
         "Named Participant does not exist in Participant Registry.";
-
     private resources = [];
     private _registry = null;
     private overFlowedResources = {};
     private registryId: string = null;
-
     hasTransactions = false;
     private registries = {
         assets: [],
@@ -97,7 +86,11 @@ export class IdentityComponent implements OnInit {
     pass: any;
     tabS: boolean;
     tabL: boolean = true;
-
+    recPass: boolean = false;
+    wrongPass: boolean = false;
+    authorError: boolean = false;
+    pass2: any;
+    validPass: boolean = true;
     constructor(
         private http: Http,
         public router: Router,
@@ -105,13 +98,11 @@ export class IdentityComponent implements OnInit {
         private alertService: AlertService,
         private clientService: ClientService,
         private identityCardService: IdentityCardService
-    ) { }
+    ) {}
     @Input() resource: any = null;
     ngOnInit(): Promise<any> {
-
         this.loadAllIdentities();
         this.loadParticipantsIssue();
-        console.log(this.participants);
         return this.clientService
             .ensureConnected()
             .then(() => {
@@ -129,8 +120,6 @@ export class IdentityComponent implements OnInit {
                         this.hasTransactions = true;
                     }
                 });
-
-                console.log(this.participants);
                 return this.clientService
                     .getBusinessNetworkConnection()
                     .getAllAssetRegistries()
@@ -142,14 +131,11 @@ export class IdentityComponent implements OnInit {
                             );
                             assetRegistry.displayName = displayName;
                         });
-
                         this.registries["assets"] = assetRegistries.sort(
                             (a, b) => {
                                 return a.id.localeCompare(b.id);
                             }
                         );
-
-                        console.log(this.participants);
                         return this.clientService
                             .getBusinessNetworkConnection()
                             .getAllParticipantRegistries();
@@ -162,30 +148,23 @@ export class IdentityComponent implements OnInit {
                             );
                             participantRegistry.displayName = displayName;
                         });
-
                         this.registries[
                             "participants"
                         ] = participantRegistries.sort((a, b) => {
                             return a.id.localeCompare(b.id);
                         });
-                        console.log(this.participants);
                         return this.clientService
                             .getBusinessNetworkConnection()
                             .getHistorian();
                     })
                     .then(historianRegistry => {
                         this.reserve = this.participants.size;
-                        console.log(
-                            this.reserve + " && " + this.participants.size
-                        );
                         this.registries["historian"] = historianRegistry;
-                        console.log("chooseando");
                         // set the default registry selection
                         if (this.registries["participants"].length !== 0) {
                             this.chosenRegistry = this.registries[
                                 "participants"
                             ][0];
-                            console.log(this.registries["participants"][0]);
                             if (
                                 this.identityCardService.getCurrentIdentityCard()[
                                     "metadata"
@@ -195,7 +174,6 @@ export class IdentityComponent implements OnInit {
                                     { ref: "admin@dasp-net", usable: true },
                                     true
                                 );
-
                             }
                         } else if (this.registries["assets"].length !== 0) {
                             this.chosenRegistry = this.registries["assets"][0];
@@ -213,15 +191,12 @@ export class IdentityComponent implements OnInit {
                                     this.registryId ===
                                     modelClassDeclaration.getFullyQualifiedName()
                                 ) {
-                                    console.log("if this.registryId");
                                     // Set resource declaration
                                     this.resourceDeclaration = modelClassDeclaration;
                                     this.resourceType = this.retrieveResourceType(
                                         modelClassDeclaration
                                     );
-
                                     if (this.editMode()) {
-                                        console.log("edit mode");
                                         this.resourceAction = "Update";
                                         let serializer = this.clientService
                                             .getBusinessNetwork()
@@ -232,7 +207,6 @@ export class IdentityComponent implements OnInit {
                                             2
                                         );
                                     } else {
-                                        console.log("not edit mode");
                                         // Stub out json definition
                                         this.resourceAction = "Create New";
                                     }
@@ -248,16 +222,29 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
+    private passwordAgain(pass2){
+        if (pass2 === this.pass){
+            return this.validPass = true;
+        }else{
+            return this.validPass = false;
+        }
+    }
+    private password(pass){
+        if (pass === this.pass2){
+            return this.validPass = true;
+        }else{
+            return this.validPass = false;
+        }
+    }
     async newAuthor() {
         this.issueInProgress = true;
-        // console.log(this.resourceDeclaration.getNamespace())
-        // console.log(this.resourceDeclaration.getName())
-
+        this.alertService.busyStatus$.next({
+            title: "Recover password",
+            text: "Sending to your e-mail..."
+        });
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
-
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
         let serializer = businessNetworkDefinition.getSerializer();
-
         let resource = serializer.fromJSON({
             $class: "org.dasp.net.NewAuthor",
             email: this.userID,
@@ -265,11 +252,18 @@ export class IdentityComponent implements OnInit {
             lastName: this.lastName,
             password: this.pass
         });
-        await businessNetworkConnection.submitTransaction(resource);
-
-        await this.identityIssue();
+        try {
+            await businessNetworkConnection.submitTransaction(resource);
+            await this.identityIssue();
+            this.issueInProgress = false;
+            this.alertService.busyStatus$.next(null);
+        } catch (error) {
+            this.authorError = true;
+            this.issueInProgress = false;
+            this.alertService.busyStatus$.next(null);
+        }
     }
-    test(){
+    test() {
         // this.http.post('http://localhost:1880/hello',
         // { "to": this.userID,
         // "topic": "test recieved2"}).subscribe(
@@ -279,28 +273,37 @@ export class IdentityComponent implements OnInit {
         //           () => { console.log("Finish");
         //             });
     }
-    private async coverPass(){
+    private async passAtv() {
+        this.recPass = !this.recPass;
+    }
+    private async recoverPass() {
         this.alertService.busyStatus$.next({
             title: "Recover password",
             text: "Sending to your e-mail..."
         });
         this.issueInProgress = true;
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
-
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
         let serializer = businessNetworkDefinition.getSerializer();
-
         let resource = serializer.fromJSON({
             $class: "org.dasp.net.RecoverPassword",
             author: "resource:org.dasp.net.Author#" + this.userID
         });
-        await businessNetworkConnection.submitTransaction(resource);
-        this.alertService.busyStatus$.next(null);
-        this.issueInProgress = false;
+        try {
+            let result = await businessNetworkConnection.submitTransaction(
+                resource
+            );
+            this.alertService.busyStatus$.next(null);
+            this.issueInProgress = false;
+        } catch (error) {
+            console.log(error);
+            this.alertService.busyStatus$.next(null);
+            this.wrongPass = true;
+            this.issueInProgress = false;
+        }
     }
     async identityIssue() {
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
-
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
         try {
             await businessNetworkConnection.connect("admin@dasp-net");
@@ -308,8 +311,7 @@ export class IdentityComponent implements OnInit {
                 "org.dasp.net.Author#" + this.userID,
                 this.userID
             );
-            this.secret = result.userSecret
-
+            this.secret = result.userSecret;
             await this.addIdentityToWallet({
                 userID: this.userID,
                 userSecret: result.userSecret
@@ -322,7 +324,6 @@ export class IdentityComponent implements OnInit {
             console.log(error);
         }
     }
-
     ngOnDestroy() {
         this.clientService
             .getBusinessNetworkConnection()
@@ -335,7 +336,6 @@ export class IdentityComponent implements OnInit {
             }
         );
     }
-
     search = (text$: Observable<string>) =>
         text$
             .debounceTime(200)
@@ -344,73 +344,72 @@ export class IdentityComponent implements OnInit {
                 term === ""
                     ? []
                     : this.participantFQIs
-                        .filter(v => new RegExp(term, "gi").test(v))
-                        .slice(0, 10)
+                          .filter(v => new RegExp(term, "gi").test(v))
+                          .slice(0, 10)
             );
     private async logIn() {
-        this.alertService.busyStatus$.next(null);
-        this.alertService.busyStatus$.next({
-            title: "Login",
-            text: "Please wait..."
-        });
-        this.issueInProgress = true;
-        try {
-            this.issueInProgress = true;
-            let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
-
-            let businessNetworkDefinition = this.clientService.getBusinessNetwork();
-            let serializer = businessNetworkDefinition.getSerializer();
-
-            let resource = serializer.fromJSON({
-                $class: "org.dasp.net.LogIn",
-                author: "resource:org.dasp.net.Author#" + this.userID,
-                password: this.pass
-            });
-            await businessNetworkConnection.connect("admin@dasp-net");
-            let result = await businessNetworkConnection.submitTransaction(resource)
-            if(!result){
-                this.trylog({ ref: this.userID + "@dasp-net", usable: true }, true)
-            }
-
-        } catch (error) {
-            console.log(error);
+        if (this.recPass) {
+            this.recoverPass();
+        } else {
+            this.alertService.busyStatus$.next(null);
             this.alertService.busyStatus$.next({
-                title: "Fail!",
-                text: "Wrong pass or user"
+                title: "Login",
+                text: "Please wait..."
             });
-            this.issueInProgress = false;
+            this.issueInProgress = true;
+            try {
+                this.issueInProgress = true;
+                let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
+                let businessNetworkDefinition = this.clientService.getBusinessNetwork();
+                let serializer = businessNetworkDefinition.getSerializer();
+                let resource = serializer.fromJSON({
+                    $class: "org.dasp.net.LogIn",
+                    author: "resource:org.dasp.net.Author#" + this.userID,
+                    password: this.pass
+                });
+                await businessNetworkConnection.connect("admin@dasp-net");
+                let result = await businessNetworkConnection.submitTransaction(
+                    resource
+                );
+                if (!result) {
+                    this.trylog(
+                        { ref: this.userID + "@dasp-net", usable: true },
+                        true
+                    );
+                }
+            } catch (error) {
+                console.log(error);
+                this.alertService.busyStatus$.next(null);
+                this.wrongPass = true;
+                this.issueInProgress = false;
+            }
         }
     }
-
     private trylog(ID: { ref; usable }, revertOnError: boolean): Promise<void> {
         let cardRef = ID.ref;
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
         }
-            this.identityCardService
-                .setCurrentIdentityCard(cardRef)
-                .then(() => {
-                    this.currentIdentity = cardRef;
-                    this.alertService.busyStatus$.next({
-                        title: "Reconnecting...",
-                        text: "Using identity " + this.currentIdentity
-                    });
-                    return this.clientService.ensureConnected(true);
-                })
-                .then(() => {
-                    this.alertService.busyStatus$.next(null);
-                    this.loadAllIdentities();
-
-                    return this.router.navigate(["/panel"]);
-                })
-                .catch(error => {
-                    console.log(error);
+        this.identityCardService
+            .setCurrentIdentityCard(cardRef)
+            .then(() => {
+                this.currentIdentity = cardRef;
+                this.alertService.busyStatus$.next({
+                    title: "Reconnecting...",
+                    text: "Using identity " + this.currentIdentity
                 });
-
-
+                return this.clientService.ensureConnected(true);
+            })
+            .then(() => {
+                this.alertService.busyStatus$.next(null);
+                this.loadAllIdentities();
+                return this.router.navigate(["/panel"]);
+            })
+            .catch(error => {
+                console.log(error);
+            });
     }
     actualFQI(userID) {
-        console.log("actualFQI");
         this.participantFQI = "org.dasp.net.Author#" + userID;
         this.isValidParticipant();
     }
@@ -425,7 +424,6 @@ export class IdentityComponent implements OnInit {
         }
     }
     loadResources(): Promise<void> {
-        console.log("load resources");
         this.overFlowedResources = {};
         return this._registry
             .getAll()
@@ -443,7 +441,6 @@ export class IdentityComponent implements OnInit {
                 }
             })
             .catch(error => {
-                console.log("ERROR catch loadres");
                 console.log(error);
                 this.alertService.errorStatus$.next(error);
             });
@@ -451,17 +448,17 @@ export class IdentityComponent implements OnInit {
     tab1() {
         this.tabS = true;
         this.tabL = false;
+        this.recPass = false;
     }
     tab2() {
         this.tabL = true;
         this.tabS = false;
+        this.recPass = false;
     }
     /**
      *  Create resource via json serialisation
      */
     private addOrUpdateResource() {
-        console.log("addorup");
-
         this.actionInProgress = true;
         return this.retrieveResourceRegistry(this.resourceType)
             .then(registry => {
@@ -475,15 +472,12 @@ export class IdentityComponent implements OnInit {
                     return registry.update(resource);
                 } else {
                     registry.add(resource);
-                    console.log("add resource");
                 }
             })
             .then(() => {
-                console.log("then do addudop");
                 this.actionInProgress = false;
             })
             .catch(error => {
-                console.log("catch do addudop");
                 this.definitionError = error.toString();
                 this.actionInProgress = false;
             });
@@ -497,32 +491,26 @@ export class IdentityComponent implements OnInit {
     private retrieveResourceRegistry(type) {
         let client = this.clientService;
         let id = this.registryId;
-
         function isAsset() {
             return client.getBusinessNetworkConnection().getAssetRegistry(id);
         }
-
         function isTransaction() {
             return client
                 .getBusinessNetworkConnection()
                 .getTransactionRegistry(id);
         }
-
         function isParticipant() {
             return client
                 .getBusinessNetworkConnection()
                 .getParticipantRegistry(id);
         }
-
         let types = {
             Asset: isAsset,
             Participant: isParticipant,
             Transaction: isTransaction
         };
-
         return types[type]();
     }
-
     /**
      * Retrieve string description of resource type instance
      */
@@ -535,23 +523,13 @@ export class IdentityComponent implements OnInit {
             return "Participant";
         }
     }
-
     /**
      * Generate the json description of a resource
      */
     private generateResource(withSampleData?: boolean): void {
-        console.log("generate resource");
-        console.log(withSampleData);
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
         let factory = businessNetworkDefinition.getFactory();
-
         let id = this.userID ? this.userID : "null";
-        console.log(this.userID);
-        // if (!this.idFieldHasRegex()) {
-        //     let idx = Math.round(Math.random() * 9999).toString();
-        //     id = leftPad(idx, 4, '0');
-        // }
-
         try {
             const generateParameters = {
                 generate: withSampleData ? "sample" : "empty",
@@ -577,16 +555,12 @@ export class IdentityComponent implements OnInit {
             );
             let existingJSON = JSON.parse(this.resourceDefinition);
             if (existingJSON) {
-                console.log("existing");
-
                 this.resourceDefinition = JSON.stringify(
                     this.updateExistingJSON(existingJSON, replacementJSON),
                     null,
                     2
                 );
             } else {
-                console.log("else ex");
-
                 // Initial popup, no previous data to protect
                 this.resourceDefinition = JSON.stringify(
                     replacementJSON,
@@ -596,8 +570,7 @@ export class IdentityComponent implements OnInit {
             }
             this.onDefinitionChanged();
         } catch (error) {
-            console.log("error");
-
+            console.log(error);
             // We can't generate a sample instance for some reason.
             this.definitionError = error.toString();
         }
@@ -632,8 +605,6 @@ export class IdentityComponent implements OnInit {
      * Validate json definition of resource
      */
     onDefinitionChanged() {
-        console.log("ondefinitionchanged");
-
         try {
             let json = JSON.parse(this.resourceDefinition);
             let serializer = this.clientService
@@ -646,25 +617,19 @@ export class IdentityComponent implements OnInit {
             this.definitionError = error.toString();
         }
     }
-
     setChosenRegistry(chosenRegistry) {
         this.chosenRegistry = chosenRegistry;
     }
-
     getParticipant(fqi: string): any {
         return this.participants.get(fqi);
     }
-
     submitTransaction() {
         const modalRef = this.modalService.open(TransactionComponent);
-
         modalRef.result
             .then(transaction => {
                 // refresh current resource list
                 this.registryReload = !this.registryReload;
-
                 let plural = this.eventsTriggered.length > 1 ? "s" : "";
-
                 let txMessage = `<p>Transaction ID <b>${transaction.getIdentifier()}</b> was submitted</p>`;
                 let message = {
                     title: "Submit Transaction Successful",
@@ -673,7 +638,6 @@ export class IdentityComponent implements OnInit {
                     link: null,
                     linkCallback: null
                 };
-
                 if (this.eventsTriggered.length > 0) {
                     // because this won't exist on the callback
                     let events = this.eventsTriggered;
@@ -686,7 +650,6 @@ export class IdentityComponent implements OnInit {
                     };
                     this.eventsTriggered = [];
                 }
-
                 this.alertService.successStatus$.next(message);
             })
             .catch(error => {
@@ -695,7 +658,6 @@ export class IdentityComponent implements OnInit {
                 }
             });
     }
-
     initializeEventListener() {
         const businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
         // Prevent multiple listeners being created
@@ -706,8 +668,6 @@ export class IdentityComponent implements OnInit {
         }
     }
     loadAllIdentities(): Promise<void> {
-        console.log("load all ids");
-
         return this.clientService
             .ensureConnected()
             .then(() => {
@@ -732,11 +692,9 @@ export class IdentityComponent implements OnInit {
                 let qpn: string = this.identityCardService.getQualifiedProfileName(
                     connectionProfile
                 );
-
                 ids.sort((a, b) => {
                     return a.name.localeCompare(b.name);
                 });
-
                 ids.filter(id => {
                     id.ref = this.identityCardService.getCardRefFromIdentity(
                         id.name,
@@ -744,7 +702,6 @@ export class IdentityComponent implements OnInit {
                         qpn
                     );
                 });
-
                 ids.forEach((el, index) => {
                     if (
                         el["participant"].getType() !== "NetworkAdmin" &&
@@ -753,10 +710,10 @@ export class IdentityComponent implements OnInit {
                         if (
                             !this.getParticipant(
                                 el["participant"].getNamespace() +
-                                "." +
-                                el["participant"].getType() +
-                                "#" +
-                                el["participant"].getIdentifier()
+                                    "." +
+                                    el["participant"].getType() +
+                                    "#" +
+                                    el["participant"].getIdentifier()
                             )
                         ) {
                             ids[index]["state"] = "BOUND PARTICIPANT NOT FOUND";
@@ -772,10 +729,8 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
-
     private loadMyIdentities(): void {
         this.currentIdentity = this.identityCardService.currentCard;
-
         let businessNetwork = this.identityCardService
             .getCurrentIdentityCard()
             .getBusinessNetworkName();
@@ -785,12 +740,10 @@ export class IdentityComponent implements OnInit {
         let qpn = this.identityCardService.getQualifiedProfileName(
             connectionProfile
         );
-
         this.identityCards = this.identityCardService.getAllCardsForBusinessNetwork(
             businessNetwork,
             qpn
         );
-
         let cardRefs = Array.from(this.identityCards.keys());
         this.myIDs = cardRefs
             .map(elm => {
@@ -808,13 +761,9 @@ export class IdentityComponent implements OnInit {
                 return a.ref.localeCompare(b.ref);
             });
     }
-
     private issueNewId(): Promise<void> {
-        console.log("ISSUEN");
         let modalRef = this.modalService.open(IssueIdentityComponent);
-        console.log(modalRef);
         modalRef.componentInstance.participants = this.participants;
-
         return modalRef.result
             .then(result => {
                 if (result) {
@@ -844,22 +793,15 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(reason);
             });
     }
-
     private setCurrentIdentity(
         ID: { ref; usable },
         revertOnError: boolean
     ): Promise<void> {
         let cardRef = ID.ref;
-        console.log("@@@ SET CURRENT ID @@@");
-
-        console.log(cardRef);
-        console.log(ID);
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
         }
-
         let startIdentity = this.currentIdentity;
-
         this.identityCardService
             .setCurrentIdentityCard(cardRef)
             .then(() => {
@@ -878,12 +820,6 @@ export class IdentityComponent implements OnInit {
                         "metadata"
                     ].userName !== "admin"
                 ) {
-                    console.log(
-                        this.identityCardService.getCurrentIdentityCard()[
-                        "metadata"
-                        ]
-                    );
-
                     return this.router.navigate(["/panel"]);
                 }
             })
@@ -898,10 +834,8 @@ export class IdentityComponent implements OnInit {
                 }
             });
     }
-
     private openRemoveModal(cardRef: string): Promise<void> {
         let userID = this.identityCards.get(cardRef).getUserName();
-
         // show confirm/delete dialog first before taking action
         const confirmModalRef = this.modalService.open(DeleteComponent);
         confirmModalRef.componentInstance.headerMessage = "Remove ID";
@@ -911,7 +845,6 @@ export class IdentityComponent implements OnInit {
         confirmModalRef.componentInstance.deleteMessage =
             "Take care when removing IDs: you usually cannot re-add them. Make sure you leave at least one ID that can be used to issue new IDs.";
         confirmModalRef.componentInstance.confirmButtonText = "Remove";
-
         return confirmModalRef.result.then(
             () => {
                 this.alertService.busyStatus$.next({
@@ -933,7 +866,6 @@ export class IdentityComponent implements OnInit {
             }
         );
     }
-
     private revokeIdentity(identity): Promise<void> {
         // show confirm/delete dialog first before taking action
         const confirmModalRef = this.modalService.open(DeleteComponent);
@@ -944,14 +876,12 @@ export class IdentityComponent implements OnInit {
             "Are you sure you want to do this?";
         confirmModalRef.componentInstance.confirmButtonText = "Revoke";
         confirmModalRef.componentInstance.action = "revoke";
-
         return confirmModalRef.result.then(
             () => {
                 this.alertService.busyStatus$.next({
                     title: "Revoking identity within business network",
                     text: "Revoking identity " + identity.name
                 });
-
                 return this.clientService
                     .revokeIdentity(identity)
                     .then(() => {
@@ -959,7 +889,6 @@ export class IdentityComponent implements OnInit {
                         let walletIdentity = this.myIDs.find(myIdentity => {
                             return identity.ref === myIdentity.ref;
                         });
-
                         if (walletIdentity) {
                             return this.removeIdentity(identity.ref);
                         }
@@ -994,10 +923,7 @@ export class IdentityComponent implements OnInit {
             }
         );
     }
-
     loadParticipants() {
-        console.log("load participants");
-
         return this.clientService
             .getBusinessNetworkConnection()
             .getAllParticipantRegistries()
@@ -1052,12 +978,10 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
-
     private showNewId(identity: { userID; userSecret }): Promise<any> {
         const modalRef = this.modalService.open(IdentityIssuedComponent);
         modalRef.componentInstance.userID = identity.userID;
         modalRef.componentInstance.userSecret = identity.userSecret;
-
         return modalRef.result.then(result => {
             if (result.choice === "add") {
                 this.alertService.successStatus$.next({
@@ -1075,10 +999,8 @@ export class IdentityComponent implements OnInit {
             }
         });
     }
-
     private exportIdentity(card: IdCard): Promise<any> {
         let fileName = card.getUserName() + ".card";
-
         return card.toArchive().then(archiveData => {
             let file = new Blob([archiveData], {
                 type: "application/octet-stream"
@@ -1086,7 +1008,6 @@ export class IdentityComponent implements OnInit {
             return saveAs(file, fileName);
         });
     }
-
     private addIdentityToWallet(identity: {
         userID;
         userSecret;
@@ -1094,7 +1015,6 @@ export class IdentityComponent implements OnInit {
         let currentCard = this.identityCardService.getCurrentIdentityCard();
         let connectionProfile = currentCard.getConnectionProfile();
         let businessNetworkName = currentCard.getBusinessNetworkName();
-
         return this.identityCardService.createIdentityCard(
             identity.userID,
             null,

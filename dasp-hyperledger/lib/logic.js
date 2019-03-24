@@ -434,7 +434,6 @@ async function NewArticle(newArticle) {
  */
 
 async function NewAuthor(newAuthor) {
-  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
   let participantRegistry = await getParticipantRegistry(AUTHOR);
   let author;
   let factory = getFactory();
@@ -451,7 +450,9 @@ async function NewAuthor(newAuthor) {
     author.isReviewer = true;
   }
   return getParticipantRegistry(AUTHOR)
-    .then(function (authorRegistry) {      
+    .then(function (authorRegistry) { 
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
+       
       return authorRegistry.add(author);
     })
     .catch(function (error) {
