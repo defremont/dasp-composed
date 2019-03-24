@@ -16,7 +16,7 @@
     <div *ngIf="!isHistorian()">
         <div *ngFor="let resource of resources">
             <div *ngIf="resource['author']['$identifier'] === author" style="
-            min-height: 675px; float: left; margin: 1% 0% 0% 5%;" class="upload">
+            min-height: 675px; float: left; margin: 0% 0% 5% 5%;" class="upload">
                 <div class="upload-files">
                     <header [style.background]="
                             resource.published && !resource.needRev
@@ -157,8 +157,11 @@
             </div>
         </div>
     </div>
-    <div class="no-resources">
-        <h3>{{resources.length}} Published Articles.</h3>
+    <div *ngIf="!resources || resources.length === 0" class="no-resources">
+        <h3>0 Published Articles</h3>
+        <p *ngIf="!isHistorian()">
+            Waiting for the first publication
+        </p>
     </div>
 </div>
 <div *ngIf="_registry && _type === 'myArticleRevisions'" style="margin: 0;" class="resource-list"
@@ -166,7 +169,7 @@
     <div *ngIf="!isHistorian()">
         <div *ngFor="let resource of resources">
             <div *ngIf="resource['reviewer'].getIdentifier() !== author"
-                style="float: left; margin: 5% 0% 0% 5%; height: 665px;" class="upload">
+                style="float: left; margin: 0% 0% 5% 5%; height: 665px;" class="upload">
                 <div class="upload-files">
                     <header [style.background]="
                             resource.complete
@@ -247,7 +250,7 @@
             <div *ngIf="
                     resource['reviewer'].getIdentifier() === author &&
                     !resource['complete']
-                " style="float: left; margin: 5% 0% 0% 5%; height: 625px;" [style.height]="rate ? '755px;' : null"
+                " style="float: left; margin: 0% 0% 5% 5%; height: 625px;" [style.height]="rate ? '755px;' : null"
                 class="upload">
                 <div class="upload-files">
                     <header [style.background]="
@@ -354,7 +357,7 @@
             <div *ngIf="
                     resource.complete &&
                     resource['reviewer'].getIdentifier() === author
-                " style="float: left; margin: 5% 0% 0% 5%; height: 510px;" class="upload">
+                " style="float: left; margin: 0% 0% 5% 5%; height: 510px;" class="upload">
                 <div class="upload-files">
                     <header [style.background]="
                                 resource.complete
@@ -370,10 +373,7 @@
                                     font-size: 30px;
                                     padding: 0 25px;
                                     margin-bottom: -20px;
-                                " class="up">{{ resource.articleTitle }}</span><br />
-                            <span style="font-size: 0.5em;" *ngIf="
-                                        !resource.acc" class="load">not accepted yet</span>
-                        </p>
+                                " class="up">{{ resource.articleTitle }}</span> </p>
                     </header>
                     <div style="padding: 50px 0;" class="body">
                         <div style="
@@ -412,7 +412,7 @@
     [ngClass]="{ 'transaction-list': isHistorian() }">
     <div *ngIf="!isHistorian()">
         <div *ngFor="let resource of resources">
-            <div *ngIf="resource.public" style="float: left; margin: 5% 0% 0% 5%; height: 665px;" class="upload">
+            <div *ngIf="resource.public" style="float: left; margin: 0% 0% 5% 5%; height: 665px;" class="upload">
 
                 <div class="upload-files">
                     <header [style.background]="
@@ -472,7 +472,7 @@
     <div *ngIf="!isHistorian()">
         <div *ngFor="let resource of resources">
             <div *ngIf="resource['$identifier'] === author" style="
-                min-height: 515px; float: left; margin: 5% 0% 0% 5%;" class="upload">
+                min-height: 515px; float: left; margin: 0% 0% 5% 5%;" class="upload">
                 <div class="upload-files">
 
                     <header [style.background]="

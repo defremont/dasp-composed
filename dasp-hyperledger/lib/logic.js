@@ -100,7 +100,11 @@ async function Scheduler(scheduler) {
     );
     scheduler.revision.acc = false;
 
-    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"DASP - You received a revision to evaluate"} });
+    await request.post({ uri: 'http://172.17.0.1:1880/hello',
+    json: {"to" : reviewer.getIdentifier(),
+    "topic":"DASP - You received a revision to evaluate",
+    "body":"Article Title:<br/>"+scheduler.revision.articleTags+
+    "<br/>Article Tags:<br/>"+scheduler.revision.articleTitle+"<br/>Access DASP to review this article."} });
     scheduler.revision.reviewer = reviewer;
     scheduler.revision.date = scheduler.timestamp;
     // Update the asset in the asset registry.
@@ -154,7 +158,7 @@ async function CreateRevision(createRevision) {
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(),"topic":"DASP - You received a revision to evaluate"} });
+      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(),"topic":"DASP - You received a revision to evaluate","body":"Article Title:<br/>"+createRevision.article.tags+"<br/>Article Tags:<br/>"+createRevision.article.title+"<br/>Access DASP to review this article."} });
     }
     createRevision.article.revisions = revisions;
 
@@ -232,7 +236,11 @@ async function CreateRevision(createRevision) {
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
       createRevision.article.revisions.push(revisions[i]);
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(), "topic":"DASP - You received a revision to evaluate"} });
+      await request.post({ uri: 'http://172.17.0.1:1880/hello',
+      json: {"to" : reviewers[i].getIdentifier(),
+      "topic":"DASP - You received a revision to evaluate",
+      "body":"Article Title: "+createRevision.article.title+
+      "<br/>Article Tags: "+createRevision.article.tags+"<br/>Access DASP to review this article."} });
       // Update the asset in the asset registry.
     }
     await articleRegistry.update(createRevision.article);
@@ -310,7 +318,10 @@ async function ReviewRejected(reviewRejected) {
     revisors[randRevisor].email
   );
   reviewRejected.revision.acc = false;
-  await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewer.getIdentifier(),"topic":"DASP - You received a revision to evaluate"} });
+  await request.post({ uri: 'http://172.17.0.1:1880/hello',
+  json: {"to" : reviewer.getIdentifier(),"topic":"DASP - You received a revision to evaluate",
+  "body":"Article Title:<br/>"+reviewRejected.revision.articleTitle+
+  "<br/>Article Tags:<br/>"+reviewRejected.revision.articleTags+"<br/>Access DASP to review this article."} });
   reviewRejected.revision.reviewer = reviewer;
   reviewRejected.revision.date = reviewRejected.timestamp;
   // Get the asset registry for the asset.
