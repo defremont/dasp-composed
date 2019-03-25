@@ -29,29 +29,29 @@ Em seguida, execute o script - como isso usa brevemente o sudo durante sua execu
 
 
 
-Instalando Componentes
-Ferramentas essenciais do CLI:	
-npm install -g composer-cli@0.20.7
-Utilitário para executar um servidor REST em sua máquina para expor suas redes de negócios como APIs RESTful:	
-npm install -g composer-rest-server@0.20.7
-Útil para gerar ativos de aplicativos:
+Instalando Componentes\
+Ferramentas essenciais do CLI:\	
+npm install -g composer-cli@0.20.7\
+Utilitário para executar um servidor REST em sua máquina para expor suas redes de negócios como APIs RESTful:	\
+npm install -g composer-rest-server@0.20.7\
+Útil para gerar ativos de aplicativos:\
 npm install -g generator-hyperledger-composer@0.20.7
 
 
 
 
-Instalando o IPFS a partir do pacote
-Primeiro, baixe a versão correta do IPFS para sua plataforma:
+Instalando o IPFS a partir do pacote\
+Primeiro, baixe a versão correta do IPFS para sua plataforma:\
 https://dist.ipfs.io/#go-ipfs
 
 
-Após o download, descompacte o arquivo e mova o ipfs binário para algum lugar nos executáveis $PATH usando o install.sh script:
-tar xvfz go-ipfs.tar.gz
-cd go-ipfs
+Após o download, descompacte o arquivo e mova o ipfs binário para algum lugar nos executáveis $PATH usando o install.sh script:\
+tar xvfz go-ipfs.tar.gz\
+cd go-ipfs\
 ./install.sh
 
-Utilizando o script para iniciar o DASP
-Dentro do pacote dasp-composed contém um arquivo chamado dasp.sh execute-o:
+Utilizando o script para iniciar o DASP\
+Dentro do pacote dasp-composed contém um arquivo chamado dasp.sh execute-o:\
 ./dasp.sh
 
 Esse script limpa o fabric, limpa docker, reinicia o fabric, instala o business card, instala e inicia o ipfs daemon, instala o node-red no docker com o flow apropriado; instala e inicia o projeto client e api.
