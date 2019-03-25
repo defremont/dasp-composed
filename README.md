@@ -1,30 +1,30 @@
 # DASP v0.0.1
 Decentralized Autonomous Scientific Publisher\
-Install & Use guide\
+Install & Use guide
 
 DASP pré-requisitos\
 Hyperledger Fabric\
 Hyperledger Composer\
-IPFS Daemon s\
+IPFS Daemon s
 
 Hyperledger Composer pré-requisitos
 Para executar o Hyperledger Composer e o Hyperledger Fabric, recomendamos que você tenha pelo menos 4 GB de memória.
 A seguir estão pré-requisitos para instalar as ferramentas de desenvolvimento necessárias:
 
-Sistemas operacionais: Ubuntu Linux 14.04 / 16.04 LTS (ambos de 64 bits) ou Mac OS 10.12
-Mecanismo do Docker: Versão 17.03 ou superior
-Docker-Compose: versão 1.8 ou superior
-Node: 8.9 ou superior (a versão 9 da nota não é suportada)
-Npm: v5.x
-Git: 2.9.x ou superior
-Python: 2.7.x 
+Sistemas operacionais: Ubuntu Linux 14.04 / 16.04 LTS (ambos de 64 bits) ou Mac OS 10.12\
+Mecanismo do Docker: Versão 17.03 ou superior\
+Docker-Compose: versão 1.8 ou superior\
+Node: 8.9 ou superior (a versão 9 da nota não é suportada)\
+Npm: v5.x\
+Git: 2.9.x ou superior\
+Python: 2.7.x \
 Um editor de código de sua escolha, recomendamos o VSCode.
 
 
-Hyperledger Composer pré-requisitos
-Se você está rodando no Ubuntu, você pode baixar os pré-requisitos usando os seguintes comandos:
-curl -O https://hyperledger.github.io/composer/latest/prereqs-ubuntu.sh chmod u+x prereqs-ubuntu.sh
-Em seguida, execute o script - como isso usa brevemente o sudo durante sua execução, você será solicitado a fornecer sua senha.
+Hyperledger Composer pré-requisitos\
+Se você está rodando no Ubuntu, você pode baixar os pré-requisitos usando os seguintes comandos:\
+curl -O https://hyperledger.github.io/composer/latest/prereqs-ubuntu.sh chmod u+x prereqs-ubuntu.sh\
+Em seguida, execute o script - como isso usa brevemente o sudo durante sua execução, você será solicitado a fornecer sua senha.\
 ./prereqs-ubuntu.sh
 
 
