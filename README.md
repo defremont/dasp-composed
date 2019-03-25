@@ -1,14 +1,14 @@
 # DASP v0.0.1
-Decentralized Autonomous Scientific Publisher
-Install & Use guide
+Decentralized Autonomous Scientific Publisher\
+Install & Use guide\
 
-DASP pré-requisitos
-Hyperledger Fabric
-Hyperledger Composer
-IPFS Daemon s
+DASP pré-requisitos\
+Hyperledger Fabric\
+Hyperledger Composer\
+IPFS Daemon s\
 
 Hyperledger Composer pré-requisitos
-Para executar o Hyperledger Composer e o Hyperledger Fabric, recomendamos que você tenha pelo menos 4 GB de memória.\
+Para executar o Hyperledger Composer e o Hyperledger Fabric, recomendamos que você tenha pelo menos 4 GB de memória.
 A seguir estão pré-requisitos para instalar as ferramentas de desenvolvimento necessárias:
 
 Sistemas operacionais: Ubuntu Linux 14.04 / 16.04 LTS (ambos de 64 bits) ou Mac OS 10.12
