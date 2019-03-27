@@ -94,7 +94,7 @@
                     Log in on the business network<br/><b style="color: red">{{wrongPass ? "User or Password Invalid" : ""}}</b>
                 </p>
                 <p *ngIf="recPass">
-                    Recover you password from e-mail:<br/><b style="color: red">{{wrongPass ? "Invalid E-mail" : ""}}</b>
+                    Recover you password from e-mail:<br/><b [style.color]="wrongPass ? 'red' : successPass ? 'green' : ''">{{wrongPass ? "Invalid E-mail" : successPass ? "Password sent to e-mail!" : ""}}</b>
                 </p>
                 <form #issueIdentityForm="ngForm" id="log-in-form" (ngSubmit)="logIn()">
                     <div class="justified-input">

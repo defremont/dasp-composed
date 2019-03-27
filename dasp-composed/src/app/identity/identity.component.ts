@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 import { Component, OnInit, Input } from "@angular/core";
-import { NgbModal, ModalDismissReasons } from "@ng-bootstrap/ng-bootstrap";
-import { DeleteComponent } from "../basic-modals/delete-confirm/delete-confirm.component";
-import { IssueIdentityComponent } from "./issue-identity";
-import { IdentityIssuedComponent } from "./identity-issued";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { AlertService } from "../basic-modals/alert.service";
 import { Http } from "@angular/http";
 import { ClientService } from "../services/client.service";
@@ -96,6 +93,7 @@ export class IdentityComponent implements OnInit {
     authorError: boolean = false;
     pass2: any;
     validPass: boolean = true;
+    successPass: boolean = false;
     constructor(
         private http: Http,
         public router: Router,
@@ -243,9 +241,6 @@ export class IdentityComponent implements OnInit {
     }
     async newAuthor() {
         this.issueInProgress = true;
-        this.alertService.busyStatus$.next({
-            title: "Creating account"
-        });
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
         let serializer = businessNetworkDefinition.getSerializer();
@@ -262,17 +257,13 @@ export class IdentityComponent implements OnInit {
         } catch (error) {
             this.authorError = true;
             this.issueInProgress = false;
-            this.alertService.busyStatus$.next(null);
         }
     }
     private async passAtv() {
         this.recPass = !this.recPass;
+        this.wrongPass = false;
     }
     private async recoverPass() {
-        this.alertService.busyStatus$.next({
-            title: "Recover password",
-            text: "Sending to your e-mail..."
-        });
         this.issueInProgress = true;
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
         let businessNetworkDefinition = this.clientService.getBusinessNetwork();
@@ -285,11 +276,12 @@ export class IdentityComponent implements OnInit {
             let result = await businessNetworkConnection.submitTransaction(
                 resource
             );
-            this.alertService.busyStatus$.next(null);
             this.issueInProgress = false;
+            this.wrongPass = false;
+            this.successPass = true;
         } catch (error) {
+            this.successPass = false;
             console.log(error);
-            this.alertService.busyStatus$.next(null);
             this.wrongPass = true;
             this.issueInProgress = false;
         }
@@ -343,10 +335,6 @@ export class IdentityComponent implements OnInit {
         if (this.recPass) {
             this.recoverPass();
         } else {
-            this.alertService.busyStatus$.next(null);
-            this.alertService.busyStatus$.next({
-                title: "Login"
-            });
             this.issueInProgress = true;
             try {
                 this.issueInProgress = true;
@@ -370,13 +358,12 @@ export class IdentityComponent implements OnInit {
                 }
             } catch (error) {
                 console.log(error);
-                this.alertService.busyStatus$.next(null);
                 this.wrongPass = true;
                 this.issueInProgress = false;
             }
         }
     }
-    private trylog(ID: { ref; usable }, revertOnError: boolean): Promise<void> {
+    private async trylog(ID: { ref; usable }, revertOnError: boolean): Promise<void> {
         let cardRef = ID.ref;
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
@@ -385,14 +372,9 @@ export class IdentityComponent implements OnInit {
             .setCurrentIdentityCard(cardRef)
             .then(() => {
                 this.currentIdentity = cardRef;
-                this.alertService.busyStatus$.next({
-                    title: "Reconnecting...",
-                    text: "Using identity " + this.currentIdentity
-                });
                 return this.clientService.ensureConnected(true);
             })
             .then(() => {
-                this.alertService.busyStatus$.next(null);
                 this.loadAllIdentities();
                 return this.router.navigate(["/panel"]);
             })
@@ -752,38 +734,6 @@ export class IdentityComponent implements OnInit {
                 return a.ref.localeCompare(b.ref);
             });
     }
-    private issueNewId(): Promise<void> {
-        let modalRef = this.modalService.open(IssueIdentityComponent);
-        modalRef.componentInstance.participants = this.participants;
-        return modalRef.result
-            .then(result => {
-                if (result) {
-                    let connectionProfile = this.identityCardService
-                        .getCurrentIdentityCard()
-                        .getConnectionProfile();
-                    if (connectionProfile["x-type"] === "web") {
-                        return this.addIdentityToWallet(result);
-                    } else {
-                        return this.showNewId(result);
-                    }
-                }
-            })
-            .catch(reason => {
-                if (
-                    reason &&
-                    reason !== ModalDismissReasons.BACKDROP_CLICK &&
-                    reason !== ModalDismissReasons.ESC
-                ) {
-                    this.alertService.errorStatus$.next(reason);
-                }
-            })
-            .then(() => {
-                return this.loadAllIdentities();
-            })
-            .catch(reason => {
-                this.alertService.errorStatus$.next(reason);
-            });
-    }
     private setCurrentIdentity(
         ID: { ref; usable },
         revertOnError: boolean
@@ -825,95 +775,7 @@ export class IdentityComponent implements OnInit {
                 }
             });
     }
-    private openRemoveModal(cardRef: string): Promise<void> {
-        let userID = this.identityCards.get(cardRef).getUserName();
-        // show confirm/delete dialog first before taking action
-        const confirmModalRef = this.modalService.open(DeleteComponent);
-        confirmModalRef.componentInstance.headerMessage = "Remove ID";
-        confirmModalRef.componentInstance.fileAction = "remove";
-        confirmModalRef.componentInstance.fileType = "ID";
-        confirmModalRef.componentInstance.fileName = userID;
-        confirmModalRef.componentInstance.deleteMessage =
-            "Take care when removing IDs: you usually cannot re-add them. Make sure you leave at least one ID that can be used to issue new IDs.";
-        confirmModalRef.componentInstance.confirmButtonText = "Remove";
-        return confirmModalRef.result.then(
-            () => {
-                this.alertService.busyStatus$.next({
-                    title: "Removing ID",
-                    text: "Removing identity " + userID + " from your wallet"
-                });
-                return this.removeIdentity(cardRef);
-            },
-            reason => {
-                // runs this when user presses 'cancel' button on the modal
-                if (
-                    reason &&
-                    reason !== ModalDismissReasons.BACKDROP_CLICK &&
-                    reason !== ModalDismissReasons.ESC
-                ) {
-                    this.alertService.busyStatus$.next(null);
-                    this.alertService.errorStatus$.next(reason);
-                }
-            }
-        );
-    }
-    private revokeIdentity(identity): Promise<void> {
-        // show confirm/delete dialog first before taking action
-        const confirmModalRef = this.modalService.open(DeleteComponent);
-        confirmModalRef.componentInstance.headerMessage = "Revoke Identity";
-        confirmModalRef.componentInstance.fileType = "identity";
-        confirmModalRef.componentInstance.fileName = identity.name;
-        confirmModalRef.componentInstance.deleteMessage =
-            "Are you sure you want to do this?";
-        confirmModalRef.componentInstance.confirmButtonText = "Revoke";
-        confirmModalRef.componentInstance.action = "revoke";
-        return confirmModalRef.result.then(
-            () => {
-                this.alertService.busyStatus$.next({
-                    title: "Revoking identity within business network",
-                    text: "Revoking identity " + identity.name
-                });
-                return this.clientService
-                    .revokeIdentity(identity)
-                    .then(() => {
-                        // only try and remove it if its in the wallet
-                        let walletIdentity = this.myIDs.find(myIdentity => {
-                            return identity.ref === myIdentity.ref;
-                        });
-                        if (walletIdentity) {
-                            return this.removeIdentity(identity.ref);
-                        }
-                    })
-                    .then(() => {
-                        return this.loadAllIdentities();
-                    })
-                    .then(() => {
-                        // Send alert
-                        this.alertService.busyStatus$.next(null);
-                        this.alertService.successStatus$.next({
-                            title: "Revoke Successful",
-                            text: identity.name + " was successfully revoked.",
-                            icon: "#icon-bin_icon"
-                        });
-                    })
-                    .catch(error => {
-                        this.alertService.busyStatus$.next(null);
-                        this.alertService.errorStatus$.next(error);
-                    });
-            },
-            reason => {
-                // runs this when user presses 'cancel' button on the modal
-                if (
-                    reason &&
-                    reason !== ModalDismissReasons.BACKDROP_CLICK &&
-                    reason !== ModalDismissReasons.ESC
-                ) {
-                    this.alertService.busyStatus$.next(null);
-                    this.alertService.errorStatus$.next(reason);
-                }
-            }
-        );
-    }
+
     loadParticipants() {
         return this.clientService
             .getBusinessNetworkConnection()
@@ -948,48 +810,7 @@ export class IdentityComponent implements OnInit {
                 this.alertService.errorStatus$.next(error);
             });
     }
-    private removeIdentity(cardRef: string): Promise<void> {
-        let userID = this.identityCards.get(cardRef).getUserName();
-        return this.identityCardService
-            .deleteIdentityCard(cardRef)
-            .then(() => {
-                return this.loadAllIdentities();
-            })
-            .then(() => {
-                // Send alert
-                this.alertService.busyStatus$.next(null);
-                this.alertService.successStatus$.next({
-                    title: "Removal Successful",
-                    text: userID + " was successfully removed.",
-                    icon: "#icon-bin_icon"
-                });
-            })
-            .catch(error => {
-                this.alertService.busyStatus$.next(null);
-                this.alertService.errorStatus$.next(error);
-            });
-    }
-    private showNewId(identity: { userID; userSecret }): Promise<any> {
-        const modalRef = this.modalService.open(IdentityIssuedComponent);
-        modalRef.componentInstance.userID = identity.userID;
-        modalRef.componentInstance.userSecret = identity.userSecret;
-        return modalRef.result.then(result => {
-            if (result.choice === "add") {
-                this.alertService.successStatus$.next({
-                    title: "ID Card added to wallet",
-                    text:
-                        "The ID card " +
-                        this.identityCardService
-                            .getIdentityCard(result.cardRef)
-                            .getUserName() +
-                        " was successfully added to your wallet",
-                    icon: "#icon-role_24"
-                });
-            } else if (result.choice === "export") {
-                return this.exportIdentity(result.card);
-            }
-        });
-    }
+
     private exportIdentity(card: IdCard): Promise<any> {
         let fileName = card.getUserName() + ".card";
         return card.toArchive().then(archiveData => {

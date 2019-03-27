@@ -147,6 +147,7 @@ section.header {
 }
 
 section.main-view {
+    padding: 0px !important;
     overflow-y: auto;
     padding: $space-medium $space-large;
 
