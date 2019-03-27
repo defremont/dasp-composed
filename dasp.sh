@@ -1,5 +1,18 @@
 # !/bin/bash
+
+curl -O https://hyperledger.github.io/composer/latest/prereqs-ubuntu.sh
+
+chmod u+x prereqs-ubuntu.sh
+
+./prereqs-ubuntu.sh
+
 ./fabric-dev-servers/stopFabric.sh && ./fabric-dev-servers/teardownFabric.sh
+
+npm install -g composer-cli@0.20.7
+
+npm install -g composer-rest-server@0.20.7
+
+npm install -g generator-hyperledger-composer@0.20.7
 
 # composer card delete --card admin@dasp-net && composer card delete --card PeerAdmin@hlfv1
 
