@@ -265,16 +265,6 @@ export class IdentityComponent implements OnInit {
             this.alertService.busyStatus$.next(null);
         }
     }
-    test() {
-        // this.http.post('http://localhost:1880/hello',
-        // { "to": this.userID,
-        // "topic": "test recieved2"}).subscribe(
-        //     data => {
-        //         console.log("Work, recive: " + data); },
-        //          err => { console.log("Err, recive: " + err); },
-        //           () => { console.log("Finish");
-        //             });
-    }
     private async passAtv() {
         this.recPass = !this.recPass;
     }
