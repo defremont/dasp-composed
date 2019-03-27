@@ -11,8 +11,6 @@ chmod u+x prereqs-ubuntu.sh
 ./prereqs-ubuntu.sh
 
 # Install GO-IPFS
-tar xvfz go-ipfs_v0.4.19_linux-amd64.tar
-
 cd go-ipfs
 
 ./install.sh
