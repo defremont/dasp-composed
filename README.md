@@ -1,6 +1,6 @@
 # DASP
 
-DASP is a Descentralized Autonomous Scientific Publsher.
+DASP is a Descentralized Autonomous Scientific Publisher.
 
 ## Installation
 
