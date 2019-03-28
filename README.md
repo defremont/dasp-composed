@@ -9,6 +9,7 @@ To Download Hyperledger Fabric, Install Hyperledger Composer Prerequisites, Inst
 ```bash
 ./dasp-install.sh
 ```
+Maybe need restart system.
 
 ## Usage
 
