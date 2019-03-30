@@ -10,13 +10,6 @@ chmod u+x prereqs-ubuntu.sh
 
 ./prereqs-ubuntu.sh
 
-# Install GO-IPFS
-cd go-ipfs
-
-./install.sh
-
-cd ..
-
 # Init, Config &  IPFS
 ipfs init
 
@@ -41,3 +34,10 @@ npm install --prefix ./dasp-composed
 # Install DASP API
 npm install --prefix ./dasp-composed-api
 
+
+# Install GO-IPFS
+cd go-ipfs
+
+sudo ./install.sh
+
+cd ..

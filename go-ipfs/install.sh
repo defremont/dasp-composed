@@ -13,7 +13,7 @@ binpaths="/usr/local/bin /usr/bin"
 is_write_perm_missing=""
 
 for binpath in $binpaths; do
-  if mv "$bin" "$binpath/$bin" ; then
+  if cp "$bin" "$binpath/$bin" ; then
     echo "Moved $bin to $binpath"
     exit 0
   else
