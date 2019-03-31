@@ -462,15 +462,17 @@ async function NewAuthor(newAuthor) {
   }
   return getParticipantRegistry(AUTHOR)
     .then(function (authorRegistry) { 
-      return authorRegistry.add(author);
+     return authorRegistry.add(author)      
     })
     .catch(function (error) {
       console.log(error);
-      if(!error){
-        await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
-      }
+      let err = error
       throw error;
-    });
+    }).then((err) => {
+      if(!err){
+         request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
+      }
+    })
       }
 /**
  * Transaction for new Author, maybe not needed
