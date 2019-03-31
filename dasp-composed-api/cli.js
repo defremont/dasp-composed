@@ -37,7 +37,7 @@ const argv = require('yargs')
 
 const Logger = require('composer-common').Logger;
 Logger.setCLIDefaults();
-const LOG = Logger.getLog('PlaygroundAPI');
+const LOG = Logger.getLog('DASPAPI');
 
 (async function main() {
     const method = 'main';

@@ -19,7 +19,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 
 /**
- * This class contains a set of utility functions for use within Composer API.
+ * This class contains a set of utility functions for use within DASP API.
  */
 class Util {
 

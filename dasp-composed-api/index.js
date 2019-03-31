@@ -23,9 +23,9 @@ const npmRoute = require('./routes/npm');
 const socketIO = require('socket.io');
 const Util = require('./lib/util');
 
-const LOG = Logger.getLog('PlaygroundAPI');
+const LOG = Logger.getLog('DASPAPI');
 /**
- * Create an Express.js application that hosts both the REST API for Composer Playground
+ * Create an Express.js application that hosts both the REST API for Dasp
  * and the Connector Server for supporting the proxy connector.
  * @param {number} port The port for the Express.js application.
  * @param {testMode} testMode Is the api started in test mode
@@ -67,9 +67,9 @@ async function createServer (port, testMode) {
     // Save the port back into the app. If the port was 0, it will now have
     // been set to a dynamically assigned port.
     app.set('port', port);
-    LOG.info(method, `Playground API started on port ${port}`);
+    LOG.info(method, `DASP API started on port ${port}`);
     if(testMode) {
-        LOG.info(method, 'Playground API started in test mode');
+        LOG.info(method, 'DASP API started in test mode');
     }
 
     LOG.exit(method, app);

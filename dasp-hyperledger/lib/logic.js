@@ -466,10 +466,12 @@ async function NewAuthor(newAuthor) {
     })
     .catch(function (error) {
       console.log(error);
+      if(!error){
+        await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
+      }
       throw error;
-    }).then(
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} }));
-}
+    });
+      }
 /**
  * Transaction for new Author, maybe not needed
  * @param {org.dasp.net.PublishRevision} publishRevision

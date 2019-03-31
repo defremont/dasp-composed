@@ -16,13 +16,13 @@
 # Stop on any errors
 set -e
 
-# Environment vaiable directs Playground (connector server) to an npmrc to supply to network install
+# Environment vaiable directs DASP (connector server) to an npmrc to supply to network install
 export NPMRC_FILE='/tmp/npmrc'
 
 scriptDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 packagesDir="$(cd "${scriptDir}/../.." && pwd)"
 
-# Create the npmrc for use by Playground
+# Create the npmrc for use by DASP
 if [ `uname` = "Darwin" ]; then
     gateway=docker.for.mac.localhost
 else
@@ -45,8 +45,8 @@ Shutdown() {
 }
 
 echo ''
-echo '*** Ctrl-C to stop Playground API ***'
+echo '*** Ctrl-C to stop DASP API ***'
 trap Shutdown SIGINT
 
-# Start the Playground API
+# Start the DASP API
 npm start

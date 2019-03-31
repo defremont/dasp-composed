@@ -47,7 +47,7 @@
                     <div class="justified-input">
                         <label class="required" for="userID">E-mail<abbr title="required">*</abbr></label>
                         <input required (ngModelChange)="actualFQI($event)" type="text" [(ngModel)]="userID" id="userID"
-                            name="userID" autocomplete="off" />
+                            name="userID" ngModel email autocomplete="off" />
                     </div>
                     <div class="justified-input">
                         <label class="required" for="firstName">First Name<abbr title="required">*</abbr></label>
@@ -99,7 +99,7 @@
                 <form #issueIdentityForm="ngForm" id="log-in-form" (ngSubmit)="logIn()">
                     <div class="justified-input">
                         <label class="required" for="user">E-mail<abbr title="required">*</abbr></label>
-                        <input required type="text" [(ngModel)]="userID" id="userID" name="userID" />
+                        <input required type="text" email [(ngModel)]="userID" id="userID" name="userID" />
                     </div>
                     <div *ngIf="!recPass" class="justified-input">
                         <label class="required" for="secret">Password<abbr title="required">*</abbr></label>
