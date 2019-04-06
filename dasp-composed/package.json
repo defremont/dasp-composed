@@ -131,6 +131,7 @@
     "dependencies": {
         "cheerio": "0.22.0",
         "composer-common": "0.20.7",
+        "composer-playground-api": "0.20.7",
         "composer-wallet-filesystem": "0.20.7",
         "composer-wallet-inmemory": "0.20.7",
         "express": "4.15.2",

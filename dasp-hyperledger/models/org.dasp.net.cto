@@ -26,7 +26,11 @@ participant Author identified by email {
   o Boolean isReviewer default=false
   o Double points default=0.0
   o Double reputation default=0.0
-  o String password
+  --> Details details optional
+}
+asset Details identified by id {
+  o String id
+  o String password optional
 }
 
 asset Article identified by articleId {
@@ -111,12 +115,14 @@ transaction Scheduler extends PublisherTransactions {
   --> Revision revision
 }
 transaction ChangePassword extends PublisherTransactions {
-  --> Author author
+  --> Details author
+  --> Author user
   o String newPassword
   o String oldPassword
 }
 transaction RecoverPassword extends PublisherTransactions {
-  --> Author author
+  --> Details author
+  --> Author user optional
 }
 transaction LogIn extends PublisherTransactions {
   --> Author author

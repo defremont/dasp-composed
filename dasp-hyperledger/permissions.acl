@@ -31,7 +31,7 @@
       participant(a): "org.dasp.net.Author"
       operation: CREATE
       resource(tx): "org.dasp.net.ChangePassword"
-      condition: (a.password == tx.oldPassword)
+      condition: (a.details.password == tx.oldPassword)
       action: ALLOW
   }
   rule AuthorCanCreateScheduler {
@@ -228,7 +228,7 @@
   }
   rule ComunityCanReadPublishedArticles {
       description: "Allow all participants read access to all articles that is published"
-      participant: "org.dasp.net.Author"
+      participant: "org.dasp.net.**"
       operation: READ
       resource(r): "org.dasp.net.Article"
       condition: (r.published == true)
@@ -252,7 +252,23 @@
       condition: (r.author.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
+  rule AuthorCanReadDetails {
+      description: "Allow all author read access to own resources"
+      participant(a): "org.dasp.net.Author"
+      operation: READ
+      resource(r): "org.dasp.net.Details"
+      condition: (r.getIdentifier() == a.details.getIdentifier())
+      action: ALLOW
+  }
 
+  rule AuthorCanAllTroughAny {
+      description: "Allow all author access to resources from ReviewRejected"
+      participant: "org.dasp.net.Author"
+      operation: ALL
+      resource: "org.dasp.net.Details"
+      transaction: "org.dasp.net.**"
+      action: ALLOW
+  }
   rule AuthorCanReadRevision {
       description: "Allow all author read access to own resources"
       participant(a): "org.dasp.net.Author"
@@ -269,6 +285,13 @@
       condition: (r.article.author.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
+  rule NetworkAdminUserCanReadAuthors {
+      description: "Grant business network administrators full access to NewAuthor"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: READ
+      resource: "org.dasp.net.Author"
+      action: ALLOW
+  } 
   rule NetworkAdminUserCreateNewAuthor {
       description: "Grant business network administrators full access to NewAuthor"
       participant: "org.hyperledger.composer.system.NetworkAdmin"
@@ -281,7 +304,7 @@
       participant(p): "org.hyperledger.composer.system.NetworkAdmin"
       operation: CREATE
       resource(r): "org.dasp.net.LogIn"
-      condition: (r.password == r.author.password)
+      condition: (r.password == r.author.details.password)
       action: ALLOW
   } 
   rule NetworkAdminUserRecoverPass {
@@ -291,13 +314,22 @@
       resource: "org.dasp.net.RecoverPassword"
       action: ALLOW
   } 
-  rule NetworkAdminUserReadAuthor {
-      description: "Grant business network administrators read Author"
+  rule AdminCanAllTroughAny {
+      description: "Allow all author access to resources from ReviewRejected"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: ALL
+      resource: "org.dasp.net.Details"
+      transaction: "org.dasp.net.**"
+      action: ALLOW
+  }
+  rule AdminCanAllAuthorThroughAny {
+      description: "Allow all author access to resources from ReviewRejected"
       participant: "org.hyperledger.composer.system.NetworkAdmin"
       operation: ALL
       resource: "org.dasp.net.Author"
+      transaction: "org.dasp.net.**"
       action: ALLOW
-  } 
+  }
   rule SystemACL {
     description:  "System ACL to permit all access"
     participant: "org.hyperledger.composer.system.Participant"

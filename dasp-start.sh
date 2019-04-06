@@ -32,6 +32,6 @@ composer card import --file networkadmin.card
 
 cd ..
 # Start IPFS, DASP Client & DASP API
-ipfs daemon & npm start --prefix ./dasp-composed & npm start --prefix ./dasp-composed-api & docker run -it -p 1880:1880 --user=root:root -v $(pwd)/node-red-data:/data --name mynodered nodered/node-red-docker
+ipfs daemon & ./dasp-composed/cli.js & docker run -it -p 1880:1880 --user=root:root -v $(pwd)/node-red-data:/data --name mynodered nodered/node-red-docker
 
 

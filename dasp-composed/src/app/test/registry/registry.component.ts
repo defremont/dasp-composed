@@ -25,7 +25,7 @@ import { IdentityCardService } from "app/services/identity-card.service";
 var ipfsClient = require('ipfs-http-client')
 
 // connect to ipfs daemon API server
-var ipfs = ipfsClient('localhost', '5001', { protocol: 'http' }) // leaving out the arguments will default to these values
+var ipfs = ipfsClient('127.0.0.1', '5001', { protocol: 'http' }) // leaving out the arguments will default to these values
 
 @Component({
     selector: "registry",
@@ -43,6 +43,9 @@ export class RegistryComponent {
     private author = this.identityCardService.getCurrentIdentityCard()[
         "metadata"
     ].userName;
+    private _details = this.identityCardService.getCurrentIdentityCard()[
+        "metadata"
+    ];
 
     private expandedResource = null;
     private registryId: string = null;
@@ -130,6 +133,7 @@ export class RegistryComponent {
     }
     loadResources(): Promise<void> {
 
+        console.log(this._details);
         this.overFlowedResources = {};
         return this._registry
             .getAll()
@@ -351,7 +355,8 @@ export class RegistryComponent {
 
         let resource = serializer.fromJSON({
             $class: "org.dasp.net.ChangePassword",
-            author: "resource:org.dasp.net.Author#" + this.author,
+            user: "resource:org.dasp.net.Author#" + this.author,
+            author: "resource:org.dasp.net.Details#" + this._details,
             oldPassword: this.oldPass,
             newPassword: this.pass
         });

@@ -25,7 +25,7 @@ import { Router } from '@angular/router';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 var ipfsClient = require('ipfs-http-client')
 // connect to ipfs daemon API server
-var ipfs = ipfsClient('localhost', '5001', { protocol: 'http' })
+var ipfs = ipfsClient('127.0.0.1', '5001', { protocol: 'http' })
 // leaving out the arguments will default to these values
 /* tslint:disable-next-line:no-var-requires */
 const uuid = require('uuid');

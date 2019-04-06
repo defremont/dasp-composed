@@ -17,6 +17,7 @@
  */
 let ROOT_NAMESPACE = "org.dasp.net";
 let AUTHOR = ROOT_NAMESPACE + ".Author";
+let DETAILS = ROOT_NAMESPACE + ".Details";
 let REVISION = ROOT_NAMESPACE + ".Revision";
 let ARTICLE = ROOT_NAMESPACE + ".Article";
 
@@ -446,24 +447,24 @@ async function NewArticle(newArticle) {
 
 async function NewAuthor(newAuthor) {
   let participantRegistry = await getParticipantRegistry(AUTHOR);
+  let detailsRegistry = await getAssetRegistry(DETAILS);
   let author;
   let factory = getFactory();
   author = factory.newResource(ROOT_NAMESPACE, "Author", newAuthor.email);
+  details = factory.newResource(ROOT_NAMESPACE, "Details", newAuthor.email);
 
   // Update the asset with the new value.
   author.email = newAuthor.email;
   author.firstName = newAuthor.firstName;
   author.lastName = newAuthor.lastName;
-  author.password = newAuthor.password;
+  details.password = newAuthor.password;
   author.authorId = newAuthor.transactionId;
   let authors = await participantRegistry.getAll();
   if (authors.length < 6) {
     author.isReviewer = true;
   }
-  return getParticipantRegistry(AUTHOR)
-    .then(function (authorRegistry) { 
-     return authorRegistry.add(author)      
-    })
+  author.details = details
+     return participantRegistry.add(author)    
     .catch(function (error) {
       console.log(error);
       let err = error
@@ -472,6 +473,11 @@ async function NewAuthor(newAuthor) {
       if(!err){
          request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
       }
+      return detailsRegistry.add(details)    
+      .catch(function (error) {
+        console.log(error);
+        throw error;
+      })
     })
       }
 /**
@@ -496,11 +502,11 @@ async function PublishRevision(publishRevision) {
 async function ChangePassword(changePassword) {
   changePassword.author.password = changePassword.newPassword;
   // Get the asset registry for the asset.
-  let participantRegistry = await getParticipantRegistry(AUTHOR);
+  let participantRegistry = await getAssetRegistry(DETAILS);
   // Update the asset in the asset registry.
   await participantRegistry.update(changePassword.author).then(
     await request.post({ uri: 'http://172.17.0.1:1880/hello',
-    json: {"to" : changePassword.author.email,
+    json: {"to" : changePassword.user.email,
     "topic":"DASP - Password Changed",
     "body":"You Password has been changed!"} }));
 }
@@ -515,7 +521,7 @@ async function RecoverPassword(recoverPassword) {
   json: {"to" : recoverPassword.author.email,
   "topic":"DASP - Account Recovered",
   "body":"You account has been recovered!<br/>Password: "
-  +recoverPassword.author.password+"<br/>Please change soon"}
+  +recoverPassword.author.details.password+"<br/>Please change soon"}
 });
 }
 

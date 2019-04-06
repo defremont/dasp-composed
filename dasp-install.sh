@@ -31,13 +31,12 @@ npm install -g generator-hyperledger-composer@0.20.7
 # Install DASP Client
 npm install --prefix ./dasp-composed
 
-# Install DASP API
-npm install --prefix ./dasp-composed-api
-
-
 # Install GO-IPFS
 cd go-ipfs
 
 sudo ./install.sh
 
 cd ..
+
+# Build DASP Client UI
+npm run build:prod --prefix ./dasp-composed
