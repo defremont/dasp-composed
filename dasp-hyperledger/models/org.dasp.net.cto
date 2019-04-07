@@ -122,7 +122,6 @@ transaction ChangePassword extends PublisherTransactions {
 }
 transaction RecoverPassword extends PublisherTransactions {
   --> Details author
-  --> Author user optional
 }
 transaction LogIn extends PublisherTransactions {
   --> Author author

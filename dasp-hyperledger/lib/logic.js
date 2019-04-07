@@ -518,10 +518,10 @@ async function ChangePassword(changePassword) {
 
 async function RecoverPassword(recoverPassword) {
   await request.post({ uri: 'http://172.17.0.1:1880/hello',
-  json: {"to" : recoverPassword.author.email,
+  json: {"to" : recoverPassword.author.id,
   "topic":"DASP - Account Recovered",
   "body":"You account has been recovered!<br/>Password: "
-  +recoverPassword.author.details.password+"<br/>Please change soon"}
+  +recoverPassword.author.password+"<br/>Please change soon"}
 });
 }
 

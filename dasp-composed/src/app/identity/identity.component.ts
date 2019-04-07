@@ -270,7 +270,7 @@ export class IdentityComponent implements OnInit {
         let serializer = businessNetworkDefinition.getSerializer();
         let resource = serializer.fromJSON({
             $class: "org.dasp.net.RecoverPassword",
-            author: "resource:org.dasp.net.Author#" + this.userID
+            author: "resource:org.dasp.net.Details#" + this.userID
         });
         try {
             let result = await businessNetworkConnection.submitTransaction(

@@ -356,7 +356,7 @@ export class RegistryComponent {
         let resource = serializer.fromJSON({
             $class: "org.dasp.net.ChangePassword",
             user: "resource:org.dasp.net.Author#" + this.author,
-            author: "resource:org.dasp.net.Details#" + this._details,
+            author: "resource:org.dasp.net.Details#" + this.author,
             oldPassword: this.oldPass,
             newPassword: this.pass
         });

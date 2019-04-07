@@ -18,6 +18,14 @@
 
 
   
+  rule AuthorCanAllTroughAnyT {
+      description: "Allow all author access to resources from ReviewRejected"
+      participant: "org.dasp.net.Author"
+      operation: ALL
+      resource: "org.dasp.net.Details"
+      transaction: "org.dasp.net.**"
+      action: ALLOW
+  }
   rule AuthorCanUpdateChangePassword {
       description: "Allow all author access to resources from scheduler"
       participant: "org.dasp.net.Author"
