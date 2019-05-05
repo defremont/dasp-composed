@@ -19,6 +19,8 @@ ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
 
 ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
 
+ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8081
+
 # Install Composer CLI
 npm install -g composer-cli@0.20.7
 
