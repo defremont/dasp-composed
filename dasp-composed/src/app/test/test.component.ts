@@ -23,9 +23,10 @@ import { DrawerDismissReasons } from '../common/drawer';
 import { IdentityCardService } from "../../app/services/identity-card.service";
 import { Router } from '@angular/router';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+
 var ipfsClient = require('ipfs-http-client')
 // connect to ipfs daemon API server
-var ipfs = ipfsClient('127.0.0.1', '5001', { protocol: 'http' })
+var ipfs = ipfsClient('192.168.1.4', '5001', { protocol: 'http' })
 // leaving out the arguments will default to these values
 /* tslint:disable-next-line:no-var-requires */
 const uuid = require('uuid');
@@ -88,6 +89,7 @@ export class TestComponent implements OnInit, OnDestroy {
     chosenMenu: any = 'upload';
     isReviewer: any;
     title: any;
+    details: any;
     constructor(private clientService: ClientService,
         public router: Router,
         private alertService: AlertService,
@@ -289,7 +291,7 @@ export class TestComponent implements OnInit, OnDestroy {
 
     setChosenRegistry(chosenRegistry) {
         this.chosenRegistry = chosenRegistry;
-        this.chosenMenu = null
+        this.chosenMenu = null;
     }
     setChosenMenu(chosenMenu) {
         this.submitInProgress = false
@@ -299,12 +301,12 @@ export class TestComponent implements OnInit, OnDestroy {
         this.chosenMenu = chosenMenu;
         this.chosenRegistry = null
         this.chosenMenu === "upload" ? this.uploadArticle() : null
-        this.chosenMenu === "toReview" ? this.chosenRegistry = this.registries['assets'][1] : null
+        this.chosenMenu === "toReview" ? this.chosenRegistry = this.registries['assets'][2] : null
         this.chosenMenu === "myArticles" ? this.chosenRegistry = this.registries['assets'][0] : null
         this.chosenMenu === "publicArticles" ? this.chosenRegistry = this.registries['assets'][0] : null
-        this.chosenMenu === "myArticleRevisions" ? this.chosenRegistry = this.registries['assets'][1] : null
-        this.chosenMenu === "publicRevisions" ? this.chosenRegistry = this.registries['assets'][1] : null
-        this.chosenMenu === "reviewed" ? this.chosenRegistry = this.registries['assets'][1] : null
+        this.chosenMenu === "myArticleRevisions" ? this.chosenRegistry = this.registries['assets'][2] : null
+        this.chosenMenu === "publicRevisions" ? this.chosenRegistry = this.registries['assets'][2] : null
+        this.chosenMenu === "reviewed" ? this.chosenRegistry = this.registries['assets'][2] : null
 
     }
     loadTransaction() {

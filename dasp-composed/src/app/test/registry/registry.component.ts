@@ -43,9 +43,6 @@ export class RegistryComponent {
     private author = this.identityCardService.getCurrentIdentityCard()[
         "metadata"
     ].userName;
-    private _details = this.identityCardService.getCurrentIdentityCard()[
-        "metadata"
-    ];
 
     private expandedResource = null;
     private registryId: string = null;
@@ -74,7 +71,7 @@ export class RegistryComponent {
     ]
     @Output() someEvent = new EventEmitter<string>();
     showChangePassword: boolean = false;
-    pass: any;
+    pass: any;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
     validPass: boolean = false;
     pass2: any;
     oldPass: any;
@@ -132,8 +129,6 @@ export class RegistryComponent {
         }
     }
     loadResources(): Promise<void> {
-
-        console.log(this._details);
         this.overFlowedResources = {};
         return this._registry
             .getAll()
