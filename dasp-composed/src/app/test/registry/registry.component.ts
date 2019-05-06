@@ -25,7 +25,7 @@ import { IdentityCardService } from "app/services/identity-card.service";
 var ipfsClient = require('ipfs-http-client')
 
 // connect to ipfs daemon API server
-var ipfs = ipfsClient('127.0.0.1', '5001', { protocol: 'http' }) // leaving out the arguments will default to these values
+var ipfs = ipfsClient('10.126.1.112', '5001', { protocol: 'http' }) // leaving out the arguments will default to these values
 
 @Component({
     selector: "registry",
