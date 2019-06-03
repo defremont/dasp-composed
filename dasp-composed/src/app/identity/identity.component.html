@@ -127,10 +127,53 @@
                 </button>
             </footer>
         </section>
+        <br/>
         <section>
-            <div *ngFor="let resource of resourceTest">
-                Here comes <br/>{{resource.tags}}
-            </div>
+        <section class="header modal-header">
+            <h2 class="hide-on-resp"><b>Scientific Articles Published by DASP </b></h2>
+        </section>
+    <table >
+
+        <thead [ngClass]="{ 'tbody-scrolled': tableScrolled }">
+        
+            <tr>
+                <th class="normal-column">Title</th>
+                <th class="normal-column">Tags</th>
+                <th class="normal-column">Author</th>
+                <th class="normal-column">Grade</th>
+                <th class="narrow-column"></th>
+            </tr>
+        </thead>
+        <tbody id="transactiontbody" checkScroll (hasScroll)="updateTableScroll($event)">
+            <tr *ngFor="let resource of publicArticles">
+                <td class="normal-column truncate-text">
+                    {{
+                        resource.title
+                    }}
+                </td>
+                <td class="normal-column truncate-text">
+                    <span placement="top" container="body" >{{
+                            resource.tags
+                        }}</span>
+                </td>
+                <td class="normal-column truncate-text">
+                    <span placement="top" container="body">{{
+                            resource.author.getIdentifier()
+                        }}</span>
+                </td>
+                <td class="normal-column truncate-text">
+                    <span placement="top" container="body">{{
+                            resource.concept
+                        }}</span>
+                </td>
+                <td class="narrow-column">
+                    <button (click)="downloadFile(resource.hash, resource.title+' by: '+resource.author.getIdentifier())">
+                        <b><a href="#">Download<br /></a></b>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
         </section>
     </div>
 </section>

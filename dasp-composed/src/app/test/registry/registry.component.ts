@@ -161,9 +161,9 @@ export class RegistryComponent {
         this.points = '';
         this.notes = '';
     }
-    downloadFile(hash) {
+    downloadFile(hash, title) {
         let link = document.createElement("a");
-        link.download = "filename";
+        link.download = title;
 
         ipfs.cat(hash).then((result) => {
             let jsoned = JSON.parse(result)

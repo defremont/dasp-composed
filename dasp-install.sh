@@ -34,5 +34,3 @@ sudo ./install.sh
 
 cd ..
 
-# Build DASP Client UI
-npm run build:prod --prefix ./dasp-composed

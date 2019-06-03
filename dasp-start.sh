@@ -40,7 +40,9 @@ ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", 
 
 ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8081
 
+# Build DASP Client UI
+
 # Start IPFS, DASP Client & DASP API
-ipfs daemon & ./dasp-composed/cli.js & docker run -it -p 1880:1880 --user=root:root -v $(pwd)/node-red-data:/data --name mynodered nodered/node-red-docker
+npm run build:prod --prefix ./dasp-composed & ipfs daemon & ./dasp-composed/cli.js & docker run -it -p 1880:1880 --user=root:root -v $(pwd)/node-red-data:/data --name mynodered nodered/node-red-docker
 
 

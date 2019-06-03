@@ -223,19 +223,6 @@ export class TestComponent implements OnInit, OnDestroy {
             $("#drop").classList.remove("hidden");
         }, 500);
     }
-    downloadFile() {
-        let link = document.createElement("a");
-        link.download = "filename";
-
-        ipfs.cat(this.articleHash).then((result) => {
-            let jsoned = JSON.parse(result)
-            link.href = jsoned[0];
-
-            link.click();
-
-        }).catch(console.log);
-
-    }
     handleInputChange(e) {
         var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
         var pattern = 'pdf.*';

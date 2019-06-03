@@ -300,6 +300,14 @@
       resource: "org.dasp.net.Author"
       action: ALLOW
   } 
+  rule NetworkAdminUserCanReadPublicArticles {
+      description: "Grant business network administrators full access to NewAuthor"
+      participant: "org.hyperledger.composer.system.NetworkAdmin"
+      operation: READ
+      resource(r): "org.dasp.net.Article"
+      condition: (r.published == true)
+      action: ALLOW
+  } 
   rule NetworkAdminUserCreateNewAuthor {
       description: "Grant business network administrators full access to NewAuthor"
       participant: "org.hyperledger.composer.system.NetworkAdmin"

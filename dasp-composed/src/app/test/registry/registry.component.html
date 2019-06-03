@@ -65,7 +65,7 @@
                             <a href="http://10.126.1.112:5001/api/v0/cat/{{
                                     resource.hash
                                 }}" target="_blank">IPFS Link<b></b></a>
-                            <br /><button (click)="downloadFile(resource.hash)">
+                            <br /><button (click)="downloadFile(resource.hash, resource.title+' by: '+resource.author.getIdentifier())">
                                 <b><a href="#">Download<br /></a></b>
                             </button>
                             <br /><button *ngIf="
@@ -151,7 +151,7 @@
                         <a href="http://10.126.1.112:5001/api/v0/cat/{{
                                 resource.hash
                             }}" target="_blank">IPFS Link<b></b></a>
-                        <br /><button (click)="downloadFile(resource.hash)">
+                        <br /><button (click)="downloadFile(resource.hash, resource.title+' by: '+resource.author.getIdentifier())">
                             <b><a href="#">Download<br /></a></b>
                         </button>
                     </div>
@@ -219,7 +219,7 @@
                             <a href="http://10.126.1.112:5001/api/v0/cat/{{
                                     resource.hash
                                 }}" target="_blank">IPFS Link<b></b></a>
-                            <br /><button (click)="downloadFile(resource.hash)">
+                            <br /><button (click)="downloadFile(resource.hash, resource.title+' by: '+resource.author.getIdentifier())">
                                 <b><a href="#">Download<br /></a></b>
                             </button>
                             <br />
@@ -285,7 +285,7 @@
                                 overflow: auto;">
                                 {{ resource.articleTags }}
                             </div>
-                            <br /><button class="primary" (click)="downloadFile(resource.hash)">
+                            <br /><button class="primary" (click)="downloadFile(resource.hash, resource.title+' by: '+resource.author.getIdentifier())">
                                 <b><a>Download<br /></a></b>
                             </button><br />
                             <h6>{{ resource.date }}</h6>
@@ -397,7 +397,7 @@
                             <a href="http://10.126.1.112:5001/api/v0/cat/{{
                                         resource.hash
                                     }}" target="_blank">IPFS Link<b></b></a>
-                            <br /><button (click)="downloadFile(resource.hash)">
+                            <br /><button (click)="downloadFile(resource.hash, resource.title+' by: '+resource.author.getIdentifier())">
                                 <b><a href="#">Download<br /></a></b>
                             </button>
                         </div>
@@ -454,13 +454,6 @@
                             </div>
                             <br />Revision Rate: {{ resource.rate }}
                             <h6>{{ resource.date }}</h6>
-                            <!-- IPFS_IP -->
-                            <a href="http://10.126.1.112:5001/api/v0/cat/{{
-                                        resource.hash
-                                    }}" target="_blank">IPFS Link<b></b></a>
-                            <br /><button (click)="downloadFile(resource.hash)">
-                                <b><a href="#">Download<br /></a></b>
-                            </button>
                         </div>
                     </div>
                 </div>
