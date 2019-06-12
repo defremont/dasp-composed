@@ -13,7 +13,7 @@
  */
 import { Component, Input } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { Output, EventEmitter } from '@angular/core';
+import { Output, EventEmitter } from "@angular/core";
 import { ClientService } from "../../services/client.service";
 import { AlertService } from "../../basic-modals/alert.service";
 import { ResourceComponent } from "../resource/resource.component";
@@ -22,18 +22,17 @@ import { TestComponent } from "../test.component";
 import { ViewTransactionComponent } from "../view-transaction/view-transaction.component";
 import { DrawerDismissReasons } from "../../common/drawer";
 import { IdentityCardService } from "app/services/identity-card.service";
-var ipfsClient = require('ipfs-http-client')
+var ipfsClient = require("ipfs-http-client");
 
 // connect to ipfs daemon API server
 // IPFS_IP
-var ipfs = ipfsClient('10.126.1.112', '5001', { protocol: 'http' }) // leaving out the arguments will default to these values
+var ipfs = ipfsClient("localhost", "5001", { protocol: "http" }); // leaving out the arguments will default to these values
 
 @Component({
     selector: "registry",
     templateUrl: "./registry.component.html",
     styleUrls: ["./registry.component.scss".toString()]
 })
-
 export class RegistryComponent {
     tableScrolled = false;
     private rate = false;
@@ -64,19 +63,25 @@ export class RegistryComponent {
     color: string = "";
     concept: any;
     options = [
-      { name: "Rejected", value: 2 },
-      { name: "Weak Rejected", value: 4 },
-      { name: "Border Line", value: 6 },
-      { name: "Weak Accepted", value: 8 },
-      { name: "Accepted", value: 10 }
-    ]
+        { name: "Rejected", value: 2 },
+        { name: "Weak Rejected", value: 4 },
+        { name: "Border Line", value: 6 },
+        { name: "Weak Accepted", value: 8 },
+        { name: "Accepted", value: 10 }
+    ];
     @Output() someEvent = new EventEmitter<string>();
     showChangePassword: boolean = false;
-    pass: any;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+    pass: any;
     validPass: boolean = false;
     pass2: any;
     oldPass: any;
     errorPass: boolean = false;
+
+    private registries = {
+        assets: [],
+        participants: [],
+        historian: null
+    };
 
     @Input()
     set registry(registry: any) {
@@ -104,28 +109,30 @@ export class RegistryComponent {
         private alertService: AlertService,
         private modalService: NgbModal,
         private identityCardService: IdentityCardService
-    ) { }
-    getInitials(firstName, lastName){
-        if(this.initials === ""){
-            let firstLetter = firstName.charAt(0)
-            let lastLetter = lastName.charAt(0)
-            this.initials = firstLetter.toUpperCase() + lastLetter.toUpperCase()
+    ) {}
+    getInitials(firstName, lastName) {
+        if (this.initials === "") {
+            let firstLetter = firstName.charAt(0);
+            let lastLetter = lastName.charAt(0);
+            this.initials =
+                firstLetter.toUpperCase() + lastLetter.toUpperCase();
         }
-        return this.initials
+        return this.initials;
     }
-    getColor(email){
-        if(this.color === ""){
-            var hash = 0, len = email.length;
+    getColor(email) {
+        if (this.color === "") {
+            var hash = 0,
+                len = email.length;
             for (var i = 0; i < len; i++) {
-                hash  = ((hash << 5) - hash) + email.charCodeAt(i);
+                hash = (hash << 5) - hash + email.charCodeAt(i);
                 hash |= 0; // to 32bit integer
             }
             let fullValue = hash;
 
-            var hue = Math.floor(fullValue * 360)/1000;
+            var hue = Math.floor(fullValue * 360) / 1000;
 
-            var color = 'hsl(' + hue + ', 55%, 55%)';
-            this.color = color
+            var color = "hsl(" + hue + ", 55%, 55%)";
+            this.color = color;
             return this.color;
         }
     }
@@ -144,8 +151,9 @@ export class RegistryComponent {
                     });
                 }
                 this.currentdate = new Date();
-                this.secret = this.identityCardService.getIdentityCard(this.author + "@dasp-net")["metadata"].enrollmentSecret;
-
+                this.secret = this.identityCardService.getIdentityCard(
+                    this.author + "@dasp-net"
+                )["metadata"].enrollmentSecret;
             })
             .catch(error => {
                 this.alertService.errorStatus$.next(error);
@@ -154,23 +162,61 @@ export class RegistryComponent {
     rateModal(definition) {
         this.rate = definition;
         this.details = false;
-
     }
     closeRateModal() {
         this.rate = false;
-        this.points = '';
-        this.notes = '';
+        this.points = "";
+        this.notes = "";
     }
     downloadFile(hash, title) {
         let link = document.createElement("a");
         link.download = title;
 
-        ipfs.cat(hash).then((result) => {
-            let jsoned = JSON.parse(result)
-            link.href = jsoned;
-            link.click();
+        ipfs.cat(hash)
+            .then(result => {
+                let jsoned = JSON.parse(result);
+                link.href = jsoned;
+                link.click();
+            })
+            .catch(console.log);
+    }
+    async isPublic(id) {
+        await this.clientService
+            .getBusinessNetworkConnection()
+            .getAllAssetRegistries()
+            .then(assetRegistries => {
+                assetRegistries.forEach(assetRegistry => {
+                    let index = assetRegistry.id.lastIndexOf(".");
+                    let displayName = assetRegistry.id.substring(index + 1);
+                    assetRegistry.displayName = displayName;
+                });
+                this.registries["assets"] = assetRegistries.sort((a, b) => {
+                    return a.id.localeCompare(b.id);
+                });
+            });
+        this.registries["assets"][0].getAll().then(resources => {
+            resources = resources.sort((a, b) => {
+                return b.date - a.date;
+            });
+            resources.forEach(resource => {
+                if (id.getIdentifier() === resource.getIdentifier()) {
+                    console.log("achou msm id");
+                    if (!resource.published) {
+                        console.log("nao e public");
+                        return false;
+                    } else {
+                        console.log("e public");
+                        return true;
+                    }
+                }
+            });
+        });
+        // articles.forEach(article => {
+        //     console.log(article.getIdentifier());
+        // });
+        console.log(id);
 
-        }).catch(console.log);
+        console.log(this.registries["assets"][0].getAll());
     }
     async rateRevision(id) {
         this.loading = true;
@@ -189,7 +235,7 @@ export class RegistryComponent {
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.closeRateModal();
             this.loadResources();
-            this.someEvent.next('reviewed');
+            this.someEvent.next("reviewed");
             return (this.loading = false);
         });
     }
@@ -233,17 +279,18 @@ export class RegistryComponent {
     private async ipfsUpload() {
         this.loading = true;
         const input = this.articleBase64;
-         await ipfs.add(Buffer.from(JSON.stringify(input)))
-        .then(res => {
-            const hash = res[0].hash
-            this.articleHash = hash;
-            return ipfs.cat(hash)
-        })
-        .then(output => {
-            return this.changeHash(this.articleHash).then(() => {
-                this.createRevisions(this.rate);
+        await ipfs
+            .add(Buffer.from(JSON.stringify(input)))
+            .then(res => {
+                const hash = res[0].hash;
+                this.articleHash = hash;
+                return ipfs.cat(hash);
+            })
+            .then(output => {
+                return this.changeHash(this.articleHash).then(() => {
+                    this.createRevisions(this.rate);
+                });
             });
-        });
     }
     private showUpload(id) {
         this.uploadInput = true;
@@ -253,10 +300,10 @@ export class RegistryComponent {
     handleInputChange(e) {
         this.uploadInput = false;
         var file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
-        var pattern = 'pdf.*';
+        var pattern = "pdf.*";
         var reader = new FileReader();
         if (!file.type.match(pattern)) {
-            alert('invalid format');
+            alert("invalid format");
             return;
         }
         reader.onload = this._handleReaderLoaded.bind(this);
@@ -280,8 +327,9 @@ export class RegistryComponent {
             article: "resource:org.dasp.net.Article#" + this.rate,
             newHash: id
         });
-        await businessNetworkConnection.submitTransaction(resource).then(() => {
-        });
+        await businessNetworkConnection
+            .submitTransaction(resource)
+            .then(() => {});
     }
     async createRevisions(article) {
         this.loading = true;
@@ -341,7 +389,7 @@ export class RegistryComponent {
             .getSerializer();
         return JSON.stringify(serializer.toJSON(resource), null, 2);
     }
-    private async changePassword(){
+    private async changePassword() {
         this.loading = true;
         this.identityCardService;
         let businessNetworkConnection = this.clientService.getBusinessNetworkConnection();
@@ -356,33 +404,36 @@ export class RegistryComponent {
             oldPassword: this.oldPass,
             newPassword: this.pass
         });
-        await businessNetworkConnection.submitTransaction(resource).then(() => {
-            this.showChangePassword = !this.showChangePassword;
-            this.loadResources();
-            this.errorPass = false;
-            return (this.loading = false);
-        }).catch((error) => {
-            console.log(error);
-            this.errorPass = true;
-            return (this.loading = false);
-        });
+        await businessNetworkConnection
+            .submitTransaction(resource)
+            .then(() => {
+                this.showChangePassword = !this.showChangePassword;
+                this.loadResources();
+                this.errorPass = false;
+                return (this.loading = false);
+            })
+            .catch(error => {
+                console.log(error);
+                this.errorPass = true;
+                return (this.loading = false);
+            });
     }
-    private showChangePass(){
+    private showChangePass() {
         this.showChangePassword = !this.showChangePassword;
     }
 
-    private passwordAgain(pass2){
-        if (pass2 === this.pass){
-            return this.validPass = true;
-        }else{
-            return this.validPass = false;
+    private passwordAgain(pass2) {
+        if (pass2 === this.pass) {
+            return (this.validPass = true);
+        } else {
+            return (this.validPass = false);
         }
     }
-    private password(pass){
-        if (pass === this.pass2){
-            return this.validPass = true;
-        }else{
-            return this.validPass = false;
+    private password(pass) {
+        if (pass === this.pass2) {
+            return (this.validPass = true);
+        } else {
+            return (this.validPass = false);
         }
     }
     expandResource(resourceToExpand) {
@@ -450,7 +501,7 @@ export class RegistryComponent {
                         .catch(error => {
                             this.alertService.errorStatus$.next(
                                 "Removing the selected item from the registry failed:" +
-                                error
+                                    error
                             );
                         });
                 } else {

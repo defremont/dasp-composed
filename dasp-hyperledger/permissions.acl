@@ -285,6 +285,14 @@
       condition: (r.reviewer.getIdentifier() == a.getIdentifier())
       action: ALLOW
   }
+  rule AuthorCanReadPublicRevision {
+      description: "Allow all author read access to own resources"
+      participant(a): "org.dasp.net.Author"
+      operation: READ
+      resource(r): "org.dasp.net.Revision"
+      condition: (r.public == true)
+      action: ALLOW
+  }
   rule AuthorCanReadAuthorRevision {
       description: "Allow all author read access to own resources"
       participant(a): "org.dasp.net.Author"

@@ -37,17 +37,17 @@ import { Test } from "../../../e2e/component/test";
 import { timingSafeEqual } from "crypto";
 const BusinessNetworkConnection = require("composer-client")
     .BusinessNetworkConnection;
-var ipfsClient = require('ipfs-http-client')
+var ipfsClient = require("ipfs-http-client");
 // connect to ipfs daemon API server
 // IPFS_IP
-var ipfs = ipfsClient('10.126.1.112', '5001', { protocol: 'http' })
+var ipfs = ipfsClient("localhost", "5001", { protocol: "http" });
 @Component({
     selector: "identity",
     templateUrl: "./identity.component.html",
     styleUrls: ["./identity.component.scss".toString()]
 })
 export class IdentityComponent implements OnInit {
-    private publicArticles;
+    private publicArticles = [];
     private identityCards: Map<string, IdCard>;
     private myIDs: Array<{ ref; usable }>;
     private allIdentities: Object[]; // array of all IDs
@@ -105,7 +105,7 @@ export class IdentityComponent implements OnInit {
         private alertService: AlertService,
         private clientService: ClientService,
         private identityCardService: IdentityCardService
-    ) { }
+    ) {}
     @Input() resource: any = null;
     ngOnInit(): Promise<any> {
         this.loadAllIdentities();
@@ -167,10 +167,16 @@ export class IdentityComponent implements OnInit {
                     .then(historianRegistry => {
                         console.log(this.registries["assets"][0]);
 
-                        this.registries["assets"][0].getAll()
+                        this.registries["assets"][0]
+                            .getAll()
                             .then(resources => {
-                                this.publicArticles = resources.sort((a, b) => {
+                                resources = resources.sort((a, b) => {
                                     return b.date - a.date;
+                                });
+                                resources.forEach(resource => {
+                                    if (resource.published) {
+                                        this.publicArticles.push(resource);
+                                    }
                                 });
                             });
                         console.log(this.publicArticles);
@@ -178,7 +184,7 @@ export class IdentityComponent implements OnInit {
                         this.reserve = this.participants.size;
                         this.registries["historian"] = historianRegistry;
                         // set the default registry selection
-                        this.registries["assets"]
+                        this.registries["assets"];
                         if (this.registries["participants"].length !== 0) {
                             this.chosenRegistry = this.registries[
                                 "participants"
@@ -243,16 +249,16 @@ export class IdentityComponent implements OnInit {
 
     private passwordAgain(pass2) {
         if (pass2 === this.pass) {
-            return this.validPass = true;
+            return (this.validPass = true);
         } else {
-            return this.validPass = false;
+            return (this.validPass = false);
         }
     }
     private password(pass) {
         if (pass === this.pass2) {
-            return this.validPass = true;
+            return (this.validPass = true);
         } else {
-            return this.validPass = false;
+            return (this.validPass = false);
         }
     }
     async newAuthor() {
@@ -329,12 +335,13 @@ export class IdentityComponent implements OnInit {
         let link = document.createElement("a");
         link.download = title;
 
-        ipfs.cat(hash).then((result) => {
-            let jsoned = JSON.parse(result)
-            link.href = jsoned;
-            link.click();
-
-        }).catch(console.log);
+        ipfs.cat(hash)
+            .then(result => {
+                let jsoned = JSON.parse(result);
+                link.href = jsoned;
+                link.click();
+            })
+            .catch(console.log);
     }
     ngOnDestroy() {
         this.clientService
@@ -356,8 +363,8 @@ export class IdentityComponent implements OnInit {
                 term === ""
                     ? []
                     : this.participantFQIs
-                        .filter(v => new RegExp(term, "gi").test(v))
-                        .slice(0, 10)
+                          .filter(v => new RegExp(term, "gi").test(v))
+                          .slice(0, 10)
             );
     private async logIn() {
         if (this.recPass) {
@@ -391,7 +398,10 @@ export class IdentityComponent implements OnInit {
             }
         }
     }
-    private async trylog(ID: { ref; usable }, revertOnError: boolean): Promise<void> {
+    private async trylog(
+        ID: { ref; usable },
+        revertOnError: boolean
+    ): Promise<void> {
         let cardRef = ID.ref;
         if (this.currentIdentity === cardRef || !ID.usable) {
             return Promise.resolve();
@@ -711,10 +721,10 @@ export class IdentityComponent implements OnInit {
                         if (
                             !this.getParticipant(
                                 el["participant"].getNamespace() +
-                                "." +
-                                el["participant"].getType() +
-                                "#" +
-                                el["participant"].getIdentifier()
+                                    "." +
+                                    el["participant"].getType() +
+                                    "#" +
+                                    el["participant"].getIdentifier()
                             )
                         ) {
                             ids[index]["state"] = "BOUND PARTICIPANT NOT FOUND";

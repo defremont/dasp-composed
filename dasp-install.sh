@@ -13,8 +13,6 @@ chmod u+x prereqs-ubuntu.sh
 # Init IPFS
 ipfs init
 
-ipfs daemon
-
 # Install Composer CLI
 npm install -g composer-cli@0.20.7
 

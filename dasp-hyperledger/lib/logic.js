@@ -57,13 +57,16 @@ async function newHash(NewHash) {
 
 async function Scheduler(scheduler) {
   let currentdate = new Date();
-  if ((currentdate.getTime() - scheduler.revision.date.getTime()) > 850000000 && !scheduler.revision.complete) {
-  let articleRegistry = await getAssetRegistry(ARTICLE);
-  // pega revisoes atrasadas
-  let revisionRegistry = await getAssetRegistry(REVISION);
-  // Get all of the drivers in the driver participant registry.
-  let revisions = await revisionRegistry.getAll();
-  let outDatedRevisions = [];
+  if (
+    currentdate.getTime() - scheduler.revision.date.getTime() > 850000000 &&
+    !scheduler.revision.complete
+  ) {
+    let articleRegistry = await getAssetRegistry(ARTICLE);
+    // pega revisoes atrasadas
+    let revisionRegistry = await getAssetRegistry(REVISION);
+    // Get all of the drivers in the driver participant registry.
+    let revisions = await revisionRegistry.getAll();
+    let outDatedRevisions = [];
 
     // Update the asset with the new value.
     let revisors = [];
@@ -75,15 +78,18 @@ async function Scheduler(scheduler) {
     // Get all of the drivers in the driver participant registry.
     let authors = await participantRegistry.getAll();
     // Get all the reviewers to chosen the new one
-    scheduler.revision.article.revisions.forEach(function (revision) {
-      if (scheduler.revision.reviewer.getIdentifier() !== revision.reviewer.email) {
+    scheduler.revision.article.revisions.forEach(function(revision) {
+      if (
+        scheduler.revision.reviewer.getIdentifier() !== revision.reviewer.email
+      ) {
         prerevisors.push(revision.reviewer.email);
       }
     });
     await authors.forEach(author => {
       if (
         author.email !== scheduler.revision.reviewer.getIdentifier() &&
-        author.isReviewer && author.email !== scheduler.revision.article.author.getIdentifier()
+        author.isReviewer &&
+        author.email !== scheduler.revision.article.author.getIdentifier()
       ) {
         if (prerevisors.indexOf(author.email) > -1) {
         } else {
@@ -101,16 +107,23 @@ async function Scheduler(scheduler) {
     );
     scheduler.revision.acc = false;
 
-    await request.post({ uri: 'http://172.17.0.1:1880/hello',
-    json: {"to" : reviewer.getIdentifier(),
-    "topic":"DASP - You received a revision to evaluate",
-    "body":"Article Title:<br/>"+scheduler.revision.articleTags+
-    "<br/>Article Tags:<br/>"+scheduler.revision.articleTitle+"<br/>Access DASP to review this article."} });
+    await request.post({
+      uri: "http://172.17.0.1:1880/hello",
+      json: {
+        to: reviewer.getIdentifier(),
+        topic: "DASP - You received a revision to evaluate",
+        body:
+          "Article Title:<br/>" +
+          scheduler.revision.articleTags +
+          "<br/>Article Tags:<br/>" +
+          scheduler.revision.articleTitle +
+          "<br/>Access DASP to review this article."
+      }
+    });
     scheduler.revision.reviewer = reviewer;
     scheduler.revision.date = scheduler.timestamp;
     // Update the asset in the asset registry.
     await revisionRegistry.update(scheduler.revision);
-
   }
 }
 /**
@@ -135,7 +148,7 @@ async function CreateRevision(createRevision) {
   //need revision workflow
   if (createRevision.article.revisions.length >= 5) {
     // If article of revision already have 5 revisors
-    createRevision.article.revisions.forEach(function (revision) {
+    createRevision.article.revisions.forEach(function(revision) {
       revs.forEach(rev => {
         if (
           JSON.stringify(rev.revisionId) === JSON.stringify(revision.revisionId)
@@ -159,22 +172,34 @@ async function CreateRevision(createRevision) {
       revisions[i].reviewer = reviewers[i];
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : reviewers[i].getIdentifier(),"topic":"DASP - You received a revision to evaluate","body":"Article Title:<br/>"+createRevision.article.tags+"<br/>Article Tags:<br/>"+createRevision.article.title+"<br/>Access DASP to review this article."} });
+      await request.post({
+        uri: "http://172.17.0.1:1880/hello",
+        json: {
+          to: reviewers[i].getIdentifier(),
+          topic: "DASP - You received a revision to evaluate",
+          body:
+            "Article Title:<br/>" +
+            createRevision.article.tags +
+            "<br/>Article Tags:<br/>" +
+            createRevision.article.title +
+            "<br/>Access DASP to review this article."
+        }
+      });
     }
     createRevision.article.revisions = revisions;
 
     await articleRegistry.update(createRevision.article);
     return getAssetRegistry(REVISION)
-      .then(function (revisionRegistry) {
+      .then(function(revisionRegistry) {
         return revisionRegistry.addAll(revisions);
       })
-      .catch(function (error) {
+      .catch(function(error) {
         console.log(error);
         throw error;
       });
   } else {
     // Else (if article has not 5 revisors) For each author, check if is reviewer.
-    authors.forEach(function (author) {
+    authors.forEach(function(author) {
       if (author.isReviewer) {
         if (author.email !== getCurrentParticipant().getIdentifier()) {
           revisors.push(author);
@@ -200,7 +225,7 @@ async function CreateRevision(createRevision) {
         return o;
       }
       var myArr = shuffle(range(max));
-      return function () {
+      return function() {
         return myArr.shift();
       };
     }
@@ -237,20 +262,28 @@ async function CreateRevision(createRevision) {
       revisions[i].date = createRevision.timestamp;
       revisions[i].article = createRevision.article;
       createRevision.article.revisions.push(revisions[i]);
-      await request.post({ uri: 'http://172.17.0.1:1880/hello',
-      json: {"to" : reviewers[i].getIdentifier(),
-      "topic":"DASP - You received a revision to evaluate",
-      "body":"Article Title: "+createRevision.article.title+
-      "<br/>Article Tags: "+createRevision.article.tags+"<br/>Access DASP to review this article."} });
+      await request.post({
+        uri: "http://172.17.0.1:1880/hello",
+        json: {
+          to: reviewers[i].getIdentifier(),
+          topic: "DASP - You received a revision to evaluate",
+          body:
+            "Article Title: " +
+            createRevision.article.title +
+            "<br/>Article Tags: " +
+            createRevision.article.tags +
+            "<br/>Access DASP to review this article."
+        }
+      });
       // Update the asset in the asset registry.
     }
     await articleRegistry.update(createRevision.article);
 
     return getAssetRegistry(REVISION)
-      .then(function (revisionRegistry) {
+      .then(function(revisionRegistry) {
         return revisionRegistry.addAll(revisions);
       })
-      .catch(function (error) {
+      .catch(function(error) {
         console.log(error);
         throw error;
       });
@@ -291,7 +324,7 @@ async function ReviewRejected(reviewRejected) {
   // Get all of the drivers in the driver participant registry.
   let authors = await participantRegistry.getAll();
   // Get all the reviewers to chosen the new one
-  reviewRejected.revision.article.revisions.forEach(function (revision) {
+  reviewRejected.revision.article.revisions.forEach(function(revision) {
     if (getCurrentParticipant().getIdentifier() !== revision.reviewer.email) {
       prerevisors.push(revision.reviewer.email);
     }
@@ -299,7 +332,8 @@ async function ReviewRejected(reviewRejected) {
   await authors.forEach(author => {
     if (
       author.email !== getCurrentParticipant().getIdentifier() &&
-      author.isReviewer && author.email !== reviewRejected.revision.article.author.getIdentifier()
+      author.isReviewer &&
+      author.email !== reviewRejected.revision.article.author.getIdentifier()
     ) {
       if (prerevisors.indexOf(author.email) > -1) {
       } else {
@@ -319,10 +353,19 @@ async function ReviewRejected(reviewRejected) {
     revisors[randRevisor].email
   );
   reviewRejected.revision.acc = false;
-  await request.post({ uri: 'http://172.17.0.1:1880/hello',
-  json: {"to" : reviewer.getIdentifier(),"topic":"DASP - You received a revision to evaluate",
-  "body":"Article Title:<br/>"+reviewRejected.revision.articleTitle+
-  "<br/>Article Tags:<br/>"+reviewRejected.revision.articleTags+"<br/>Access DASP to review this article."} });
+  await request.post({
+    uri: "http://172.17.0.1:1880/hello",
+    json: {
+      to: reviewer.getIdentifier(),
+      topic: "DASP - You received a revision to evaluate",
+      body:
+        "Article Title:<br/>" +
+        reviewRejected.revision.articleTitle +
+        "<br/>Article Tags:<br/>" +
+        reviewRejected.revision.articleTags +
+        "<br/>Access DASP to review this article."
+    }
+  });
   reviewRejected.revision.reviewer = reviewer;
   reviewRejected.revision.date = reviewRejected.timestamp;
   // Get the asset registry for the asset.
@@ -343,19 +386,19 @@ async function RateRevision(rateRevision) {
   rateRevision.revision.points = rateRevision.points;
   rateRevision.revision.complete = true;
   // If article reach x or more points
-    if (rateRevision.points == 2) {
-      rateRevision.revision.concept = 'Rejected';      
-    }else if(rateRevision.points == 4){
-      rateRevision.revision.concept = 'Weak Rejected';    
-    }else if(rateRevision.points == 6){
-      rateRevision.revision.concept = 'Border Line';   
-    }else if(rateRevision.points == 8){
-      rateRevision.revision.concept = 'Weak Accepted';    
-    }else if(rateRevision.points == 10){
-      rateRevision.revision.concept = 'Accepted';    
-    }
-    // Get the asset registry for the asset.
-    const authorRegistry = await getParticipantRegistry(AUTHOR);
+  if (rateRevision.points == 2) {
+    rateRevision.revision.concept = "Rejected";
+  } else if (rateRevision.points == 4) {
+    rateRevision.revision.concept = "Weak Rejected";
+  } else if (rateRevision.points == 6) {
+    rateRevision.revision.concept = "Border Line";
+  } else if (rateRevision.points == 8) {
+    rateRevision.revision.concept = "Weak Accepted";
+  } else if (rateRevision.points == 10) {
+    rateRevision.revision.concept = "Accepted";
+  }
+  // Get the asset registry for the asset.
+  const authorRegistry = await getParticipantRegistry(AUTHOR);
   // Get the asset registry for the asset.
   const revisionRegistry = await getAssetRegistry(REVISION);
   // Update the asset in the asset registry.
@@ -369,24 +412,44 @@ async function RateRevision(rateRevision) {
   // Update the asset in the asset registry.
   await articleRegistry.update(rateRevision.revision.article);
   if (rateRevision.revision.article.revCount >= 5) {
-    await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"DASP - Your article has been rated"} });
+    await request.post({
+      uri: "http://172.17.0.1:1880/hello",
+      json: {
+        to: rateRevision.revision.article.author.getIdentifier(),
+        topic: "DASP - Your article has been rated",
+        body:
+          "Article Title:<br/>" +
+          rateRevision.revision.article.title +
+          "<br/>Article Tags:<br/>" +
+          rateRevision.revision.article.tags +
+          "<br/>Access DASP to review this article."
+      }
+    });
     // Insert author concept
     if (rateRevision.revision.article.points <= 2) {
-      rateRevision.revision.article.concept = 'Rejected';      
-    }else if(rateRevision.revision.article.points <= 4){
-      rateRevision.revision.article.concept = 'Weak Rejected';    
-    }else if(rateRevision.revision.article.points <= 6){
-      rateRevision.revision.article.concept = 'Border Line';   
-    }else if(rateRevision.revision.article.points <= 8){
-      rateRevision.revision.article.concept = 'Weak Accepted';    
-    }else if(rateRevision.revision.article.points <= 10){
-      rateRevision.revision.article.concept = 'Accepted';    
+      rateRevision.revision.article.concept = "Rejected";
+    } else if (rateRevision.revision.article.points <= 4) {
+      rateRevision.revision.article.concept = "Weak Rejected";
+    } else if (rateRevision.revision.article.points <= 6) {
+      rateRevision.revision.article.concept = "Border Line";
+    } else if (rateRevision.revision.article.points <= 8) {
+      rateRevision.revision.article.concept = "Weak Accepted";
+    } else if (rateRevision.revision.article.points <= 10) {
+      rateRevision.revision.article.concept = "Accepted";
     }
     if (rateRevision.revision.article.points > 6) {
-      await request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : rateRevision.revision.article.author.getIdentifier(),"topic":"DASP - Congratulations, your article has been published! You are now a reviewer."} });
-      
+      await request.post({
+        uri: "http://172.17.0.1:1880/hello",
+        json: {
+          to: rateRevision.revision.article.author.getIdentifier(),
+          topic:
+            "DASP - Congratulations, your article has been published! You are now a reviewer."
+        }
+      });
+
       // Author turns in Reviewer
-      rateRevision.revision.article.author.points += rateRevision.revision.article.points;
+      rateRevision.revision.article.author.points +=
+        rateRevision.revision.article.points;
       // Publish the article
       rateRevision.revision.article.published = true;
       // Author turns in Reviewer
@@ -431,10 +494,10 @@ async function NewArticle(newArticle) {
   article.revisions = [];
 
   return getAssetRegistry(ARTICLE)
-    .then(function (articleRegistry) {
+    .then(function(articleRegistry) {
       return articleRegistry.add(article);
     })
-    .catch(function (error) {
+    .catch(function(error) {
       console.log(error);
       throw error;
     });
@@ -463,23 +526,27 @@ async function NewAuthor(newAuthor) {
   if (authors.length < 6) {
     author.isReviewer = true;
   }
-  author.details = details
-     return participantRegistry.add(author)    
-    .catch(function (error) {
+  author.details = details;
+  return participantRegistry
+    .add(author)
+    .catch(function(error) {
       console.log(error);
-      let err = error
+      let err = error;
       throw error;
-    }).then((err) => {
-      if(!err){
-         request.post({ uri: 'http://172.17.0.1:1880/hello', json: {"to" : newAuthor.email, "topic":"DASP - Account Created"} });
+    })
+    .then(err => {
+      if (!err) {
+        request.post({
+          uri: "http://172.17.0.1:1880/hello",
+          json: { to: newAuthor.email, topic: "DASP - Account Created" }
+        });
       }
-      return detailsRegistry.add(details)    
-      .catch(function (error) {
+      return detailsRegistry.add(details).catch(function(error) {
         console.log(error);
         throw error;
-      })
-    })
-      }
+      });
+    });
+}
 /**
  * Transaction for new Author, maybe not needed
  * @param {org.dasp.net.PublishRevision} publishRevision
@@ -504,11 +571,18 @@ async function ChangePassword(changePassword) {
   // Get the asset registry for the asset.
   let participantRegistry = await getAssetRegistry(DETAILS);
   // Update the asset in the asset registry.
-  await participantRegistry.update(changePassword.author).then(
-    await request.post({ uri: 'http://172.17.0.1:1880/hello',
-    json: {"to" : changePassword.user.email,
-    "topic":"DASP - Password Changed",
-    "body":"You Password has been changed!"} }));
+  await participantRegistry
+    .update(changePassword.author)
+    .then(
+      await request.post({
+        uri: "http://172.17.0.1:1880/hello",
+        json: {
+          to: changePassword.user.email,
+          topic: "DASP - Password Changed",
+          body: "You Password has been changed!"
+        }
+      })
+    );
 }
 /**
  * Transaction for new Author, maybe not needed
@@ -517,12 +591,17 @@ async function ChangePassword(changePassword) {
  */
 
 async function RecoverPassword(recoverPassword) {
-  await request.post({ uri: 'http://172.17.0.1:1880/hello',
-  json: {"to" : recoverPassword.author.id,
-  "topic":"DASP - Account Recovered",
-  "body":"You account has been recovered!<br/>Password: "
-  +recoverPassword.author.password+"<br/>Please change soon"}
-});
+  await request.post({
+    uri: "http://172.17.0.1:1880/hello",
+    json: {
+      to: recoverPassword.author.id,
+      topic: "DASP - Account Recovered",
+      body:
+        "You account has been recovered!<br/>Password: " +
+        recoverPassword.author.password +
+        "<br/>Please change soon"
+    }
+  });
 }
 
 /**
