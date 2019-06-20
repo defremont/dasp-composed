@@ -230,7 +230,7 @@
                             <button [disabled]="this.loading" *ngIf="
                                     currentdate.getTime() -
                                         resource.date.getTime() >
-                                        850000000 && !resource.complete
+                                        180000000 && !resource.complete
                                 " class="primary" type="button" (click)="reschedule(resource.getIdentifier())">
                                 Reschedule
                             </button>

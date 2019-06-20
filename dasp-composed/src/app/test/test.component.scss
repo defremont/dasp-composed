@@ -107,7 +107,20 @@ app-test {
             height: calc(100vh - 63px - 55px);
         }
     }
-
+    .notification-counter {
+        background-color: #c25050;
+        color: #fff;
+        border-radius: 3px;
+        padding: 4px 8px;
+        font-family: Roboto;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 8px;
+        text-align: center;
+        position: block;
+        min-width: 8px;
+        height: 8px;
+    }
     $skin: #c25050;
 
     html,
@@ -159,14 +172,14 @@ app-test {
                         transform: translateY(20px);
                         display: inline-block;
                         opacity: 0;
-                        animation: fadeup 0.5s 1.0s ease both;
+                        animation: fadeup 0.5s 1s ease both;
                     }
                     .load {
                         display: inline-block;
                         font-weight: 100;
                         transform: translateY(20px);
                         opacity: 0;
-                        animation: fadeup 1s 1.0s ease both;
+                        animation: fadeup 1s 1s ease both;
                     }
                 }
             }
@@ -321,7 +334,7 @@ app-test {
                             transform: scale(0);
                             position: relative;
                             &:before {
-                                content: "View";
+                                content: "Ok";
                                 position: absolute;
                                 top: 0;
                                 left: -5px;

@@ -70,6 +70,7 @@ export class RegistryComponent {
         { name: "Accepted", value: 10 }
     ];
     @Output() someEvent = new EventEmitter<string>();
+    @Output() loadCount = new EventEmitter<string>();
     showChangePassword: boolean = false;
     pass: any;
     validPass: boolean = false;
@@ -235,6 +236,7 @@ export class RegistryComponent {
         await businessNetworkConnection.submitTransaction(resource).then(() => {
             this.closeRateModal();
             this.loadResources();
+            this.loadCount.next();
             this.someEvent.next("reviewed");
             return (this.loading = false);
         });
@@ -269,6 +271,7 @@ export class RegistryComponent {
             revision: "resource:org.dasp.net.Revision#" + id
         });
         await businessNetworkConnection.submitTransaction(resource).then(() => {
+            this.loadCount.next();
             this.loadResources();
             return (this.loading = false);
         });

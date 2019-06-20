@@ -42,7 +42,7 @@
                     <h3>My Articles Revisions</h3>
                 </li>
                 <li *ngIf="isReviewer" [class.active]="chosenMenu === 'toReview'" (click)="setChosenMenu('toReview')">
-                    <h3>To Review</h3>
+                    <h3>To Review <span *ngIf="revCount > 0" class="notification-counter"> {{revCount}}</span> </h3>
                 </li>
                 <li *ngIf="isReviewer" [class.active]="chosenMenu === 'reviewed'" (click)="setChosenMenu('reviewed')">
                     <h3>Reviewed</h3>
@@ -83,7 +83,7 @@
         <h1>Revisions to Review</h1>
     </div>
     <div class="main-view-content">
-        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'review'" (someEvent)="setChosenMenu($event)"></registry>
+        <registry [registry]="chosenRegistry" [reload]="registryReload" [type]="'review'" (someEvent)="setChosenMenu($event)" (loadCount)="loadCount()"></registry>
     </div>
 
     <app-footer></app-footer>

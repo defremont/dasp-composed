@@ -58,7 +58,7 @@ async function newHash(NewHash) {
 async function Scheduler(scheduler) {
   let currentdate = new Date();
   if (
-    currentdate.getTime() - scheduler.revision.date.getTime() > 850000000 &&
+    currentdate.getTime() - scheduler.revision.date.getTime() > 180000000 &&
     !scheduler.revision.complete
   ) {
     let articleRegistry = await getAssetRegistry(ARTICLE);
@@ -571,18 +571,16 @@ async function ChangePassword(changePassword) {
   // Get the asset registry for the asset.
   let participantRegistry = await getAssetRegistry(DETAILS);
   // Update the asset in the asset registry.
-  await participantRegistry
-    .update(changePassword.author)
-    .then(
-      await request.post({
-        uri: "http://172.17.0.1:1880/hello",
-        json: {
-          to: changePassword.user.email,
-          topic: "DASP - Password Changed",
-          body: "You Password has been changed!"
-        }
-      })
-    );
+  await participantRegistry.update(changePassword.author).then(
+    await request.post({
+      uri: "http://172.17.0.1:1880/hello",
+      json: {
+        to: changePassword.user.email,
+        topic: "DASP - Password Changed",
+        body: "You Password has been changed!"
+      }
+    })
+  );
 }
 /**
  * Transaction for new Author, maybe not needed
