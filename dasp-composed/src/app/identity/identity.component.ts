@@ -40,7 +40,7 @@ const BusinessNetworkConnection = require("composer-client")
 var ipfsClient = require("ipfs-http-client");
 // connect to ipfs daemon API server
 // IPFS_IP
-var ipfs = ipfsClient("localhost", "5001", { protocol: "http" });
+var ipfs = ipfsClient("10.126.1.112", "5001", { protocol: "http" });
 @Component({
     selector: "identity",
     templateUrl: "./identity.component.html",
